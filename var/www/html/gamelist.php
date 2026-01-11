@@ -116,15 +116,20 @@ $ffbmode = file_get_contents('/sbin/piforce/ffbmode.txt');
 
 // Modern UI wrapper
 if ($ui_mode === 'modern') {
-    echo '<div class="sidebar-nav" id="sidebarNav">';
     echo '<button class="burger-menu" id="burgerBtn" onclick="toggleSidebar()" aria-label="Toggle menu"><span></span><span></span><span></span></button>';
-    echo '<nav><ul>';
-    echo '<li><a href="gamelist.php?display=all" class="active"><span>🎮</span> Games</a></li>';
-    echo '<li><a href="dimms.php"><span>💾</span> NetDIMMs</a></li>';
-    echo '<li><a href="setup.php"><span>⚙️</span> Setup</a></li>';
-    echo '<li><a href="menu.php"><span>📋</span> Options</a></li>';
-    echo '<li><a href="ui-mode-switcher.php"><span>🎨</span> UI Mode</a></li>';
-    echo '</ul></nav></div>';
+    echo '<div class="sidebar-nav" id="sidebarNav">';
+    echo '<nav>';
+    echo '<a href="gamelist.php?display=all" class="sidebar-nav-item active">';
+    echo '<span class="sidebar-nav-icon">🎮</span><span class="sidebar-nav-label">Games</span></a>';
+    echo '<a href="dimms.php" class="sidebar-nav-item">';
+    echo '<span class="sidebar-nav-icon">💾</span><span class="sidebar-nav-label">NetDIMMs</span></a>';
+    echo '<a href="setup.php" class="sidebar-nav-item">';
+    echo '<span class="sidebar-nav-icon">⚙️</span><span class="sidebar-nav-label">Setup</span></a>';
+    echo '<a href="menu.php" class="sidebar-nav-item">';
+    echo '<span class="sidebar-nav-icon">📋</span><span class="sidebar-nav-label">Options</span></a>';
+    echo '<a href="ui-mode-switcher.php" class="sidebar-nav-item">';
+    echo '<span class="sidebar-nav-icon">🎨</span><span class="sidebar-nav-label">UI Mode</span></a>';
+    echo '</nav></div>';
     echo '<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>';
     echo '<div class="main-content">';
 } else {
@@ -816,8 +821,10 @@ function topFunction() {
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebarNav');
   const overlay = document.getElementById('sidebarOverlay');
-  sidebar.classList.toggle('active');
-  overlay.classList.toggle('active');
+  const burger = document.getElementById('burgerBtn');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+  burger.classList.toggle('open');
 }
 
 // Search functionality

@@ -274,7 +274,9 @@ body.kiosk-mode section {
   box-shadow: var(--shadow-lg);
 }
 
-.burger-menu-line {
+/* Burger menu lines (spans) */
+.burger-menu span {
+  display: block;
   width: 24px;
   height: 3px;
   background-color: white;
@@ -282,15 +284,16 @@ body.kiosk-mode section {
   transition: all var(--transition-fast);
 }
 
-.burger-menu.open .burger-menu-line:nth-child(1) {
+/* Animate burger menu to X when open */
+.burger-menu.open span:nth-child(1) {
   transform: translateY(9px) rotate(45deg);
 }
 
-.burger-menu.open .burger-menu-line:nth-child(2) {
+.burger-menu.open span:nth-child(2) {
   opacity: 0;
 }
 
-.burger-menu.open .burger-menu-line:nth-child(3) {
+.burger-menu.open span:nth-child(3) {
   transform: translateY(-9px) rotate(-45deg);
 }
 
@@ -311,6 +314,19 @@ body.kiosk-mode section {
 .sidebar-overlay.show {
   opacity: 1;
   visibility: visible;
+}
+
+/* Main content area */
+.main-content {
+  padding-top: 72px; /* Space for burger menu */
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 64px;
+    padding-bottom: 100px; /* Space for bottom nav on mobile */
+  }
 }
 
 /* Bottom navigation bar for mobile only */
