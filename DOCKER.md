@@ -1,16 +1,146 @@
 # Docker Setup for WiPiNetbooter
 
-This Docker setup provides a development environment for WiPiNetbooter without requiring physical Raspberry Pi hardware.
+This Docker setup provides two main use cases:
+1. **Development environment** - Test web interface and scripts without hardware
+2. **Network netboot server** - Serve ROMs to arcade machines over the network (e.g., on Unraid)
 
-## ⚠️ Important Limitations
+## Use Cases
 
-This Docker environment is for **development and testing of the web interface and Python scripts only**. Actual netboot operations require:
-- Raspberry Pi 3B+/4B hardware
-- Sega arcade board with NetDIMM
-- USB-serial adapters for card emulation
-- GPIO pins for relay control
+### 1. Network Netboot Server (Unraid, NAS, Server)
 
-## Quick Start
+✅ **What Works:**
+- NetDIMM communication over TCP/IP (port 10703)
+- ROM uploading to arcade boards over network
+- NetDIMM scanning on local network
+- Web interface for game selection and management
+- Game launching to remote arcade machines
+- Centralized ROM storage and management
+
+❌ **What Doesn't Work:**
+- OpenJVS (USB-serial controller I/O)
+- OpenFFB (USB force feedback wheels)
+- Card reader emulation (USB-serial/NFC devices)
+- GPIO relay control
+- Local input device detection
+
+**Perfect for**: Running WiPiNetbooter on a server (Unraid, NAS, Docker host) that communicates with arcade machines on the same network.
+
+### 2. Development/Testing Environment
+
+✅ **What Works:**
+- Web interface testing and development
+- UI testing on different screen sizes
+- Python script syntax checking
+- PHP development
+- CSV/configuration management
+
+❌ **What Doesn't Work:**
+- Actual netboot operations (no arcade hardware)
+- USB device access
+- GPIO operations
+
+## Deployment as Network Netboot Server (Unraid/NAS)
+
+### Prerequisites
+- Unraid server or Docker host on same network as arcade machines
+- Network access to arcade NetDIMM boards (port 10703)
+- ROM files stored on the server
+
+### Option 1: Host Networking (Recommended)
+
+Use host networking for direct access to arcade machines:
+
+```yaml
+# docker-compose.yml for Unraid
+version: '3.8'
+services:
+  wipinetbooter:
+    build: .
+    container_name: wipinetbooter-netboot
+    network_mode: host
+    volumes:
+      - /mnt/user/roms:/boot/roms          # Your ROM storage
+      - ./var/www/html:/var/www/html       # Web interface
+      - ./sbin/piforce:/sbin/piforce       # Python scripts
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York                 # Set your timezone
+```
+
+### Option 2: Bridge Networking
+
+Use bridge mode with explicit port mapping:
+
+```yaml
+version: '3.8'
+services:
+  wipinetbooter:
+    build: .
+    container_name: wipinetbooter-netboot
+    ports:
+      - "80:80"           # Web interface
+      - "10703:10703"     # NetDIMM communication
+    volumes:
+      - /mnt/user/roms:/boot/roms
+      - ./var/www/html:/var/www/html
+    restart: unless-stopped
+```
+
+### Unraid Installation Steps
+
+```bash
+# SSH into Unraid
+ssh root@<unraid-ip>
+
+# Navigate to appdata directory
+cd /mnt/user/appdata
+
+# Create directory and clone repository
+mkdir -p wipinetbooter
+cd wipinetbooter
+git clone https://github.com/thegoodguys80/WiPiNetbooter.git .
+git checkout warp-dev
+
+# Create docker-compose.yml (use one of the configs above)
+nano docker-compose.yml
+
+# Build and start
+docker-compose up -d --build
+
+# Check logs
+docker-compose logs -f
+
+# Access web interface
+# http://<unraid-ip>:80/gamelist.php (host mode)
+# or http://<unraid-ip>/gamelist.php (bridge mode)
+```
+
+### ROM Management on Unraid
+
+```bash
+# ROMs should be in: /mnt/user/roms/
+# The container mounts this to: /boot/roms/
+
+# Example structure:
+# /mnt/user/roms/
+#   ├── mvsc2.bin.gz
+#   ├── ikaruga.bin.gz
+#   └── 18wheeler.bin.gz
+
+# Set permissions
+chmod -R 755 /mnt/user/roms
+```
+
+### Network Configuration
+
+Ensure arcade machines can reach the Docker host:
+
+1. **Find Docker host IP**: `ip addr show`
+2. **Configure NetDIMM** on arcade board to point to Docker host IP
+3. **Test connectivity**: From arcade machine, ping Docker host
+4. **Check port**: `netstat -tulpn | grep 10703`
+
+## Quick Start (Development)
 
 ### 1. Build and Run
 
