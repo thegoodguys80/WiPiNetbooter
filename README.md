@@ -1,5 +1,9 @@
 # WiPiNetbooter
 
+![Security Tests](https://github.com/thegoodguys80/WiPiNetbooter/actions/workflows/security-tests.yml/badge.svg?branch=warp-dev)
+[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Raspberry Pi based Netbooter for Sega Naomi/Chihiro/Triforce arcade boards
 
 ## 🎉 Version 2.0 - Security & Python 3 Release
@@ -108,11 +112,28 @@ See [DOCKER.md](DOCKER.md) for complete Docker setup instructions.
 
 Contributions are welcome! When contributing:
 
+#### Setup Pre-Commit Hooks
+
+Install pre-commit hooks to catch issues before committing:
+
+```bash
+./install-hooks.sh
+```
+
+This will automatically:
+- Check Python and PHP syntax
+- Validate security patterns
+- Run security tests
+- Check for secrets
+
+#### Guidelines
+
 1. Follow the security best practices in [SECURITY.md](SECURITY.md)
 2. Run the test suite before submitting
 3. Use Python 3.6+ for all Python code
 4. Use `escapeshellarg()` for all shell command parameters
 5. Validate and sanitize all user inputs
+6. Pre-commit hooks must pass before submitting PRs
 
 ## Documentation
 

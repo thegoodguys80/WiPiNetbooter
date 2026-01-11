@@ -1,0 +1,84 @@
+# Pre-commit hooks for WiPiNetbooter
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Python code quality
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        exclude: '\.csv$'
+      - id: check-added-large-files
+        args: ['--maxkb=10240']  # 10MB limit
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Python syntax validation
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-ast  # Check Python syntax
+
+  # Security checks
+  - repo: local
+    hooks:
+      - id: check-os-system
+        name: Check for unsafe os.system()
+        entry: bash -c 'if grep -r "os\.system(" sbin/piforce/*.py 2>/dev/null | grep -v "# SAFE:" | grep -v "#.*os\.system"; then echo "❌ Found unsafe os.system() calls"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: false
+        files: '\.py$'
+      
+      - id: check-escapeshellcmd
+        name: Check for escapeshellcmd
+        entry: bash -c 'if grep -r "escapeshellcmd" var/www/html/*.php 2>/dev/null; then echo "❌ Found escapeshellcmd() - use escapeshellarg() instead"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: false
+        files: '\.php$'
+      
+      - id: check-direct-user-input
+        name: Check for direct user input in shell_exec
+        entry: bash -c 'if grep -r "shell_exec.*\$_GET\|shell_exec.*\$_POST" var/www/html/*.php 2>/dev/null; then echo "❌ Found direct user input in shell_exec"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: false
+        files: '\.php$'
+
+  # PHP syntax validation
+  - repo: local
+    hooks:
+      - id: php-syntax
+        name: PHP Syntax Check
+        entry: php -l
+        language: system
+        files: '\.php$'
+
+  # Run tests before commit
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: Run security tests
+        entry: bash -c 'if [ -f tests/test_security_fixes.py ]; then python -m pytest tests/test_security_fixes.py -q; fi'
+        language: system
+        pass_filenames: false
+        always_run: false
+        stages: [commit]
+
+  # Prevent committing sensitive files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: detect-private-key
+      - id: forbid-new-submodules
+
+# Optional: faster hook execution
+default_stages: [commit]
+fail_fast: false
