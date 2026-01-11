@@ -53,7 +53,7 @@ if ($count == 1){
     header ("Location: $loadpage?rom=$filename&name=$gamename&dimm=$onlydimm&mapping=$mapping&ffb=$ffb");
 }
 
-include 'menu.php';
+include 'menu_include.php';
 echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
 echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
 echo '<section><center>';

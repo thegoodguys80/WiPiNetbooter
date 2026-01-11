@@ -1,6 +1,6 @@
 <?php
 
-include 'menu.php';
+include 'menu_include.php';
 include 'btlist.php';
 echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
 echo '<link rel="stylesheet" href="css/sidebarstyles.css">';

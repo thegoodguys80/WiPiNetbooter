@@ -97,7 +97,7 @@ if ($ui_mode === 'modern') {
     echo '<meta name="description" content="Responsive Header Nav">';
     echo '<meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1">';
     echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
-    include 'menu.php';
+    include 'menu_include.php';
     echo '<section><center><p>';
     if ($mode == 'main'){
         echo '<h1><a href="setup.php">Card Data Management</a></h1>';}

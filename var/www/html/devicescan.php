@@ -2,7 +2,7 @@
 // SECURITY: Static command with no user input
 $command = 'sudo python /sbin/piforce/devicelist.py';
 shell_exec($command);
-include 'menu.php';
+include 'menu_include.php';
 include 'devicelist.php';
 echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
 echo '<link rel="stylesheet" href="css/sidebarstyles.css">';

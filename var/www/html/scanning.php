@@ -5,7 +5,7 @@ $ui_mode = get_ui_mode();
 header("Refresh: 4; url=wifi.php");
 
 if ($ui_mode !== 'modern') {
-    include 'menu.php';
+    include 'menu_include.php';
 }
 
 // SECURITY: Static command with no user input

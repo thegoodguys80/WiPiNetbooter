@@ -3,7 +3,7 @@ include 'ui_mode.php';
 $ui_mode = get_ui_mode();
 
 if ($ui_mode !== 'modern') {
-    include 'menu.php';
+    include 'menu_include.php';
 }
 
 $path = '/boot/roms/';

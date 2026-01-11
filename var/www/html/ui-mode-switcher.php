@@ -24,7 +24,7 @@ $success = isset($_GET['success']);
 <body<?php if ($current_mode === 'modern') echo ' class="kiosk-mode"'; ?>>
 
 <?php if ($current_mode === 'classic'): ?>
-    <?php include 'menu.php'; ?>
+    <?php include 'menu_include.php'; ?>
 <?php endif; ?>
 
 <section><center>

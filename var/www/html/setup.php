@@ -4,7 +4,7 @@ include 'ui_mode.php';
 $ui_mode = get_ui_mode();
 
 if ($ui_mode === 'classic') {
-    include 'menu.php';
+    include 'menu_include.php';
 }
 
 $openjvsmode = file_get_contents('/sbin/piforce/openmode.txt');

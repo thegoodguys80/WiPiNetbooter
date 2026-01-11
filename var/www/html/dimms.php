@@ -13,7 +13,7 @@ load_ui_styles();
 
 // Only include old menu for classic UI
 if ($ui_mode === 'classic') {
-    include 'menu.php';
+    include 'menu_include.php';
 }
 
 function pinger($address){
