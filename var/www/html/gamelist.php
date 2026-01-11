@@ -123,7 +123,15 @@ if ($ui_mode === 'modern') {
     
     // Game grid - optimized for touchscreens
     echo '<div id="gameGrid" class="game-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;">';
-    echo '<style>@media (max-width: 1024px) { #gameGrid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important; gap: 24px !important; } }</style>';
+    echo '<style>';
+    echo '@media (max-width: 1024px) { ';
+    echo '  #gameGrid { grid-template-columns: 1fr !important; gap: 16px !important; max-width: 100% !important; } ';
+    echo '  .game-card { max-width: 100% !important; } ';
+    echo '  .game-card-img-box { height: 180px !important; font-size: 54px !important; } ';
+    echo '  .game-card-content { padding: 12px 16px !important; } ';
+    echo '  .game-card-title { font-size: 16px !important; margin: 0 0 8px 0 !important; } ';
+    echo '}';
+    echo '</style>';
     
     foreach ($sample_games as $game) {
         $system = $game[0];
@@ -149,7 +157,7 @@ if ($ui_mode === 'modern') {
         $fallback_color = adjustBrightness($color, -20);
         
         // Container with placeholder background
-        echo '<div style="position: relative; width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.$fallback_color.' 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px; overflow: hidden;">';
+        echo '<div class="game-card-img-box" style="position: relative; width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.$fallback_color.' 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px; overflow: hidden;">';
         
         // Show letter
         echo '<span style="position: absolute; z-index: 1;">'.$initial.'</span>';
