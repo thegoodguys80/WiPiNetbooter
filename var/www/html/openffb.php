@@ -71,6 +71,7 @@ if ($ui_mode === 'modern') {
     echo '  burger.classList.toggle("open");';
     echo '}';
     echo '</script>';
+    echo '</body></html>';
 } else {
     echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
     echo '<link rel="stylesheet" href="css/sidebarstyles.css">';

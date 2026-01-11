@@ -186,6 +186,7 @@ if ($ui_mode === 'modern') {
     echo '  burger.classList.toggle("open");';
     echo '}';
     echo '</script>';
+    echo '</body></html>';
 } else {
     // Classic UI - Table
     for ($i = 2; $i < count($devicefiles); $i++) {

@@ -89,6 +89,7 @@ if ($ui_mode === 'modern') {
     echo '  burger.classList.toggle("open");';
     echo '}';
     echo '</script>';
+    echo '</body></html>';
 } else {
     echo '</table>';
     echo '<br><a href="devicescan.php">Return to Device Scan</a>';
