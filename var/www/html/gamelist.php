@@ -127,16 +127,16 @@ if ($ui_mode === 'modern') {
     echo '@media (max-width: 1024px) { ';
     // Game grid and cards - very compact with snap scrolling
     echo '  #gameGrid { grid-template-columns: 1fr !important; gap: 0px !important; max-width: 100% !important; scroll-snap-type: y mandatory !important; overflow-y: auto !important; } ';
-    echo '  .game-card { max-width: 100% !important; scroll-snap-align: start !important; margin-bottom: 8px !important; } ';
-    echo '  .game-card-image-container { margin-bottom: 0 !important; } ';
-    echo '  .game-card-img-box { height: 120px !important; font-size: 42px !important; } ';
-    echo '  .game-card-content { padding: 6px 12px !important; } ';
-    echo '  .game-card-title { font-size: 14px !important; margin: 0 0 4px 0 !important; line-height: 1.2 !important; } ';
-    echo '  .game-card-system-badge { font-size: 11px !important; padding: 3px 8px !important; } ';
-    echo '  .game-card-content > div:nth-child(2) { margin-top: 0 !important; } ';
-    echo '  .game-card-content > div:nth-child(2) > span { margin-top: 0 !important; } ';
-    echo '  .game-card-content > div:nth-child(3) { margin-top: 3px !important; font-size: 11px !important; } ';
-    echo '  .game-card-content a.btn { margin-top: 6px !important; padding: 10px 12px !important; font-size: 14px !important; } ';
+    echo '  .game-card { max-width: 100% !important; scroll-snap-align: start !important; margin-bottom: 6px !important; } ';
+    echo '  .game-card-image-container { margin-bottom: 0 !important; padding: 0 !important; } ';
+    echo '  .game-card-img-box { height: 120px !important; font-size: 42px !important; margin: 0 !important; } ';
+    echo '  .game-card-content { padding: 4px 10px 6px 10px !important; } ';
+    echo '  .game-card-title { font-size: 14px !important; margin: 0 0 3px 0 !important; line-height: 1.1 !important; } ';
+    echo '  .game-card-system-badge { font-size: 11px !important; padding: 2px 6px !important; } ';
+    echo '  .game-card-content > div:nth-child(2) { margin-top: 0 !important; gap: 6px !important; } ';
+    echo '  .game-card-content > div:nth-child(2) > span { margin: 0 !important; } ';
+    echo '  .game-card-content > div:nth-child(3) { margin-top: 2px !important; font-size: 10px !important; } ';
+    echo '  .game-card-content a.btn { margin-top: 4px !important; padding: 9px 10px !important; font-size: 14px !important; } ';
     // Modal optimizations
     echo '  #gameInfoModal > div { padding: 16px !important; max-width: 95% !important; max-height: 90vh !important; overflow-y: auto !important; } ';
     echo '  #modalImage { max-width: 100% !important; max-height: 120px !important; } ';
