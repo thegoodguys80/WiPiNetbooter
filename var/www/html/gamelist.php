@@ -92,7 +92,10 @@ echo '<meta name="viewport" content="width=device-width; initial-scale=1; maximu
 // Load CSS based on UI mode
 load_ui_styles();
 
-include 'menu.php';
+// Only include old menu for classic UI
+if ($ui_mode === 'classic') {
+    include 'menu.php';
+}
 
 ?>
 
