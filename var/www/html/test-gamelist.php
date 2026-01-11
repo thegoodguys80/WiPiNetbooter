@@ -191,7 +191,7 @@ if ($ui_mode === 'modern') {
         echo '</div>';
         
         // Launch button at bottom of card
-        echo '<a href="#" onclick="alert(\'Launch: '.$title.'\'); return false;" class="btn btn-primary" style="display: block; width: 100%; margin-top: 12px; padding: 8px 16px; text-align: center; text-decoration: none;">🚀 Launch</a>';
+        echo '<a href="#" onclick="alert(\'Launch: '.$title.'\'); return false;" class="btn btn-primary" style="display: block; width: 100%; margin-top: 12px; padding: 8px 16px; text-align: center; text-decoration: none;">Launch</a>';
         
         echo '</div>';
         echo '</div>';
