@@ -218,6 +218,7 @@ while (($row = fgetcsv($f)) !== false) {
 if ($ui_mode === 'modern') {
     echo '</div>'; // Close grid
 }
+} // Close else block from line 130
 fclose($f);
 ?>
 
