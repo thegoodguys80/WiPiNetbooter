@@ -175,7 +175,8 @@ if ($ui_mode === 'modern') {
             'genre' => $genre,
             'manufacturer' => $manufacturer,
             'year' => $year,
-            'filename' => $filename
+            'filename' => $filename,
+            'image' => $image_path
         ]);
         echo '<button class="game-card-info" onclick="showGameInfo('.htmlspecialchars($info_data, ENT_QUOTES).'); event.preventDefault();" title="Game Information" style="position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 2px solid #4a9eff; color: #4a9eff; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s;" onmouseover="this.style.background=\'#4a9eff\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'rgba(0,0,0,0.7)\'; this.style.color=\'#4a9eff\';">i</button>';
         
@@ -203,8 +204,14 @@ if ($ui_mode === 'modern') {
     
     // Game info modal
     echo '<div id="gameInfoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;" onclick="closeGameInfo()">';
-    echo '<div style="background: #1a1a1a; border-radius: 12px; padding: 32px; max-width: 500px; width: 90%; border: 2px solid #4a9eff; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" onclick="event.stopPropagation();">';
+    echo '<div style="background: #1a1a1a; border-radius: 12px; padding: 32px; max-width: 600px; width: 90%; border: 2px solid #4a9eff; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" onclick="event.stopPropagation();">';
     echo '<h2 id="modalTitle" style="margin: 0 0 24px 0; color: #4a9eff; font-size: 24px;"></h2>';
+    
+    // Image container
+    echo '<div style="margin-bottom: 24px; text-align: center;">';
+    echo '<img id="modalImage" src="" alt="Game Screenshot" style="max-width: 100%; max-height: 300px; border-radius: 8px; background: #0a0a0a; padding: 8px;">';
+    echo '</div>';
+    
     echo '<div style="display: grid; gap: 16px;">';
     echo '<div><strong style="color: #aaa;">System:</strong> <span id="modalSystem" style="color: #fff;"></span></div>';
     echo '<div><strong style="color: #aaa;">Genre:</strong> <span id="modalGenre" style="color: #fff;"></span></div>';
@@ -224,7 +231,7 @@ if ($ui_mode === 'modern') {
     echo 'function filterBySystem(s){activeSystemFilter=s;applyFilters();}';
     echo 'function filterByGenre(g){activeGenreFilter=g;applyFilters();}';
     echo 'function resetFilters(){activeSystemFilter="all";activeGenreFilter="all";searchQuery="";document.getElementById("systemFilter").value="all";document.getElementById("genreFilter").value="all";document.getElementById("searchInput").value="";applyFilters();}';
-    echo 'function showGameInfo(data){document.getElementById("modalTitle").textContent=data.title;document.getElementById("modalSystem").textContent=data.system;document.getElementById("modalGenre").textContent=data.genre;document.getElementById("modalManufacturer").textContent=data.manufacturer;document.getElementById("modalYear").textContent=data.year;document.getElementById("modalFilename").textContent=data.filename;document.getElementById("gameInfoModal").style.display="flex";}';
+    echo 'function showGameInfo(data){document.getElementById("modalTitle").textContent=data.title;document.getElementById("modalSystem").textContent=data.system;document.getElementById("modalGenre").textContent=data.genre;document.getElementById("modalManufacturer").textContent=data.manufacturer;document.getElementById("modalYear").textContent=data.year;document.getElementById("modalFilename").textContent=data.filename;const img=document.getElementById("modalImage");const imgContainer=img.parentElement;if(data.image){img.src=data.image;img.onerror=function(){imgContainer.style.display="none";};img.onload=function(){imgContainer.style.display="block";};imgContainer.style.display="block";}else{imgContainer.style.display="none";}document.getElementById("gameInfoModal").style.display="flex";}';
     echo 'function closeGameInfo(){document.getElementById("gameInfoModal").style.display="none";}';
     echo '</script>';
     
