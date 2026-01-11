@@ -125,11 +125,30 @@ if ($ui_mode === 'modern') {
     echo '<div id="gameGrid" class="game-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;">';
     echo '<style>';
     echo '@media (max-width: 1024px) { ';
+    // Game grid and cards
     echo '  #gameGrid { grid-template-columns: 1fr !important; gap: 16px !important; max-width: 100% !important; } ';
     echo '  .game-card { max-width: 100% !important; } ';
     echo '  .game-card-img-box { height: 180px !important; font-size: 54px !important; } ';
     echo '  .game-card-content { padding: 12px 16px !important; } ';
-    echo '  .game-card-title { font-size: 16px !important; margin: 0 0 8px 0 !important; } ';
+    echo '  .game-card-title { font-size: 16px !important; margin: 0 0 8px 0 !important; line-height: 1.3 !important; } ';
+    echo '  .game-card-system-badge { font-size: 12px !important; padding: 5px 10px !important; } ';
+    // Modal optimizations
+    echo '  #gameInfoModal > div { padding: 16px !important; max-width: 95% !important; max-height: 90vh !important; overflow-y: auto !important; } ';
+    echo '  #modalImage { max-width: 100% !important; max-height: 120px !important; } ';
+    echo '  #gameInfoModal > div > div:first-child { margin-bottom: 16px !important; } ';
+    echo '  #gameInfoModal > div > div:nth-child(2) { grid-template-columns: 1fr !important; gap: 12px !important; } ';
+    echo '  #modalScreenshot { max-height: 180px !important; } ';
+    echo '  #modalVideo { max-height: 220px !important; } ';
+    echo '  #modalVideoContainer { margin-bottom: 16px !important; } ';
+    echo '  #modalVideoContainer > div:first-child { font-size: 13px !important; margin-bottom: 8px !important; } ';
+    echo '  #modalLaunchBtn, #gameInfoModal button { min-height: 52px !important; font-size: 17px !important; } ';
+    // Hide/minimize less critical elements on small screens
+    echo '  .grid.grid-cols-4 { display: none !important; } ';
+    echo '  h1.text-3xl { font-size: 20px !important; } ';
+    echo '  #searchInput { max-width: 200px !important; font-size: 14px !important; padding: 8px 12px !important; } ';
+    echo '  .flex.form-select { min-width: 140px !important; font-size: 14px !important; padding: 6px 10px !important; } ';
+    echo '  .btn.btn-secondary { padding: 6px 12px !important; font-size: 14px !important; } ';
+    echo '  .container { padding: 12px !important; } ';
     echo '}';
     echo '</style>';
     
