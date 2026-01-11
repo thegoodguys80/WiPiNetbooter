@@ -1,130 +1,54 @@
 <?php
-
-// Load UI mode helper
-include_once 'ui_mode.php';
+// Game list page with modern UI
+include 'ui_mode.php';
 $ui_mode = get_ui_mode();
 
-// Helper function to render game card (both Modern and Classic UI)
-function render_game_card($row, $ui_mode, $menumode, $filtertype = null, $value = null, $display = null) {
-    $system = $row[0];
-    $filename = $row[1];
-    $image = $row[2];
-    $gamename = $row[4];
-    $mapping = $row[14];
-    $ffb = $row[15];
-    $fave = $row[13];
-    
-    if ($ui_mode === 'modern') {
-        // Modern UI: Game card
-        echo '<div class="game-card" data-name="'.strtolower($gamename).'" data-system="'.strtolower($system).'">';
-        echo '<div class="game-card-image-container">';
-        
-        if ($menumode == 'advanced'){
-            if ($filtertype != null) {
-                echo '<a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'">';
-            } elseif ($display != null) {
-                echo '<a href="gamelist.php?filename='.$filename.'&display='.$display.'">';
-            } else {
-                echo '<a href="gamelist.php?filename='.$filename.'">';
-            }
-        } else {
-            echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">';
+// Load all games from CSV
+$sample_games = [];
+if (file_exists('csv/romsinfo.csv')) {
+    $f = fopen('csv/romsinfo.csv', 'r');
+    $headers = fgetcsv($f); // Skip header row
+    while (($row = fgetcsv($f)) !== false) {
+        // Only include enabled games
+        if (isset($row[12]) && $row[12] === 'Yes') {
+            $sample_games[] = [
+                $row[0],  // 0: system
+                $row[1],  // 1: romname
+                $row[2],  // 2: image
+                $row[3],  // 3: video
+                $row[4],  // 4: description (title)
+                $row[6],  // 5: manufacturer
+                $row[7],  // 6: year
+                $row[8],  // 7: genre
+                $row[13], // 8: favourite
+                $row[14], // 9: openjvs (mapping)
+                $row[15], // 10: openffb (ffb)
+            ];
         }
-        
-        echo '<img src="images/'.$image.'" alt="'.$gamename.'" class="game-card-image" loading="lazy">';
-        echo '</a>';
-        
-        if ($fave == "Yes"){
-            echo '<button class="game-card-favorite active" title="Remove from favorites">⭐</button>';
-        }
-        
-        echo '<div class="game-card-overlay">';
-        if ($menumode == 'advanced'){
-            if ($filtertype != null) {
-                echo '<a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'" class="btn btn-primary btn-sm">Details</a>';
-            } elseif ($display != null) {
-                echo '<a href="gamelist.php?filename='.$filename.'&display='.$display.'" class="btn btn-primary btn-sm">Details</a>';
-            } else {
-                echo '<a href="gamelist.php?filename='.$filename.'" class="btn btn-primary btn-sm">Details</a>';
-            }
-        } else {
-            echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'" class="btn btn-primary btn-sm">Launch</a>';
-        }
-        echo '</div>';
-        
-        echo '</div>';
-        echo '<div class="game-card-content">';
-        echo '<h3 class="game-card-title">'.$gamename.'</h3>';
-        echo '<span class="game-card-system-badge '.strtolower($system).'">'.$system.'</span>';
-        echo '</div>';
-        echo '</div>';
-    } else {
-        // Classic UI
-        echo '<div class="box1">';
-        echo '<a id="anchor'.$gamename.'" class="anchors"></a>';
-        if ($menumode == 'advanced'){
-            if ($filtertype != null) {
-                echo '<a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'"><img src="images/'.$image.'"></a></br></br>';
-                if ($fave == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                else {echo '<b><a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b></br>';}
-            } elseif ($display != null) {
-                echo '<a href="gamelist.php?filename='.$filename.'&display='.$display.'"><img src="images/'.$image.'"></a></br></br>';
-                if ($fave == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$filename.'&display='.$display.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                else {echo '<b><a href="gamelist.php?filename='.$filename.'&display='.$display.'">'.$gamename.'</a></b></br>';}
-            } else {
-                echo '<a href="gamelist.php?filename='.$filename.'"><img src="images/'.$image.'"></a></br></br>';
-                if ($fave == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$filename.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div>';}
-                else {echo '<b><a href="gamelist.php?filename='.$filename.'">'.$gamename.'</a></b><br>';}
-            }
-        } else {
-            echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
-            if ($fave == "Yes"){echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br></br>';}
-            else {echo '<b><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a><br>';}
-        }
-        echo '</div><br>';
     }
+    fclose($f);
+} else {
+    // Fallback sample data if CSV doesn't exist
+    $sample_games = [
+        ['Sega Naomi', '18wheeler.bin.gz', '18wheelr.png', '18wheelr.mp4', '18 Wheeler Deluxe', 'Sega', '2000', 'Driving', 'Yes', '18-wheeler', 'generic-driving'],
+        ['Sega Naomi', 'mvsc2.bin.gz', 'mvsc2.png', 'mvsc2.mp4', 'Marvel vs Capcom 2', 'Capcom', '2000', 'Fighter', 'Yes', 'generic-4-button', 'none'],
+        ['Sega Naomi', 'ikaruga.bin.gz', 'ikaruga.png', 'ikaruga.mp4', 'Ikaruga', 'Treasure', '2001', 'Shooter', 'No', 'generic-analogue', 'none'],
+    ];
 }
 
-echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
-echo '<meta name="description" content="Responsive Header Nav">';
-echo '<meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1">';
-
-// Load CSS based on UI mode
+echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter - Game Library</title>';
+echo '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">';
 load_ui_styles();
+echo '</head><body>';
 
-// Only include old menu for classic UI
-if ($ui_mode === 'classic') {
-    include 'menu_include.php';
-}
-
-?>
-
-<!DOCTYPE html>
-<html>
-<body>
-
-<?php
-
-$display = isset($_GET['display']) ? $_GET['display'] : null;
-$filtertype = isset($_GET['filter']) ? $_GET['filter'] : null;
-$value = isset($_GET['value']) ? $_GET['value'] : null;
-$filename = isset($_GET['filename']) ? $_GET['filename'] : null;
-$csvfile = 'csv/romsinfo.csv';
-$path = '/boot/roms';
-$menumode = file_get_contents('/sbin/piforce/menumode.txt');
-$openmode = file_get_contents('/sbin/piforce/openmode.txt');
-$soundmode = file_get_contents('/sbin/piforce/soundmode.txt');
-$navmode = file_get_contents('/sbin/piforce/navmode.txt');
-$ffbmode = file_get_contents('/sbin/piforce/ffbmode.txt');
-
-// Modern UI wrapper
 if ($ui_mode === 'modern') {
+    // Modern UI
     echo '<button class="burger-menu" id="burgerBtn" onclick="toggleSidebar()" aria-label="Toggle menu"><span></span><span></span><span></span></button>';
     echo '<div class="sidebar-nav" id="sidebarNav">';
     echo '<nav>';
     echo '<a href="menu.php" class="sidebar-nav-item">';
     echo '<span class="sidebar-nav-icon">📊</span><span class="sidebar-nav-label">Dashboard</span></a>';
-    echo '<a href="gamelist.php?display=all" class="sidebar-nav-item active">';
+    echo '<a href="gamelist.php" class="sidebar-nav-item active">';
     echo '<span class="sidebar-nav-icon">🎮</span><span class="sidebar-nav-label">Games</span></a>';
     echo '<a href="dimms.php" class="sidebar-nav-item">';
     echo '<span class="sidebar-nav-icon">💾</span><span class="sidebar-nav-label">NetDIMMs</span></a>';
@@ -135,760 +59,235 @@ if ($ui_mode === 'modern') {
     echo '</nav></div>';
     echo '<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>';
     echo '<div class="main-content">';
-} else {
-    echo '<section><center>';
-    echo '<div>';
-}
-
-if ($navmode == "navon"){
-echo '<button onclick="topFunction()" id="rtnBtn" title="Go to top"><img src="img/rtn.png" /></button>';
-}
-
-if ($display == 'all'){
-
-if ($ui_mode === 'modern') {
-    // Modern UI: Search bar and filter chips
+    
     echo '<div class="container" style="padding: 20px;">';
     echo '<div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 24px;">';
-    echo '<h1 class="text-3xl" style="margin: 0;">Game Library</h1>';
+    echo '<h1 class="text-3xl" style="margin: 0;">🎮 Game Library</h1>';
     echo '<input type="text" id="searchInput" class="form-input" placeholder="🔍 Search games..." style="max-width: 300px;" oninput="filterGames()">';
     echo '</div>';
     
-    echo '<div class="flex" style="gap: 8px; flex-wrap: wrap; margin-bottom: 24px;">';
-    echo '<div class="dropdown" style="position: relative;">';
-    echo '<button onclick="SystemFunction()" class="btn btn-secondary">System ▾</button>';
-    echo '<div id="SystemDropdown" class="dropdown-content">';
-    $unique_ids = array();
-    $f = fopen('csv/romsinfo.csv', 'r');
-    $headers = ($row = fgetcsv($f));
-    while ($row = fgetcsv($f)) {
-        $unique_ids[$row[0]] = true;
-    }
-    ksort($unique_ids);
-    $categories = array_keys($unique_ids);
-    foreach($categories as $category => $value) {
-        echo '<a href="/gamelist.php?filter=system&value='.$value.'">'.$value.'</a>';
-    }
-    fclose($f);
+    
+    // Stats bar
+    echo '<div class="grid grid-cols-4" style="margin-bottom: 32px; gap: 16px;">';
+    echo '<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">';
+    echo '<div class="card-body" style="text-align: center;">';
+    echo '<div style="font-size: 32px; font-weight: bold; margin-bottom: 4px;">'.count($sample_games).'</div>';
+    echo '<div style="font-size: 14px; opacity: 0.9;">Total Games</div>';
     echo '</div></div>';
     
-    echo '<div class="dropdown" style="position: relative;">';
-    echo '<button onclick="GenreFunction()" class="btn btn-secondary">Genre ▾</button>';
-    echo '<div id="GenreDropdown" class="dropdown-content">';
-    $unique_ids = array();
-    $f = fopen('csv/romsinfo.csv', 'r');
-    $headers = ($row = fgetcsv($f));
-    while ($row = fgetcsv($f)) {
-        $unique_ids[$row[8]] = true;
-    }
-    ksort($unique_ids);
-    $categories = array_keys($unique_ids);
-    foreach($categories as $category => $value) {
-        echo '<a href="/gamelist.php?filter=genre&value='.$value.'">'.$value.'</a>';
-    }
-    fclose($f);
+    $faves = count(array_filter($sample_games, function($g) { return $g[8] === 'Yes'; }));
+    echo '<div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none;">';
+    echo '<div class="card-body" style="text-align: center;">';
+    echo '<div style="font-size: 32px; font-weight: bold; margin-bottom: 4px;">⭐ '.$faves.'</div>';
+    echo '<div style="font-size: 14px; opacity: 0.9;">Favourites</div>';
     echo '</div></div>';
     
-    echo '<div class="dropdown" style="position: relative;">';
-    echo '<button onclick="OrientationFunction()" class="btn btn-secondary">Orientation ▾</button>';
-    echo '<div id="OrientationDropdown" class="dropdown-content">';
-    $unique_ids = array();
-    $f = fopen('csv/romsinfo.csv', 'r');
-    $headers = ($row = fgetcsv($f));
-    while ($row = fgetcsv($f)) {
-        $unique_ids[$row[10]] = true;
-    }
-    ksort($unique_ids);
-    $categories = array_keys($unique_ids);
-    foreach($categories as $category => $value) {
-        echo '<a href="/gamelist.php?filter=orientation&value='.$value.'">'.$value.'</a>';
-    }
-    fclose($f);
+    $systems = array_unique(array_column($sample_games, 0));
+    echo '<div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none;">';
+    echo '<div class="card-body" style="text-align: center;">';
+    echo '<div style="font-size: 32px; font-weight: bold; margin-bottom: 4px;">'.count($systems).'</div>';
+    echo '<div style="font-size: 14px; opacity: 0.9;">Systems</div>';
     echo '</div></div>';
     
-    echo '<div class="dropdown" style="position: relative;">';
-    echo '<button onclick="ControlFunction()" class="btn btn-secondary">Controls ▾</button>';
-    echo '<div id="ControlDropdown" class="dropdown-content">';
-    $unique_ids = array();
-    $f = fopen('csv/romsinfo.csv', 'r');
-    $headers = ($row = fgetcsv($f));
-    while ($row = fgetcsv($f)) {
-        $unique_ids[$row[11]] = true;
-    }
-    ksort($unique_ids);
-    $categories = array_keys($unique_ids);
-    foreach($categories as $category => $value) {
-        echo '<a href="/gamelist.php?filter=controls&value='.$value.'">'.$value.'</a>';
-    }
-    fclose($f);
+    $genres = array_unique(array_column($sample_games, 7));
+    echo '<div class="card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border: none;">';
+    echo '<div class="card-body" style="text-align: center;">';
+    echo '<div style="font-size: 32px; font-weight: bold; margin-bottom: 4px;">'.count($genres).'</div>';
+    echo '<div style="font-size: 14px; opacity: 0.9;">Genres</div>';
     echo '</div></div>';
-    
-    echo '<a href="gamelist.php?display=faves" class="btn btn-secondary">⭐ Favorites</a>';
     echo '</div>';
     
-    // Alphabet navigation for modern UI - Sticky
-    echo '<div id="alphabetNav" class="alphabet-nav" style="position: sticky; top: 72px; z-index: 100; background: var(--color-background); padding: 16px 0; margin-bottom: 24px; border-bottom: 2px solid var(--color-border); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">';
-    echo '<div class="flex" style="gap: 4px; flex-wrap: wrap; font-size: 14px; justify-content: center;">';
-    $files = array_values(array_diff(scandir($path), array('.', '..')));
-    $games_array = array();
-    $f = fopen('csv/romsinfo.csv', 'r');
-    while (($row = fgetcsv($f)) !== false) {
-        foreach ($row as $cell) {
-            if ((in_array($row[1], $files)) and ($row[12] == "Yes")){
-                $games_array[strtoupper(substr($row[4],0,1))] = true;
-            }
-        }
-    }
-    $alphabetUpper = range('A', 'Z');
-    $letters = array_keys($games_array);
-    foreach($alphabetUpper as $letter => $value) {
-        if (in_array($value, $letters)){
-            echo '<a href="#anchor'.$value.'" class="alphabet-link badge badge-primary" data-letter="'.$value.'" style="cursor: pointer; text-decoration: none; transition: all 0.2s;">'.$value.'</a>';
-        } else {
-            echo '<span class="badge" style="opacity: 0.3;">'.$value.'</span>';
-        }
-    }
-    fclose($f);
-    echo '</div></div>';
+    // Filter dropdowns
+    echo '<div class="flex" style="gap: 12px; flex-wrap: wrap; margin-bottom: 24px; align-items: center;">';
+    echo '<label style="color: #aaa; font-weight: 600;">Filter by:</label>';
     
-    echo '<div class="grid grid-cols-4" id="gameGrid">';
-} else {
-    // Classic UI
-?>
-
-<div class="dropdown">
-  <button onclick="SystemFunction()" class="dropbtn">System</button>
-  <div id="SystemDropdown" class="dropdown-content">
-
-<?php
-$unique_ids = array();
-$f = fopen('csv/romsinfo.csv', 'r');
-$headers = ($row = fgetcsv($f));
-while ($row = fgetcsv($f)) {
-    $unique_ids[$row[0]] = true;
-}
-ksort($unique_ids);
-$categories = array_keys($unique_ids);
- foreach($categories as $category => $value) 
-  { 
-    echo '<a href="/gamelist.php?filter=system&value='.$value.'">'.$value.'</a>';
-  }
-fclose($f);
-?>
- </div>
-</div>
-
-<div class="dropdown">
-  <button onclick="GenreFunction()" class="dropbtn">Genre</button>
-  <div id="GenreDropdown" class="dropdown-content">
-
-<?php
-$unique_ids = array();
-$f = fopen('csv/romsinfo.csv', 'r');
-$headers = ($row = fgetcsv($f));
-while ($row = fgetcsv($f)) {
-    $unique_ids[$row[8]] = true;
-}
-ksort($unique_ids);
-$categories = array_keys($unique_ids);
- foreach($categories as $category => $value) 
-  { 
-    echo '<a href="/gamelist.php?filter=genre&value='.$value.'">'.$value.'</a>';
-  }
-fclose($f);
-?>
-
- </div>
-</div>
-
-<div class="dropdown">
-  <button onclick="OrientationFunction()" class="dropbtn">Orientation</button>
-  <div id="OrientationDropdown" class="dropdown-content">
-
-<?php
-$unique_ids = array();
-$f = fopen('csv/romsinfo.csv', 'r');
-$headers = ($row = fgetcsv($f));
-while ($row = fgetcsv($f)) {
-    $unique_ids[$row[10]] = true;
-}
-ksort($unique_ids);
-$categories = array_keys($unique_ids);
- foreach($categories as $category => $value) 
-  { 
-    echo '<a href="/gamelist.php?filter=orientation&value='.$value.'">'.$value.'</a>';
-  }
-fclose($f);
-?>
-
- </div>
-</div>
-
-<div class="dropdown">
-  <button onclick="ControlFunction()" class="dropbtn">Controls</button>
-  <div id="ControlDropdown" class="dropdown-content">
-
-<?php
-$unique_ids = array();
-$f = fopen('csv/romsinfo.csv', 'r');
-$headers = ($row = fgetcsv($f));
-while ($row = fgetcsv($f)) {
-    $unique_ids[$row[11]] = true;
-}
-ksort($unique_ids);
-$categories = array_keys($unique_ids);
- foreach($categories as $category => $value) 
-  { 
-    echo '<a href="/gamelist.php?filter=controls&value='.$value.'">'.$value.'</a>';
-  }
-fclose($f);
-?>
-
- </div>
-</div>
-
-<br><br>
-
-<?php
-
-$files = array_values(array_diff(scandir($path), array('.', '..')));
-$games_array = array();
-$f = fopen('csv/romsinfo.csv', 'r');
-   while (($row = fgetcsv($f)) !== false) {
-        foreach ($row as $cell) {
-              if ((in_array($row[1], $files)) and ($row[12] == "Yes")){
-                  $games_array[strtoupper(substr($row[4],0,1))] = true;
-
-  }
-}
-}
-
-$alphabetUpper = range('A', 'Z');
-$letters = array_keys($games_array);
- foreach($alphabetUpper as $letter => $value)
-  {
-    if (in_array($value, $letters)){echo '<li><a href="#anchor'.$value.'" class="scrollLink">'.$value.'</a></li>';}
-    else{echo '<li>'.$value.'</li>';}
-  }
-fclose($f);
-
-echo '<br><br></div>';
-echo '<a id="anchorTOP" class="anchors"></a>';
-}
-
-
-   $lastname = 'aaaa';
-   $i = 0;
-   $files = array_values(array_diff(scandir($path), array('.', '..')));
-   $f = fopen($csvfile, "r");
-   while (($row = fgetcsv($f)) !== false) {
-        foreach ($row as $cell) {
-              if ((in_array($row[1], $files)) and ($row[12] == "Yes")){
-                  $i++;
-                  $system = $row[0];
-                  $filename = $row[1];
-                  $image = $row[2];
-                  $gamename = $row[4];
-                  $mapping = $row[14];
-                  $ffb = $row[15];
-                  $fave = $row[13];
-                  $lastletter = strtoupper(substr($lastname,0,1));
-                  $thisletter = strtoupper(substr($gamename,0,1));
-                  
-                  if ($ui_mode === 'modern') {
-                      // Modern UI: Game card
-                      if (strcmp($lastletter, $thisletter) < 0 ){
-                           echo '<a id="anchor'.$thisletter.'" class="anchors"></a>';
-                      }
-                      echo '<a id="anchor'.$gamename.'" class="anchors"></a>';
-                      echo '<div class="game-card" data-name="'.strtolower($gamename).'" data-system="'.strtolower($system).'">';
-                      echo '<div class="game-card-image-container">';
-                      
-                      if ($menumode == 'advanced'){
-                          echo '<a href="gamelist.php?filename='.$filename.'">';
-                      } else {
-                          echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">';
-                      }
-                      
-                      echo '<img src="images/'.$image.'" alt="'.$gamename.'" class="game-card-image" loading="lazy">';
-                      echo '</a>';
-                      
-                      if ($fave == "Yes"){
-                          echo '<button class="game-card-favorite active" title="Remove from favorites">⭐</button>';
-                      }
-                      
-                      echo '<div class="game-card-overlay">';
-                      if ($menumode == 'advanced'){
-                          echo '<a href="gamelist.php?filename='.$filename.'" class="btn btn-primary btn-sm">Details</a>';
-                      } else {
-                          echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'" class="btn btn-primary btn-sm">Launch</a>';
-                      }
-                      echo '</div>';
-                      
-                      echo '</div>';
-                      echo '<div class="game-card-content">';
-                      echo '<h3 class="game-card-title">'.$gamename.'</h3>';
-                      echo '<span class="game-card-system-badge '.strtolower($system).'">'.$system.'</span>';
-                      echo '</div>';
-                      echo '</div>';
-                  } else {
-                      // Classic UI
-                      echo '<div class="box1">';
-                      if (strcmp($lastletter, $thisletter) < 0 ){
-                           echo '<a id="anchor'.$thisletter.'" class="anchors"></a>';
-                      }
-                      echo '<a id="anchor'.$gamename.'" class="anchors"></a>';                  
-                      if ($menumode == 'advanced'){
-                      echo '<a href="gamelist.php?filename='.$row[1].'"><img src="images/'.$image.'"></a></br></br>';
-                      if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$row[1].'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div>';}
-                      else {echo '<b><a href="gamelist.php?filename='.$row[1].'">'.$gamename.'</a></b><br>';}}
-                      else {
-                      echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
-                      if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br></br>';}
-                      else {echo '<b><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a><br>';}}
-                      echo '</div><br>';
-                  }
-                  
-                  $lastname = $gamename;
-                  break;
-              }
-         }
-     }
-   fclose($f);
-
-   if ($ui_mode === 'modern') {
-       echo '</div>'; // Close grid
-       echo '</div>'; // Close container
-   }
-   
-   if ($i == 0){
-      if ($ui_mode === 'modern') {
-          echo '<div class="container" style="padding: 40px; text-align: center;">';
-          echo '<div class="empty-state">';
-          echo '<div class="empty-state-icon">🎮</div>';
-          echo '<h2>No Games Found</h2>';
-          echo '<p>No games are currently available. Add ROM files to get started.</p>';
-          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
-          echo '</div></div>';
-      } else {
-          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
-      }
-   }
-
-}
-
-if ($filename !== null && $display != "all") {
-    $f = fopen($csvfile, "r");
-    while ($row = fgetcsv($f)) {
-        if ($row[1] == $filename) {
-            $system = $row[0];
-            $image = $row[2];
-            $video = $row[3];
-            $gamename = $row[4];
-            $manufacturer = $row[6];
-            $year = $row[7];
-            $genre = $row[8];
-            $rating = $row[9];
-            $orientation = $row[10];
-            $controls = $row[11];
-            $enabled = $row[12];
-            $fave = $row[13];
-            $mapping = $row[14];
-            $ffb = $row[15];
-            if ($filtertype != null){
-                 echo '<a href="gamelist.php?filter='.$filtertype.'&value='.$value.'#anchor'.$gamename.'"><img src="images/'.$image.'"></a><br><br>';
-                 echo '<h1><a href="gamelist.php?filter='.$filtertype.'&value='.$value.'#anchor'.$gamename.'">'.$gamename.'</a><h1>';}
-            elseif ($display != null){
-                 echo '<a href="gamelist.php?display='.$display.'#anchor'.$gamename.'"><img src="images/'.$image.'"></a><br><br>';
-                 echo '<h1><a href="gamelist.php?display='.$display.'#anchor'.$gamename.'">'.$gamename.'</a><h1>';}
-            else {
-                 echo '<a href="gamelist.php?display=all#anchor'.$gamename.'"><img src="images/'.$image.'"></a><br><br>';
-                 echo '<h1><a href="gamelist.php?display=all#anchor'.$gamename.'">'.$gamename.'</a><h1>';
-            }
-            echo '<h1><form action="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'" method="post"><input type="submit" class="bigdropbtn" value="Launch Game"></form></h1>';
-            if ($video !== ''){
-              if ($soundmode == "soundoff"){
-                echo '<video height=240 width=320 controls autoplay playsinline muted loop id="myVideo"><source src="/videos/'.$video.'" type="video/mp4"></video><br><br>';}
-              else {
-                echo '<video height=240 width=320 controls autoplay playsinline loop id="myVideo"><source src="/videos/'.$video.'" type="video/mp4"></video><br><br>';}
-            }
-            echo '<table id="gameinfo" style="width:100%"><tr><td><b>System</b></td><td>'.$system.'</td><td><b>Manufacturer</b></td><td>'.$manufacturer.'</td></tr><tr><td><b>Year</b></td><td>'.$year.'</td><td><b>Genre</b></td><td>'.$genre.'</td></tr><tr><td><b>Controls</b></td><td>'.$controls.'</td><td><b>Orientation</b></td><td>'.$orientation.'</td></tr>';
-            if ($openmode == 'openon'){
-                // SECURITY: Static command with no user input
-                $command = 'sudo python /sbin/piforce/devicelist.py';
-                shell_exec($command);
-                include 'devicelist.php';
-                echo '<tr><td><b>Mapping</b></td><td>'.$mapping.'</td><td><b>Controllers</b></td><td>'.$enableddevices.'</td></tr>';}
-            echo '</table><br>';
-            break;
-        }
+    // System dropdown
+    echo '<select id="systemFilter" onchange="filterBySystem(this.value)" class="form-select" style="min-width: 180px; padding: 8px 12px; border: 1px solid #444; border-radius: 6px; background: #2a2a2a; color: #fff;">';
+    echo '<option value="all">All Systems</option>';
+    foreach ($systems as $system) {
+        echo '<option value="'.strtolower($system).'">'.$system.'</option>';
     }
-   fclose($f);
-if ($fave !== 'Yes'){
-echo '<a href="updatecsvfave.php?rom='.$filename.'&fave=Yes">Add to Favourites</a>';
-} else{
-echo '<a href="updatecsvfave.php?rom='.$filename.'&fave=No">Remove from Favourites</a>';
-}}
-
-
-if ($filtertype == "genre" && $filename == null) {
-   if ($ui_mode === 'modern') {
-       echo '<div class="container" style="padding: 20px;">';
-       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
-       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
-       echo '<h1 class="text-3xl" style="margin: 0;">'.$value.' Games</h1>';
-       echo '</div>';
-       echo '<div class="grid grid-cols-4" id="gameGrid">';
-   } else {
-       echo '<div><a href="gamelist.php?display=all"></div><h1>'.$value.' Games</h1></a></h1></div><br>';
-   }
-   $i = 0;
-   $files = array_values(array_diff(scandir($path), array('.', '..')));
-   $f = fopen($csvfile, "r");
-   while (($row = fgetcsv($f)) !== false) {
-        foreach ($row as $cell) {
-              if ((in_array($row[1], $files)) and ($row[12] == "Yes") and ($row[8] == $value)){
-                  $i++;
-                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
-                  render_game_card($row, $ui_mode, $menumode, $filtertype, $value, null);
-                  break;
-              }
-         }
-     }
-   fclose($f);
-
-   if ($ui_mode === 'modern') {
-       echo '</div>'; // Close grid
-       echo '</div>'; // Close container
-   }
-   
-   if ($i == 0){
-      if ($ui_mode === 'modern') {
-          echo '<div class="container" style="padding: 40px; text-align: center;">';
-          echo '<div class="empty-state">';
-          echo '<div class="empty-state-icon">🎮</div>';
-          echo '<h2>No '.$value.' Games Found</h2>';
-          echo '<p>No games found in this genre.</p>';
-          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
-          echo '</div></div>';
-      } else {
-          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
-      }
-   }
-}
-
-if ($filtertype == "system" && $filename == null) {
-   if ($ui_mode === 'modern') {
-       echo '<div class="container" style="padding: 20px;">';
-       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
-       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
-       echo '<img src="img/'.$value.'.png" style="height: 48px;" alt="'.$value.'">';
-       echo '<h1 class="text-3xl" style="margin: 0;">'.$value.' Games</h1>';
-       echo '</div>';
-       echo '<div class="grid grid-cols-4" id="gameGrid">';
-   } else {
-       echo '<a href="gamelist.php?display=all"><img src="img/'.$value.'.png"></a><br><br>';
-   }
-   $i = 0;
-   $files = array_values(array_diff(scandir($path), array('.', '..')));
-   $f = fopen($csvfile, "r");
-   while (($row = fgetcsv($f)) !== false) {
-        foreach ($row as $cell) {
-              if ((in_array($row[1], $files)) and ($row[12] == "Yes") and ($row[0] == $value)){
-                  $i++;
-                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
-                  render_game_card($row, $ui_mode, $menumode, $filtertype, $value, null);
-                  break;
-              }
-         }
-     }
-   fclose($f);
-
-   if ($ui_mode === 'modern') {
-       echo '</div>'; // Close grid
-       echo '</div>'; // Close container
-   }
-   
-   if ($i == 0){
-      if ($ui_mode === 'modern') {
-          echo '<div class="container" style="padding: 40px; text-align: center;">';
-          echo '<div class="empty-state">';
-          echo '<div class="empty-state-icon">🎮</div>';
-          echo '<h2>No '.$value.' Games Found</h2>';
-          echo '<p>No games found for this system.</p>';
-          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
-          echo '</div></div>';
-      } else {
-          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
-      }
-   }
-}
-
-if ($filtertype == "orientation" && $filename == null) {
-   if ($ui_mode === 'modern') {
-       echo '<div class="container" style="padding: 20px;">';
-       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
-       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
-       echo '<h1 class="text-3xl" style="margin: 0;">'.$value.' Games</h1>';
-       echo '</div>';
-       echo '<div class="grid grid-cols-4" id="gameGrid">';
-   } else {
-       echo '<div><a href="gamelist.php?display=all"></div><h1>'.$value.' Games</h1></a></div><br>';
-   }
-   $i = 0;
-   $files = array_values(array_diff(scandir($path), array('.', '..')));
-   $f = fopen($csvfile, "r");
-   while (($row = fgetcsv($f)) !== false) {
-        foreach ($row as $cell) {
-              if ((in_array($row[1], $files)) and ($row[12] == "Yes") and ($row[10] == $value)){
-                  $i++;
-                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
-                  render_game_card($row, $ui_mode, $menumode, $filtertype, $value, null);
-                  break;
-              }
-         }
-     }
-   fclose($f);
-
-   if ($ui_mode === 'modern') {
-       echo '</div>'; // Close grid
-       echo '</div>'; // Close container
-   }
-   
-   if ($i == 0){
-      if ($ui_mode === 'modern') {
-          echo '<div class="container" style="padding: 40px; text-align: center;">';
-          echo '<div class="empty-state">';
-          echo '<div class="empty-state-icon">🎮</div>';
-          echo '<h2>No '.$value.' Games Found</h2>';
-          echo '<p>No games found with this orientation.</p>';
-          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
-          echo '</div></div>';
-      } else {
-          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
-      }
-   }
-}
-
-if ($filtertype == "controls" && $filename == null) {
-   if ($ui_mode === 'modern') {
-       echo '<div class="container" style="padding: 20px;">';
-       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
-       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
-       echo '<h1 class="text-3xl" style="margin: 0;">Games with '.strtolower($value).' controls</h1>';
-       echo '</div>';
-       echo '<div class="grid grid-cols-4" id="gameGrid">';
-   } else {
-       echo '<div><a href="gamelist.php?display=all"></div><h1>Games with '.strtolower($value).' '.$filtertype.'</h1></a></div><br>';
-   }
-   $i = 0;
-   $files = array_values(array_diff(scandir($path), array('.', '..')));
-   $f = fopen($csvfile, "r");
-   while (($row = fgetcsv($f)) !== false) {
-        foreach ($row as $cell) {
-              if ((in_array($row[1], $files)) and ($row[12] == "Yes") and ($row[11] == $value)){
-                  $i++;
-                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
-                  render_game_card($row, $ui_mode, $menumode, $filtertype, $value, null);
-                  break;
-              }
-         }
-     }
-   fclose($f);
-
-   if ($ui_mode === 'modern') {
-       echo '</div>'; // Close grid
-       echo '</div>'; // Close container
-   }
-   
-   if ($i == 0){
-      if ($ui_mode === 'modern') {
-          echo '<div class="container" style="padding: 40px; text-align: center;">';
-          echo '<div class="empty-state">';
-          echo '<div class="empty-state-icon">🎮</div>';
-          echo '<h2>No Games Found</h2>';
-          echo '<p>No games found with '.strtolower($value).' controls.</p>';
-          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
-          echo '</div></div>';
-      } else {
-          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
-      }
-   }
-}
-
-if ($display == "faves" && $filename == null) {
-   if ($ui_mode === 'modern') {
-       echo '<div class="container" style="padding: 20px;">';
-       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
-       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
-       echo '<h1 class="text-3xl" style="margin: 0;">⭐ Favourite Games</h1>';
-       echo '</div>';
-       echo '<div class="grid grid-cols-4" id="gameGrid">';
-   } else {
-       echo '<div><a href="gamelist.php?display=all"></div><h1>Favourite Games</h1></a></div><br>';
-   }
-   $i = 0;
-   $files = array_values(array_diff(scandir($path), array('.', '..')));
-   $f = fopen($csvfile, "r");
-   while (($row = fgetcsv($f)) !== false) {
-        foreach ($row as $cell) {
-              if ((in_array($row[1], $files)) and ($row[13] == "Yes")){
-                  $i++;
-                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
-                  render_game_card($row, $ui_mode, $menumode, null, null, $display);
-                  break;
-              }
-         }
-     }
-   fclose($f);
-
-   if ($ui_mode === 'modern') {
-       echo '</div>'; // Close grid
-       echo '</div>'; // Close container
-   }
-   
-   if ($i == 0){
-      if ($ui_mode === 'modern') {
-          echo '<div class="container" style="padding: 40px; text-align: center;">';
-          echo '<div class="empty-state">';
-          echo '<div class="empty-state-icon">⭐</div>';
-          echo '<h2>No Favourites</h2>';
-          echo '<p>You haven\'t added any games to your favourites yet.</p>';
-          echo '<a href="gamelist.php?display=all" class="btn btn-primary">Browse Games</a>';
-          echo '</div></div>';
-      } else {
-          echo '<div><a href="gamelist.php?display=all"></div>NO FAVOURITES FOUND</a></div>';
-      }
-   }
-}
-
-
-if ($ui_mode === 'modern') {
-    echo '</div>'; // Close main-content
-} else {
+    echo '</select>';
+    
+    // Genre dropdown
+    echo '<select id="genreFilter" onchange="filterByGenre(this.value)" class="form-select" style="min-width: 180px; padding: 8px 12px; border: 1px solid #444; border-radius: 6px; background: #2a2a2a; color: #fff;">';
+    echo '<option value="all">All Genres</option>';
+    foreach ($genres as $genre) {
+        echo '<option value="'.strtolower($genre).'">'.$genre.'</option>';
+    }
+    echo '</select>';
+    
+    // Reset button
+    echo '<button class="btn btn-secondary" onclick="resetFilters()" style="padding: 8px 16px;">Reset Filters</button>';
     echo '</div>';
-}
-
-?>
-
-<script>
-
-function SystemFunction() {
-  document.getElementById("SystemDropdown").classList.toggle("show");
-  document.getElementById("GenreDropdown").classList.remove("show");
-  document.getElementById("OrientationDropdown").classList.remove("show");
-  document.getElementById("ControlDropdown").classList.remove("show");
-}
-
-function GenreFunction() {
-  document.getElementById("SystemDropdown").classList.remove("show");
-  document.getElementById("GenreDropdown").classList.toggle("show");
-  document.getElementById("OrientationDropdown").classList.remove("show");
-  document.getElementById("ControlDropdown").classList.remove("show");
-
-}
-
-function OrientationFunction() {
-  document.getElementById("SystemDropdown").classList.remove("show");
-  document.getElementById("GenreDropdown").classList.remove("show");
-  document.getElementById("OrientationDropdown").classList.toggle("show");
-  document.getElementById("ControlDropdown").classList.remove("show");
-
-}
-
-function ControlFunction() {
-  document.getElementById("SystemDropdown").classList.remove("show");
-  document.getElementById("GenreDropdown").classList.remove("show");
-  document.getElementById("OrientationDropdown").classList.remove("show");
-  document.getElementById("ControlDropdown").classList.toggle("show");
-
-}
-
-rtnbutton = document.getElementById("rtnBtn");
-window.onscroll = function() {scrollFunction()};
-
-function scrollFunction() {
-  if (document.body.scrollTop > 350 || document.documentElement.scrollTop > 350) {
-    rtnbutton.style.display = "block";
-  } else {
-    rtnbutton.style.display = "none";
-  }
-}
-
-function topFunction() {
-  document.body.scrollTop = 0;
-  document.documentElement.scrollTop = 0;
-}
-
-<?php if ($ui_mode === 'modern') { ?>
-// Sidebar toggle for Modern UI
-function toggleSidebar() {
-  const sidebar = document.getElementById('sidebarNav');
-  const overlay = document.getElementById('sidebarOverlay');
-  const burger = document.getElementById('burgerBtn');
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('show');
-  burger.classList.toggle('open');
-}
-
-// Search functionality
-function filterGames() {
-  const searchInput = document.getElementById('searchInput');
-  const filter = searchInput.value.toLowerCase();
-  const gameCards = document.querySelectorAll('.game-card');
-  
-  gameCards.forEach(card => {
-    const gameName = card.getAttribute('data-name');
-    const system = card.getAttribute('data-system');
     
-    if (gameName.includes(filter) || system.includes(filter)) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-}
-
-// Smooth scroll for alphabet navigation
-document.addEventListener('DOMContentLoaded', function() {
-  const alphabetLinks = document.querySelectorAll('.alphabet-link');
-  
-  alphabetLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetId = this.getAttribute('href');
-      const targetElement = document.querySelector(targetId);
-      
-      if (targetElement) {
-        // Highlight active letter
-        alphabetLinks.forEach(l => l.style.transform = 'scale(1)');
-        this.style.transform = 'scale(1.2)';
+    // Game grid
+    echo '<div id="gameGrid" class="game-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px;">';
+    
+    foreach ($sample_games as $game) {
+        $system = $game[0];
+        $filename = $game[1];
+        $image = $game[2];
+        $video = $game[3];
+        $title = $game[4];
+        $manufacturer = $game[5];
+        $year = $game[6];
+        $genre = $game[7];
+        $fave = $game[8];
+        $mapping = $game[9];
+        $ffb = $game[10];
         
-        // Smooth scroll with offset for sticky nav
-        const offsetTop = targetElement.offsetTop - 150;
-        window.scrollTo({
-          top: offsetTop,
-          behavior: 'smooth'
-        });
-      }
-    });
-  });
-  
-  // Add hover effect
-  alphabetLinks.forEach(link => {
-    link.addEventListener('mouseenter', function() {
-      this.style.transform = 'scale(1.15)';
-    });
-    link.addEventListener('mouseleave', function() {
-      this.style.transform = 'scale(1)';
-    });
-  });
-});
-<?php } ?>
+        echo '<div class="game-card" data-name="'.strtolower($title).'" data-system="'.strtolower($system).'" data-genre="'.strtolower($genre).'">';
+        echo '<div class="game-card-image-container">';
+        
+        // Always show placeholder with image attempt on top
+        $image_path = 'images/' . $image;
+        $initial = substr($title, 0, 1);
+        $colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#fa709a', '#fee140'];
+        $color = $colors[ord($initial) % count($colors)];
+        $fallback_color = adjustBrightness($color, -20);
+        
+        // Container with placeholder background
+        echo '<div style="position: relative; width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.$fallback_color.' 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px; overflow: hidden;">';
+        
+        // Show letter
+        echo '<span style="position: absolute; z-index: 1;">'.$initial.'</span>';
+        
+        // Try to overlay real image if it exists
+        echo '<img src="'.$image_path.'" alt="'.$title.'" ';
+        echo 'style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; z-index: 2; background: transparent;" ';
+        echo 'onload="this.previousElementSibling.style.display=\'none\';" ';
+        echo 'onerror="this.style.display=\'none\';">';
+        
+        echo '</div>';
+        
+        if ($fave == 'Yes') {
+            echo '<button class="game-card-favorite active" title="Remove from favorites">⭐</button>';
+        }
+        
+        // Info button
+        // Convert video filename to screenshot (replace .mp4 with _screenshot.png)
+        $screenshot_path = '';
+        $video_path = '';
+        if (!empty($video)) {
+            $screenshot_path = 'images/' . str_replace('.mp4', '_screenshot.png', $video);
+            $video_path = 'videos/' . $video;
+        }
+        $info_data = json_encode([
+            'title' => $title,
+            'system' => $system,
+            'genre' => $genre,
+            'manufacturer' => $manufacturer,
+            'year' => $year,
+            'filename' => $filename,
+            'image' => $image_path,
+            'screenshot' => $screenshot_path,
+            'video' => $video_path,
+            'mapping' => $mapping,
+            'ffb' => $ffb
+        ]);
+        echo '<button class="game-card-info" onclick="showGameInfo('.htmlspecialchars($info_data, ENT_QUOTES).'); event.preventDefault();" title="Game Information" style="position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 2px solid #4a9eff; color: #4a9eff; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s;" onmouseover="this.style.background=\'#4a9eff\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'rgba(0,0,0,0.7)\'; this.style.color=\'#4a9eff\';">i</button>';
+        
+        echo '</div>';
+        
+        echo '<div class="game-card-content">';
+        echo '<h3 class="game-card-title">'.$title.'</h3>';
+        echo '<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">';
+        echo '<span class="game-card-system-badge '.strtolower(str_replace(' ', '-', $system)).'">'.$system.'</span>';
+        echo '<span style="background: #2a2a2a; color: #aaa; padding: 4px 8px; border-radius: 4px; font-size: 11px;">'.$genre.'</span>';
+        echo '</div>';
+        echo '<div style="margin-top: 8px; font-size: 12px; color: #888;">';
+        echo $manufacturer.' • '.$year;
+        echo '</div>';
+        
+        // Launch button at bottom of card
+        echo '<a href="loadcheck.php?rom='.$filename.'&name='.urlencode($title).'&system='.urlencode($system).'&mapping='.$mapping.'&ffb='.$ffb.'" class="btn btn-primary" style="display: block; width: 100%; margin-top: 12px; padding: 8px 16px; text-align: center; text-decoration: none;">Launch</a>';
+        
+        echo '</div>';
+        echo '</div>';
+    }
+    
+    echo '</div>'; // Close game grid
+    echo '</div>'; // Close container
+    echo '</div>'; // Close main-content
+    
+    // Game info modal
+    echo '<div id="gameInfoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;" onclick="closeGameInfo()">';
+    echo '<div style="background: #1a1a1a; border-radius: 12px; padding: 32px; max-width: 900px; width: 90%; border: 2px solid #4a9eff; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" onclick="event.stopPropagation();">';
+    
+    // Game image at top center (no text title)
+    echo '<div style="text-align: center; margin-bottom: 24px;">';
+    echo '<img id="modalImage" src="" alt="Game Title" style="max-width: 300px; max-height: 200px; border-radius: 8px; background: transparent;">';
+    echo '</div>';
+    
+    // Two column layout: Game info (left) and Screenshot (right)
+    echo '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">';
+    
+    // Left: Game information
+    echo '<div style="display: grid; gap: 16px;">';
+    echo '<div><strong style="color: #aaa;">System:</strong> <span id="modalSystem" style="color: #fff;"></span></div>';
+    echo '<div><strong style="color: #aaa;">Genre:</strong> <span id="modalGenre" style="color: #fff;"></span></div>';
+    echo '<div><strong style="color: #aaa;">Manufacturer:</strong> <span id="modalManufacturer" style="color: #fff;"></span></div>';
+    echo '<div><strong style="color: #aaa;">Year:</strong> <span id="modalYear" style="color: #fff;"></span></div>';
+    echo '<div><strong style="color: #aaa;">ROM File:</strong> <span id="modalFilename" style="color: #888; font-size: 12px; word-break: break-all;"></span></div>';
+    echo '</div>';
+    
+    // Right: Gameplay screenshot
+    echo '<div id="modalScreenshotContainer" style="text-align: center;">';
+    echo '<img id="modalScreenshot" src="" alt="Gameplay Screenshot" style="max-width: 100%; max-height: 300px; border-radius: 8px; background: #0a0a0a; padding: 8px;">';
+    echo '</div>';
+    
+    echo '</div>';
+    
+    // Video player section
+    echo '<div id="modalVideoContainer" style="margin-bottom: 24px; text-align: center;">';
+    echo '<div style="font-size: 14px; color: #aaa; margin-bottom: 12px; font-weight: 600;">Gameplay Video</div>';
+    echo '<video id="modalVideo" controls style="max-width: 100%; max-height: 400px; border-radius: 8px; background: #000;">';
+    echo '<source id="modalVideoSource" src="" type="video/mp4">';
+    echo 'Your browser does not support the video tag.';
+    echo '</video>';
+    echo '</div>';
+    
+    // Action buttons
+    echo '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">';
+    echo '<button id="modalLaunchBtn" onclick="launchGame()" style="padding: 12px; background: #28a745; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#218838\'" onmouseout="this.style.background=\'#28a745\'">Launch</button>';
+    echo '<button onclick="closeGameInfo()" style="padding: 12px; background: #6c757d; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#5a6268\'" onmouseout="this.style.background=\'#6c757d\'">Close</button>';
+    echo '</div>';
+    echo '</div></div>';
+    
+    // Scripts
+    echo '<script>';
+    echo 'let activeSystemFilter="all";let activeGenreFilter="all";let searchQuery="";let currentGameData={};';
+    echo 'function toggleSidebar(){const s=document.getElementById("sidebarNav"),o=document.getElementById("sidebarOverlay"),b=document.getElementById("burgerBtn");s.classList.toggle("open");o.classList.toggle("show");b.classList.toggle("open");}';
+    echo 'function applyFilters(){document.querySelectorAll(".game-card").forEach(c=>{const name=c.getAttribute("data-name");const sys=c.getAttribute("data-system");const genre=c.getAttribute("data-genre");const matchSearch=searchQuery===""||name.includes(searchQuery);const matchSystem=activeSystemFilter==="all"||sys.includes(activeSystemFilter);const matchGenre=activeGenreFilter==="all"||genre.includes(activeGenreFilter);c.style.display=(matchSearch&&matchSystem&&matchGenre)?"block":"none";});}';
+    echo 'function filterGames(){searchQuery=document.getElementById("searchInput").value.toLowerCase();applyFilters();}';
+    echo 'function filterBySystem(s){activeSystemFilter=s;applyFilters();}';
+    echo 'function filterByGenre(g){activeGenreFilter=g;applyFilters();}';
+    echo 'function resetFilters(){activeSystemFilter="all";activeGenreFilter="all";searchQuery="";document.getElementById("systemFilter").value="all";document.getElementById("genreFilter").value="all";document.getElementById("searchInput").value="";applyFilters();}';
+    echo 'function showGameInfo(data){currentGameData=data;document.getElementById("modalSystem").textContent=data.system;document.getElementById("modalGenre").textContent=data.genre;document.getElementById("modalManufacturer").textContent=data.manufacturer;document.getElementById("modalYear").textContent=data.year;document.getElementById("modalFilename").textContent=data.filename;const img=document.getElementById("modalImage");const imgContainer=img.parentElement;if(data.image){img.src=data.image;img.onerror=function(){imgContainer.style.display="none";};img.onload=function(){imgContainer.style.display="block";};imgContainer.style.display="block";}else{imgContainer.style.display="none";}const screenshot=document.getElementById("modalScreenshot");const screenshotContainer=document.getElementById("modalScreenshotContainer");if(data.screenshot){screenshot.src=data.screenshot;screenshot.onerror=function(){screenshotContainer.style.display="none";};screenshot.onload=function(){screenshotContainer.style.display="block";};screenshotContainer.style.display="block";}else{screenshotContainer.style.display="none";}const video=document.getElementById("modalVideo");const videoSource=document.getElementById("modalVideoSource");const videoContainer=document.getElementById("modalVideoContainer");if(data.video){videoSource.src=data.video;video.load();videoContainer.style.display="block";}else{videoContainer.style.display="none";}document.getElementById("gameInfoModal").style.display="flex";}';
+    echo 'function launchGame(){window.location.href="loadcheck.php?rom="+encodeURIComponent(currentGameData.filename)+"&name="+encodeURIComponent(currentGameData.title)+"&system="+encodeURIComponent(currentGameData.system)+"&mapping="+encodeURIComponent(currentGameData.mapping)+"&ffb="+encodeURIComponent(currentGameData.ffb);}';
+    echo 'function closeGameInfo(){const video=document.getElementById("modalVideo");video.pause();video.currentTime=0;document.getElementById("gameInfoModal").style.display="none";}';
+    echo '</script>';
+    
+} else {
+    // Classic UI - redirect to old gamelist
+    header('Location: gamelist.php.backup');
+    exit();
+}
 
-</script>
+echo '</body></html>';
 
-</p><center>
-     
-</body>
-</html>
+// Helper function to adjust color brightness
+function adjustBrightness($hex, $percent) {
+    $hex = str_replace('#', '', $hex);
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    
+    $r = max(0, min(255, $r + ($r * $percent / 100)));
+    $g = max(0, min(255, $g + ($g * $percent / 100)));
+    $b = max(0, min(255, $b + ($b * $percent / 100)));
+    
+    return '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT) . str_pad(dechex($g), 2, '0', STR_PAD_LEFT) . str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
+}
+?>
