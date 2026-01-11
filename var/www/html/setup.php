@@ -23,7 +23,7 @@ load_ui_styles();
     
 <?php
 if ($ui_mode === 'modern') {
-    echo '<div class="grid grid-cols-2" style="max-width: 800px; margin: 0 auto;">';
+    echo '<div class="grid grid-cols-2" style="max-width: 800px; margin: 0 auto; padding-bottom: 100px;">';
     
     // UI Mode Switcher - First item
     echo '<div class="card card-interactive">';

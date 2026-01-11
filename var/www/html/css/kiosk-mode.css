@@ -160,6 +160,7 @@
 /* Fullscreen kiosk mode */
 body.kiosk-mode {
   overflow: hidden;
+  padding-bottom: 80px; /* Space for bottom nav */
 }
 
 body.kiosk-mode .container {
@@ -167,6 +168,11 @@ body.kiosk-mode .container {
   height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Ensure sections have bottom padding in kiosk mode */
+body.kiosk-mode section {
+  padding-bottom: 100px;
 }
 
 /* Bottom navigation bar for kiosk mode */
