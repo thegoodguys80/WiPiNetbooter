@@ -21,16 +21,51 @@ function gzfilesize($filename) {
   return($gzfs);
 }
 
-$relaymode = file_get_contents('/sbin/piforce/relaymode.txt');
-$zeromode = file_get_contents('/sbin/piforce/zeromode.txt');
-$openmode = file_get_contents('/sbin/piforce/openmode.txt');
-$ffbmode = file_get_contents('/sbin/piforce/ffbmode.txt');
-$rom = $_GET["rom"];
-$rompath = '/boot/roms/'.$rom;
-$name = $_GET["name"];
-$dimm = $_GET["dimm"];
-$mapping = $_GET["mapping"];
-$ffb = $_GET["ffb"];
+// Read system configuration files
+$relaymode = trim(file_get_contents('/sbin/piforce/relaymode.txt'));
+$zeromode = trim(file_get_contents('/sbin/piforce/zeromode.txt'));
+$openmode = trim(file_get_contents('/sbin/piforce/openmode.txt'));
+$ffbmode = trim(file_get_contents('/sbin/piforce/ffbmode.txt'));
+
+// SECURITY: Validate all user inputs to prevent command injection
+$rom = $_GET["rom"] ?? '';
+$name = $_GET["name"] ?? '';
+$dimm = $_GET["dimm"] ?? '';
+$mapping = $_GET["mapping"] ?? '';
+$ffb = $_GET["ffb"] ?? '';
+
+// Validate ROM filename (alphanumeric, underscore, dash, dot only)
+if (!preg_match('/^[a-zA-Z0-9_\-\.]+\.(bin|bin\.gz)$/i', $rom)) {
+    die('Error: Invalid ROM filename format');
+}
+
+// Validate ROM exists
+$rompath = '/boot/roms/' . basename($rom); // basename prevents path traversal
+if (!file_exists($rompath)) {
+    die('Error: ROM file not found');
+}
+
+// Validate IP address format
+if (!filter_var($dimm, FILTER_VALIDATE_IP)) {
+    die('Error: Invalid IP address format');
+}
+
+// Validate device paths (mapping and ffb)
+if (!empty($mapping) && !preg_match('#^/dev/[a-zA-Z0-9_]+$#', $mapping)) {
+    die('Error: Invalid mapping device path');
+}
+if (!empty($ffb) && !preg_match('#^/dev/input/event[0-9]+$#', $ffb)) {
+    die('Error: Invalid FFB device path');
+}
+
+// Validate relay/zero modes are expected values
+if (!in_array($relaymode, ['relayon', 'relayoff'])) {
+    die('Error: Invalid relay mode');
+}
+if (!in_array($zeromode, ['hackon', 'hackoff'])) {
+    die('Error: Invalid zero mode');
+}
+
 $filesize = gzfilesize($rompath);
 ini_set('output_buffering', false);
 $last = 0;
@@ -42,7 +77,8 @@ echo '<p>';
 <section><center>
 
 <?php
-echo '<h1>Loading<br>'.$name.'</h1></center>';
+// SECURITY: HTML escape display name to prevent XSS
+echo '<h1>Loading<br>' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</h1></center>';
 ?>
 
 <div id="myProgress">
@@ -51,8 +87,18 @@ echo '<h1>Loading<br>'.$name.'</h1></center>';
 
 <?php
 
-$command = escapeshellcmd('sudo python /sbin/piforce/webforce.py '.$rom.' '.$dimm.' '.$relaymode.' '.$zeromode.' '.$mapping.' '.$ffb);
-$output = shell_exec($command . '> /dev/null 2>/dev/null &');
+// SECURITY: Build command with properly escaped arguments
+// Note: webforce.py now has its own validation as well (defense in depth)
+$command = 'sudo python3 /sbin/piforce/webforce.py ' . 
+    escapeshellarg($rom) . ' ' . 
+    escapeshellarg($dimm) . ' ' . 
+    escapeshellarg($relaymode) . ' ' . 
+    escapeshellarg($zeromode) . ' ' . 
+    escapeshellarg($mapping) . ' ' . 
+    escapeshellarg($ffb) . 
+    ' > /dev/null 2>/dev/null &';
+
+$output = shell_exec($command);
 
 $progress = 0;
 while($progress < 100) {
@@ -77,11 +123,13 @@ echo 'var elem = document.getElementById("myBar");';
 echo 'elem.style.width = 100 + "%";';
 echo 'elem.innerHTML = 100  + "%";';
 echo '</script>';
-echo '<br><center><a href="gamelist.php?display=all#anchor'.$name.'">LOADING COMPLETE</a></center>';
+// SECURITY: URL encode name parameter
+echo '<br><center><a href="gamelist.php?display=all#anchor' . urlencode($name) . '">LOADING COMPLETE</a></center>';
 ?>
 
 <script type="text/javascript">
 <?php
-echo 'setTimeout(function(){window.location="gamelist.php?display=all#anchor'.$name.'";}, 2000)';
+// SECURITY: JavaScript escape name parameter
+echo 'setTimeout(function(){window.location="gamelist.php?display=all#anchor' . addslashes($name) . '";}, 2000)';
 ?>
 </script>
