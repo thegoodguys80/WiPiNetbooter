@@ -1,27 +1,38 @@
 <?php
-// Test page to demonstrate game list with sample ROM data
+// Test page to demonstrate game list with actual ROM data from CSV
 include 'ui_mode.php';
 $ui_mode = get_ui_mode();
 
-// Sample game data (mimicking the CSV structure)
-$sample_games = [
-    ['Sega Naomi', '18wheeler.bin.gz', '18wheelr.png', '18wheelr.mp4', '18 Wheeler Deluxe', 'Sega', '2000', 'Driving', 'Yes'],
-    ['Sega Naomi', 'mvsc2.bin.gz', 'mvsc2.png', 'mvsc2.mp4', 'Marvel vs Capcom 2', 'Capcom', '2000', 'Fighter', 'Yes'],
-    ['Sega Naomi', 'ikaruga.bin.gz', 'ikaruga.png', 'ikaruga.mp4', 'Ikaruga', 'Treasure', '2001', 'Shooter', 'No'],
-    ['Sega Naomi', 'ggxx.bin.gz', 'ggxx.png', 'ggxx.mp4', 'Guilty Gear XX', 'Arc System Works', '2002', 'Fighter', 'Yes'],
-    ['Sega Naomi', 'cvs2.bin.gz', 'cvs2.png', 'cvs2.mp4', 'Capcom vs SNK 2', 'Capcom', '2001', 'Fighter', 'No'],
-    ['Sega Naomi', 'vf4.bin.gz', 'vf4.png', 'vf4.mp4', 'Virtua Fighter 4', 'Sega', '2001', 'Fighter', 'Yes'],
-    ['Sega Naomi', 'confmiss.bin.gz', 'confmiss.png', 'confmiss.mp4', 'Confidential Mission', 'Sega', '2000', 'Shooter', 'No'],
-    ['Sega Naomi', 'sprtjam.bin.gz', 'sprtjam.png', 'sprtjam.mp4', 'Sports Jam', 'Sega', '2000', 'Sports', 'Yes'],
-    ['Sega Naomi', 'zombrvn.bin.gz', 'zombrvn.png', 'zombrvn.mp4', 'Zombie Revenge', 'Sega', '1999', 'Action', 'No'],
-    ['Sega Naomi', 'crzytaxi.bin.gz', 'crzytaxi.png', 'crzytaxi.mp4', 'Crazy Taxi', 'Sega', '2000', 'Driving', 'Yes'],
-    ['Sega Naomi', 'doa2.bin.gz', 'doa2.png', 'doa2.mp4', 'Dead or Alive 2', 'Tecmo', '2000', 'Fighter', 'Yes'],
-    ['Sega Naomi', 'pstone2.bin.gz', 'pstone2.png', 'pstone2.mp4', 'Power Stone 2', 'Capcom', '2000', 'Fighter', 'No'],
-    ['Sega Triforce', 'fzeroax.bin.gz', 'fzeroax.png', 'fzeroax.mp4', 'F-Zero AX', 'Nintendo', '2003', 'Racing', 'Yes'],
-    ['Sega Triforce', 'mkartagp.bin.gz', 'mkartagp.png', 'mkartagp.mp4', 'Mario Kart GP', 'Nintendo', '2005', 'Racing', 'Yes'],
-    ['Sega Chihiro', 'vcop3.bin.gz', 'vcop3.png', 'vcop3.mp4', 'Virtua Cop 3', 'Sega', '2003', 'Shooter', 'No'],
-    ['Sega Chihiro', 'hotd3.bin.gz', 'hotd3.png', 'hotd3.mp4', 'House of the Dead 3', 'Sega', '2002', 'Shooter', 'Yes'],
-];
+// Load all games from CSV
+$sample_games = [];
+if (file_exists('csv/romsinfo.csv')) {
+    $f = fopen('csv/romsinfo.csv', 'r');
+    $headers = fgetcsv($f); // Skip header row
+    while (($row = fgetcsv($f)) !== false) {
+        // Only include enabled games
+        if (isset($row[12]) && $row[12] === 'Yes') {
+            $sample_games[] = [
+                $row[0],  // system
+                $row[1],  // romname
+                $row[2],  // image
+                $row[3],  // video
+                $row[4],  // description
+                $row[6],  // manufacturer
+                $row[7],  // year
+                $row[8],  // genre
+                $row[13], // favourite
+            ];
+        }
+    }
+    fclose($f);
+} else {
+    // Fallback sample data if CSV doesn't exist
+    $sample_games = [
+        ['Sega Naomi', '18wheeler.bin.gz', '18wheelr.png', '18wheelr.mp4', '18 Wheeler Deluxe', 'Sega', '2000', 'Driving', 'Yes'],
+        ['Sega Naomi', 'mvsc2.bin.gz', 'mvsc2.png', 'mvsc2.mp4', 'Marvel vs Capcom 2', 'Capcom', '2000', 'Fighter', 'Yes'],
+        ['Sega Naomi', 'ikaruga.bin.gz', 'ikaruga.png', 'ikaruga.mp4', 'Ikaruga', 'Treasure', '2001', 'Shooter', 'No'],
+    ];
+}
 
 echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter - Test Game List</title>';
 echo '<meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1">';
@@ -55,8 +66,8 @@ if ($ui_mode === 'modern') {
     
     echo '<div style="margin-bottom: 24px;">';
     echo '<p style="background: #2a3a4a; padding: 16px; border-radius: 8px; border-left: 4px solid #4a9eff;">';
-    echo '💡 <strong>Test Page:</strong> This is a preview showing how your game list will look with actual ROM data. ';
-    echo 'Sample games are shown below with typical arcade titles from Naomi, Triforce, and Chihiro systems.';
+    echo '💡 <strong>Test Page:</strong> Showing '.count($sample_games).' games from your ROM database (romsinfo.csv). ';
+    echo 'Game images will display if available in the images/ folder, otherwise colorful placeholders are shown.';
     echo '</p>';
     echo '</div>';
     
@@ -115,13 +126,20 @@ if ($ui_mode === 'modern') {
         echo '<div class="game-card-image-container">';
         echo '<a href="#" onclick="alert(\'Launch: '.$title.'\'); return false;">';
         
-        // Show placeholder image with game initial
-        $initial = substr($title, 0, 1);
-        $colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#fa709a', '#fee140'];
-        $color = $colors[ord($initial) % count($colors)];
-        echo '<div style="width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.adjustBrightness($color, -20).' 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px;">';
-        echo $initial;
-        echo '</div>';
+        // Check if actual image exists
+        $image_path = 'images/' . $image;
+        if (file_exists($image_path)) {
+            // Use actual game image
+            echo '<img src="'.$image_path.'" alt="'.$title.'" style="width: 100%; height: 280px; object-fit: cover; border-radius: 8px;">';
+        } else {
+            // Show placeholder with game initial
+            $initial = substr($title, 0, 1);
+            $colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#fa709a', '#fee140'];
+            $color = $colors[ord($initial) % count($colors)];
+            echo '<div style="width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.adjustBrightness($color, -20).' 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px;">';
+            echo $initial;
+            echo '</div>';
+        }
         echo '</a>';
         
         if ($fave == 'Yes') {
