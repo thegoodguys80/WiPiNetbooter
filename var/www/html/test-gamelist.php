@@ -141,7 +141,7 @@ if ($ui_mode === 'modern') {
         
         // Try to overlay real image if it exists
         echo '<img src="'.$image_path.'" alt="'.$title.'" ';
-        echo 'style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; z-index: 2; background: #1a1a1a;" ';
+        echo 'style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; z-index: 2; background: transparent;" ';
         echo 'onload="this.previousElementSibling.style.display=\'none\';" ';
         echo 'onerror="this.style.display=\'none\';">';
         
