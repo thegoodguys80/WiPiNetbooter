@@ -126,23 +126,26 @@ if ($ui_mode === 'modern') {
         echo '<div class="game-card-image-container">';
         echo '<a href="#" onclick="alert(\'Launch: '.$title.'\'); return false;">';
         
-        // Try to show actual image, but use onerror to fallback to placeholder
+        // Always show placeholder with image attempt on top
         $image_path = 'images/' . $image;
         $initial = substr($title, 0, 1);
         $colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#fa709a', '#fee140'];
         $color = $colors[ord($initial) % count($colors)];
         $fallback_color = adjustBrightness($color, -20);
         
-        // Show image with fallback placeholder using inline style and JS
+        // Container with placeholder background
+        echo '<div style="position: relative; width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.$fallback_color.' 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px; overflow: hidden;">';
+        
+        // Show letter
+        echo '<span style="position: absolute; z-index: 1;">'.$initial.'</span>';
+        
+        // Try to overlay real image if it exists
         echo '<img src="'.$image_path.'" alt="'.$title.'" ';
-        echo 'style="width: 100%; height: 280px; object-fit: cover; border-radius: 8px; display: block;" ';
-        echo 'onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">';
+        echo 'style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2;" ';
+        echo 'onload="this.previousElementSibling.style.display=\'none\';" ';
+        echo 'onerror="this.style.display=\'none\';">';
         
-        // Fallback placeholder (hidden by default, shown if image fails to load)
-        echo '<div style="width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.$fallback_color.' 100%); display: none; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px;">';
-        echo $initial;
         echo '</div>';
-        
         echo '</a>';
         
         if ($fave == 'Yes') {
