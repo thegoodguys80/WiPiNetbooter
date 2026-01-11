@@ -159,20 +159,20 @@
 
 /* Fullscreen kiosk mode */
 body.kiosk-mode {
-  overflow: hidden;
-  padding-bottom: 80px; /* Space for bottom nav */
+  overflow-y: auto; /* Enable scrolling */
+  overflow-x: hidden;
 }
 
 body.kiosk-mode .container {
   max-width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 /* Ensure sections have bottom padding in kiosk mode */
 body.kiosk-mode section {
-  padding-bottom: 100px;
+  padding-bottom: 120px; /* Extra space for bottom nav */
 }
 
 /* Bottom navigation bar for kiosk mode */
