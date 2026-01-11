@@ -3,3 +3,10 @@ __pycache__/
 *.class
 *.so
 .Python
+
+# Warp AI Assistant files (keep local only)
+WARP.md
+RULEBOOK.md
+QUICK_START.md
+SESSION_SUMMARY.md
+README.md copy
