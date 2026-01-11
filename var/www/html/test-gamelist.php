@@ -101,12 +101,28 @@ if ($ui_mode === 'modern') {
     echo '</div></div>';
     echo '</div>';
     
-    // Filter buttons
-    echo '<div class="flex" style="gap: 8px; flex-wrap: wrap; margin-bottom: 24px;">';
-    echo '<button class="btn btn-secondary" onclick="filterBySystem(\'all\')">All Systems</button>';
+    // Filter dropdowns
+    echo '<div class="flex" style="gap: 12px; flex-wrap: wrap; margin-bottom: 24px; align-items: center;">';
+    echo '<label style="color: #aaa; font-weight: 600;">Filter by:</label>';
+    
+    // System dropdown
+    echo '<select id="systemFilter" onchange="filterBySystem(this.value)" class="form-select" style="min-width: 180px; padding: 8px 12px; border: 1px solid #444; border-radius: 6px; background: #2a2a2a; color: #fff;">';
+    echo '<option value="all">All Systems</option>';
     foreach ($systems as $system) {
-        echo '<button class="btn btn-secondary" onclick="filterBySystem(\''.strtolower($system).'\')">'.$system.'</button>';
+        echo '<option value="'.strtolower($system).'">'.$system.'</option>';
     }
+    echo '</select>';
+    
+    // Genre dropdown
+    echo '<select id="genreFilter" onchange="filterByGenre(this.value)" class="form-select" style="min-width: 180px; padding: 8px 12px; border: 1px solid #444; border-radius: 6px; background: #2a2a2a; color: #fff;">';
+    echo '<option value="all">All Genres</option>';
+    foreach ($genres as $genre) {
+        echo '<option value="'.strtolower($genre).'">'.$genre.'</option>';
+    }
+    echo '</select>';
+    
+    // Reset button
+    echo '<button class="btn btn-secondary" onclick="resetFilters()" style="padding: 8px 16px;">Reset Filters</button>';
     echo '</div>';
     
     // Game grid
@@ -122,7 +138,7 @@ if ($ui_mode === 'modern') {
         $genre = $game[7];
         $fave = $game[8];
         
-        echo '<div class="game-card" data-name="'.strtolower($title).'" data-system="'.strtolower($system).'">';
+        echo '<div class="game-card" data-name="'.strtolower($title).'" data-system="'.strtolower($system).'" data-genre="'.strtolower($genre).'">';
         echo '<div class="game-card-image-container">';
         echo '<a href="#" onclick="alert(\'Launch: '.$title.'\'); return false;">';
         
@@ -176,9 +192,13 @@ if ($ui_mode === 'modern') {
     
     // Scripts
     echo '<script>';
+    echo 'let activeSystemFilter="all";let activeGenreFilter="all";let searchQuery="";';
     echo 'function toggleSidebar(){const s=document.getElementById("sidebarNav"),o=document.getElementById("sidebarOverlay"),b=document.getElementById("burgerBtn");s.classList.toggle("open");o.classList.toggle("show");b.classList.toggle("open");}';
-    echo 'function filterGames(){const q=document.getElementById("searchInput").value.toLowerCase();document.querySelectorAll(".game-card").forEach(c=>{const n=c.getAttribute("data-name");c.style.display=n.includes(q)?"block":"none";});}';
-    echo 'function filterBySystem(s){document.querySelectorAll(".game-card").forEach(c=>{const sys=c.getAttribute("data-system");c.style.display=(s==="all"||sys.includes(s))?"block":"none";});}';
+    echo 'function applyFilters(){document.querySelectorAll(".game-card").forEach(c=>{const name=c.getAttribute("data-name");const sys=c.getAttribute("data-system");const genre=c.getAttribute("data-genre");const matchSearch=searchQuery===""||name.includes(searchQuery);const matchSystem=activeSystemFilter==="all"||sys.includes(activeSystemFilter);const matchGenre=activeGenreFilter==="all"||genre.includes(activeGenreFilter);c.style.display=(matchSearch&&matchSystem&&matchGenre)?"block":"none";});}';
+    echo 'function filterGames(){searchQuery=document.getElementById("searchInput").value.toLowerCase();applyFilters();}';
+    echo 'function filterBySystem(s){activeSystemFilter=s;applyFilters();}';
+    echo 'function filterByGenre(g){activeGenreFilter=g;applyFilters();}';
+    echo 'function resetFilters(){activeSystemFilter="all";activeGenreFilter="all";searchQuery="";document.getElementById("systemFilter").value="all";document.getElementById("genreFilter").value="all";document.getElementById("searchInput").value="";applyFilters();}';
     echo '</script>';
     
 } else {
