@@ -19,11 +19,18 @@ import os
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def connect(ip, port):
+	"""Establish connection to NetDIMM board.
+	
+	Args:
+		ip (str): IP address of the NetDIMM
+		port (int): Port number (typically 10703)
+	"""
 	global s
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect((ip, port))
 
 def disconnect():
+	"""Close connection to NetDIMM board."""
 	global s
 	s.close()
 
@@ -84,7 +91,12 @@ def CONTROL_Read(addr):
 	return s.recv(0xC)
 
 def SECURITY_SetKeycode(data):
-	assert len(data) == 8
+	"""Set security keycode for NetDIMM.
+	
+	Args:
+		data (bytes): 8-byte security key (use b'\x00' * 8 for zero security)
+	"""
+	assert len(data) == 8, "Security keycode must be exactly 8 bytes"
 	# MIGRATION: Ensure data is bytes
 	if isinstance(data, str):
 		data = data.encode('latin-1')
@@ -125,8 +137,8 @@ def DIMM_DumpToFile(file):
 		sys.stderr.write("%08x\r" % x)
 
 def HOST_DumpToFile(file, addr, len):
+	# CODE_QUALITY: Removed commented code
 	for x in range(addr, addr + len, 0x10):
-#		if not (x & 0xFFF):
 		sys.stderr.write("%08x\r" % x)
 		file.write(HOST_Read16(x))
 
@@ -141,10 +153,18 @@ def getPercent(first, second, integer = False):
 		return int(percent)
 	return percent
 
-# upload a file into DIMM memory, and optionally encrypt for the given key.
-# note that the re-encryption is obsoleted by just setting a zero-key, which
-# is a magic to disable the decryption.
-def DIMM_UploadFile(name, key = None):
+def DIMM_UploadFile(name, key=None):
+	"""Upload a file into DIMM memory with optional encryption.
+	
+	Args:
+		name (str): Path to ROM file (.bin or .gz)
+		key (bytes, optional): Encryption key (8 bytes). Defaults to None.
+		
+	Note:
+		Re-encryption is obsoleted by setting a zero-key,
+		which is a magic value to disable decryption.
+		Progress is written to /var/log/progress.txt
+	"""
 	import zlib
 	crc = 0
 	if name.endswith(".gz"):
@@ -156,10 +176,16 @@ def DIMM_UploadFile(name, key = None):
 	sys.stderr.write("Filesize: ")
 	sys.stderr.write(str(f))
 	sys.stderr.write("\n")
-	progressfile = open("/var/log/progress.txt", "w")
+	# CODE_QUALITY: Use context manager for progress file
+	with open("/var/log/progress.txt", "w") as progressfile:
+		progressfile.write("0\n")
+		progressfile.flush()
 	last = 0
 	if key:
 		d = DES.new(key[::-1], DES.MODE_ECB)
+	
+	# CODE_QUALITY: Re-open progress file for upload loop
+	progressfile = open("/var/log/progress.txt", "w")
 	while True:
 		i = int("%08x\r" % addr, 16)
 		progress = str(i)+"/"+str(f)
@@ -183,50 +209,20 @@ def DIMM_UploadFile(name, key = None):
 	DIMM_Upload(addr, b"12345678", 1)
 	DIMM_SetInformation(crc, addr)
 	time.sleep(0.2)
-	progressfile.write("COMPLETE")
-	progressfile.close()
+	# CODE_QUALITY: Ensure file is closed properly
+	if progressfile and not progressfile.closed:
+		progressfile.write("COMPLETE")
+		progressfile.close()
 
-# obsolete
-def PATCH_MakeProgressCode(x):
-	#addr = 0x80066ed8 # 2.03
-	#addr = 0x8005a9c0 # 1.07
-	#addr = 0x80068304 # 2.15
-	addr = 0x80068e0c # 3.01
-	HOST_Poke4(addr + 0, 0x4e800020)
-	HOST_Poke4(addr + 4, 0x38a00000 | x)
-	HOST_Poke4(addr + 8, 0x90a30000)
-	HOST_Poke4(addr + 12, 0x38a00000)
-	HOST_Poke4(addr + 16, 0x60000000)
-	HOST_Poke4(addr + 20, 0x4e800020)
-	HOST_Poke4(addr + 0, 0x60000000)
+# CODE_QUALITY: Obsolete functions removed
+# These patch functions were version-specific and are no longer used
+# Kept as historical reference in git history
 
-#obsolete
-def PATCH_MakeContentError(x):
-	#addr = 0x80066b30 # 2.03
-	#addr = 0x8005a72c # 1.07
-	#addr = 0x80067f5c # 2.15
-	addr = 0x8005a72c # 3.01
-	HOST_Poke4(addr + 0, 0x4e800020)
-	HOST_Poke4(addr + 4, 0x38a00000 | x)
-	HOST_Poke4(addr + 8, 0x90a30000)
-	HOST_Poke4(addr + 12, 0x38a00000)
-	HOST_Poke4(addr + 16, 0x60000000)
-	HOST_Poke4(addr + 20, 0x4e800020)
-	HOST_Poke4(addr + 0, 0x60000000)
-
-# this essentially removes a region check, and is triforce-specific; It's also segaboot-version specific.
-# - look for string: "CLogo::CheckBootId: skipped."
-# - binary-search for lower 16bit of address
+# CODE_QUALITY: Remove region check (triforce-specific, segaboot-version specific)
+# Look for string: "CLogo::CheckBootId: skipped."
+# Binary-search for lower 16bit of address
 def PATCH_CheckBootID():
-
-	# 3.01
+	"""Patches the boot ID check for firmware version 3.01"""
+	# 3.01 only - dead code after return removed
 	addr = 0x8000dc5c
 	HOST_Poke4(addr + 0, 0x4800001C)
-	return
-
-	addr = 0x8000CC6C # 2.03, 2.15
-	#addr = 0x8000d8a0 # 1.07
-	HOST_Poke4(addr + 0, 0x4e800020)
-	HOST_Poke4(addr + 4, 0x38600000)
-	HOST_Poke4(addr + 8, 0x4e800020)
-	HOST_Poke4(addr + 0, 0x60000000)
