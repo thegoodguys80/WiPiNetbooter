@@ -168,10 +168,10 @@ if ($ui_mode === 'modern') {
         }
         
         // Info button
-        // Convert video filename to screenshot (replace .mp4 with .png)
+        // Convert video filename to screenshot (replace .mp4 with _screenshot.png)
         $screenshot_path = '';
         if (!empty($video)) {
-            $screenshot_path = 'images/' . str_replace('.mp4', '.png', $video);
+            $screenshot_path = 'images/' . str_replace('.mp4', '_screenshot.png', $video);
         }
         $info_data = json_encode([
             'title' => $title,
