@@ -125,13 +125,16 @@ if ($ui_mode === 'modern') {
     echo '<div id="gameGrid" class="game-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;">';
     echo '<style>';
     echo '@media (max-width: 1024px) { ';
-    // Game grid and cards
-    echo '  #gameGrid { grid-template-columns: 1fr !important; gap: 16px !important; max-width: 100% !important; } ';
+    // Game grid and cards - very compact
+    echo '  #gameGrid { grid-template-columns: 1fr !important; gap: 12px !important; max-width: 100% !important; } ';
     echo '  .game-card { max-width: 100% !important; } ';
-    echo '  .game-card-img-box { height: 180px !important; font-size: 54px !important; } ';
-    echo '  .game-card-content { padding: 12px 16px !important; } ';
-    echo '  .game-card-title { font-size: 16px !important; margin: 0 0 8px 0 !important; line-height: 1.3 !important; } ';
-    echo '  .game-card-system-badge { font-size: 12px !important; padding: 5px 10px !important; } ';
+    echo '  .game-card-img-box { height: 120px !important; font-size: 42px !important; } ';
+    echo '  .game-card-content { padding: 8px 12px !important; } ';
+    echo '  .game-card-title { font-size: 14px !important; margin: 0 0 6px 0 !important; line-height: 1.2 !important; } ';
+    echo '  .game-card-system-badge { font-size: 11px !important; padding: 3px 8px !important; } ';
+    echo '  .game-card-content > div:nth-child(2) { margin-top: 6px !important; } ';
+    echo '  .game-card-content > div:nth-child(3) { margin-top: 4px !important; font-size: 11px !important; } ';
+    echo '  .game-card-content a.btn { margin-top: 8px !important; padding: 10px 12px !important; font-size: 14px !important; } ';
     // Modal optimizations
     echo '  #gameInfoModal > div { padding: 16px !important; max-width: 95% !important; max-height: 90vh !important; overflow-y: auto !important; } ';
     echo '  #modalImage { max-width: 100% !important; max-height: 120px !important; } ';
@@ -144,11 +147,14 @@ if ($ui_mode === 'modern') {
     echo '  #modalLaunchBtn, #gameInfoModal button { min-height: 52px !important; font-size: 17px !important; } ';
     // Hide/minimize less critical elements on small screens
     echo '  .grid.grid-cols-4 { display: none !important; } ';
-    echo '  h1.text-3xl { font-size: 20px !important; } ';
-    echo '  #searchInput { max-width: 200px !important; font-size: 14px !important; padding: 8px 12px !important; } ';
-    echo '  .flex.form-select { min-width: 140px !important; font-size: 14px !important; padding: 6px 10px !important; } ';
-    echo '  .btn.btn-secondary { padding: 6px 12px !important; font-size: 14px !important; } ';
-    echo '  .container { padding: 12px !important; } ';
+    echo '  h1.text-3xl { font-size: 18px !important; } ';
+    echo '  .flex:has(h1) { margin-bottom: 12px !important; } ';
+    echo '  #searchInput { max-width: 180px !important; font-size: 13px !important; padding: 6px 10px !important; } ';
+    echo '  .flex:has(label) { margin-bottom: 12px !important; gap: 8px !important; } ';
+    echo '  .flex:has(label) label { font-size: 13px !important; } ';
+    echo '  .flex.form-select, select.form-select { min-width: 120px !important; font-size: 13px !important; padding: 5px 8px !important; } ';
+    echo '  .btn.btn-secondary { padding: 5px 10px !important; font-size: 13px !important; } ';
+    echo '  .container { padding: 10px !important; } ';
     echo '}';
     echo '</style>';
     
