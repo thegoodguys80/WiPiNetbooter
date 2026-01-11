@@ -226,8 +226,9 @@ if ($ui_mode === 'modern') {
     echo '<a href="gamelist.php?display=faves" class="btn btn-secondary">⭐ Favorites</a>';
     echo '</div>';
     
-    // Alphabet navigation for modern UI
-    echo '<div class="flex" style="gap: 4px; flex-wrap: wrap; margin-bottom: 24px; font-size: 14px;">';
+    // Alphabet navigation for modern UI - Sticky
+    echo '<div id="alphabetNav" class="alphabet-nav" style="position: sticky; top: 72px; z-index: 100; background: var(--color-background); padding: 16px 0; margin-bottom: 24px; border-bottom: 2px solid var(--color-border); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">';
+    echo '<div class="flex" style="gap: 4px; flex-wrap: wrap; font-size: 14px; justify-content: center;">';
     $files = array_values(array_diff(scandir($path), array('.', '..')));
     $games_array = array();
     $f = fopen('csv/romsinfo.csv', 'r');
@@ -242,13 +243,13 @@ if ($ui_mode === 'modern') {
     $letters = array_keys($games_array);
     foreach($alphabetUpper as $letter => $value) {
         if (in_array($value, $letters)){
-            echo '<a href="#anchor'.$value.'" class="scrollLink badge badge-primary" style="cursor: pointer; text-decoration: none;">'.$value.'</a>';
+            echo '<a href="#anchor'.$value.'" class="alphabet-link badge badge-primary" data-letter="'.$value.'" style="cursor: pointer; text-decoration: none; transition: all 0.2s;">'.$value.'</a>';
         } else {
             echo '<span class="badge" style="opacity: 0.3;">'.$value.'</span>';
         }
     }
     fclose($f);
-    echo '</div>';
+    echo '</div></div>';
     
     echo '<div class="grid grid-cols-4" id="gameGrid">';
 } else {
@@ -847,6 +848,42 @@ function filterGames() {
     }
   });
 }
+
+// Smooth scroll for alphabet navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const alphabetLinks = document.querySelectorAll('.alphabet-link');
+  
+  alphabetLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+      
+      if (targetElement) {
+        // Highlight active letter
+        alphabetLinks.forEach(l => l.style.transform = 'scale(1)');
+        this.style.transform = 'scale(1.2)';
+        
+        // Smooth scroll with offset for sticky nav
+        const offsetTop = targetElement.offsetTop - 150;
+        window.scrollTo({
+          top: offsetTop,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+  
+  // Add hover effect
+  alphabetLinks.forEach(link => {
+    link.addEventListener('mouseenter', function() {
+      this.style.transform = 'scale(1.15)';
+    });
+    link.addEventListener('mouseleave', function() {
+      this.style.transform = 'scale(1)';
+    });
+  });
+});
 <?php } ?>
 
 </script>
