@@ -5,14 +5,27 @@ include 'menu.php';
 echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
 echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
 echo '<section><center><p>';
-$mapping = $_POST['mapping'];
+// SECURITY: Validate device path input
+$mapping = $_POST['mapping'] ?? '';
 
-echo '<br><br>Starting OpenJVS with mapping<br><b>'.$mapping.'</b>';
+// Validate device path (must be /dev/ttyUSB* or /dev/ttyACM*)
+if (!preg_match('#^/dev/(ttyUSB|ttyACM)[0-9]+$#', $mapping)) {
+    die('Error: Invalid device path. Must be /dev/ttyUSB* or /dev/ttyACM*');
+}
 
-$opencommand1 = escapeshellcmd('sudo killall -9 openjvs');
-shell_exec($opencommand1 . '> /dev/null 2>/dev/null &');
+// Verify device exists
+if (!file_exists($mapping)) {
+    die('Error: Device not found: ' . htmlspecialchars($mapping, ENT_QUOTES, 'UTF-8'));
+}
 
-$opencommand2 = escapeshellcmd('sudo openjvs '.$mapping);
-shell_exec($opencommand2 . '> /dev/null 2>/dev/null &');
+// SECURITY: HTML escape output
+echo '<br><br>Starting OpenJVS with mapping<br><b>' . htmlspecialchars($mapping, ENT_QUOTES, 'UTF-8') . '</b>';
+
+// SECURITY: Use secure command execution with escaped arguments
+$opencommand1 = 'sudo killall -9 openjvs';
+shell_exec($opencommand1 . ' > /dev/null 2>/dev/null &');
+
+$opencommand2 = 'sudo openjvs ' . escapeshellarg($mapping);
+shell_exec($opencommand2 . ' > /dev/null 2>/dev/null &');
 
 ?>
