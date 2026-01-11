@@ -1,9 +1,97 @@
 <?php
 
+// Load UI mode helper
+include_once 'ui_mode.php';
+$ui_mode = get_ui_mode();
+
+// Helper function to render game card (both Modern and Classic UI)
+function render_game_card($row, $ui_mode, $menumode, $filtertype = null, $value = null, $display = null) {
+    $system = $row[0];
+    $filename = $row[1];
+    $image = $row[2];
+    $gamename = $row[4];
+    $mapping = $row[14];
+    $ffb = $row[15];
+    $fave = $row[13];
+    
+    if ($ui_mode === 'modern') {
+        // Modern UI: Game card
+        echo '<div class="game-card" data-name="'.strtolower($gamename).'" data-system="'.strtolower($system).'">';
+        echo '<div class="game-card-image-container">';
+        
+        if ($menumode == 'advanced'){
+            if ($filtertype != null) {
+                echo '<a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'">';
+            } elseif ($display != null) {
+                echo '<a href="gamelist.php?filename='.$filename.'&display='.$display.'">';
+            } else {
+                echo '<a href="gamelist.php?filename='.$filename.'">';
+            }
+        } else {
+            echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">';
+        }
+        
+        echo '<img src="images/'.$image.'" alt="'.$gamename.'" class="game-card-image" loading="lazy">';
+        echo '</a>';
+        
+        if ($fave == "Yes"){
+            echo '<button class="game-card-favorite active" title="Remove from favorites">⭐</button>';
+        }
+        
+        echo '<div class="game-card-overlay">';
+        if ($menumode == 'advanced'){
+            if ($filtertype != null) {
+                echo '<a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'" class="btn btn-primary btn-sm">Details</a>';
+            } elseif ($display != null) {
+                echo '<a href="gamelist.php?filename='.$filename.'&display='.$display.'" class="btn btn-primary btn-sm">Details</a>';
+            } else {
+                echo '<a href="gamelist.php?filename='.$filename.'" class="btn btn-primary btn-sm">Details</a>';
+            }
+        } else {
+            echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'" class="btn btn-primary btn-sm">Launch</a>';
+        }
+        echo '</div>';
+        
+        echo '</div>';
+        echo '<div class="game-card-content">';
+        echo '<h3 class="game-card-title">'.$gamename.'</h3>';
+        echo '<span class="game-card-system-badge '.strtolower($system).'">'.$system.'</span>';
+        echo '</div>';
+        echo '</div>';
+    } else {
+        // Classic UI
+        echo '<div class="box1">';
+        echo '<a id="anchor'.$gamename.'" class="anchors"></a>';
+        if ($menumode == 'advanced'){
+            if ($filtertype != null) {
+                echo '<a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'"><img src="images/'.$image.'"></a></br></br>';
+                if ($fave == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
+                else {echo '<b><a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b></br>';}
+            } elseif ($display != null) {
+                echo '<a href="gamelist.php?filename='.$filename.'&display='.$display.'"><img src="images/'.$image.'"></a></br></br>';
+                if ($fave == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$filename.'&display='.$display.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
+                else {echo '<b><a href="gamelist.php?filename='.$filename.'&display='.$display.'">'.$gamename.'</a></b></br>';}
+            } else {
+                echo '<a href="gamelist.php?filename='.$filename.'"><img src="images/'.$image.'"></a></br></br>';
+                if ($fave == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$filename.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div>';}
+                else {echo '<b><a href="gamelist.php?filename='.$filename.'">'.$gamename.'</a></b><br>';}
+            }
+        } else {
+            echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
+            if ($fave == "Yes"){echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br></br>';}
+            else {echo '<b><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a><br>';}
+        }
+        echo '</div><br>';
+    }
+}
+
 echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
 echo '<meta name="description" content="Responsive Header Nav">';
 echo '<meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1">';
-echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
+
+// Load CSS based on UI mode
+load_ui_styles();
+
 include 'menu.php';
 
 ?>
@@ -26,8 +114,23 @@ $soundmode = file_get_contents('/sbin/piforce/soundmode.txt');
 $navmode = file_get_contents('/sbin/piforce/navmode.txt');
 $ffbmode = file_get_contents('/sbin/piforce/ffbmode.txt');
 
-echo '<section><center>';
-echo '<div>';
+// Modern UI wrapper
+if ($ui_mode === 'modern') {
+    echo '<div class="sidebar-nav" id="sidebarNav">';
+    echo '<button class="burger-menu" id="burgerBtn" onclick="toggleSidebar()" aria-label="Toggle menu"><span></span><span></span><span></span></button>';
+    echo '<nav><ul>';
+    echo '<li><a href="gamelist.php?display=all" class="active"><span>🎮</span> Games</a></li>';
+    echo '<li><a href="dimms.php"><span>💾</span> NetDIMMs</a></li>';
+    echo '<li><a href="setup.php"><span>⚙️</span> Setup</a></li>';
+    echo '<li><a href="menu.php"><span>📋</span> Options</a></li>';
+    echo '<li><a href="ui-mode-switcher.php"><span>🎨</span> UI Mode</a></li>';
+    echo '</ul></nav></div>';
+    echo '<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>';
+    echo '<div class="main-content">';
+} else {
+    echo '<section><center>';
+    echo '<div>';
+}
 
 if ($navmode == "navon"){
 echo '<button onclick="topFunction()" id="rtnBtn" title="Go to top"><img src="img/rtn.png" /></button>';
@@ -35,6 +138,113 @@ echo '<button onclick="topFunction()" id="rtnBtn" title="Go to top"><img src="im
 
 if ($display == 'all'){
 
+if ($ui_mode === 'modern') {
+    // Modern UI: Search bar and filter chips
+    echo '<div class="container" style="padding: 20px;">';
+    echo '<div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 24px;">';
+    echo '<h1 class="text-3xl" style="margin: 0;">Game Library</h1>';
+    echo '<input type="text" id="searchInput" class="form-input" placeholder="🔍 Search games..." style="max-width: 300px;" oninput="filterGames()">';
+    echo '</div>';
+    
+    echo '<div class="flex" style="gap: 8px; flex-wrap: wrap; margin-bottom: 24px;">';
+    echo '<div class="dropdown" style="position: relative;">';
+    echo '<button onclick="SystemFunction()" class="btn btn-secondary">System ▾</button>';
+    echo '<div id="SystemDropdown" class="dropdown-content">';
+    $unique_ids = array();
+    $f = fopen('csv/romsinfo.csv', 'r');
+    $headers = ($row = fgetcsv($f));
+    while ($row = fgetcsv($f)) {
+        $unique_ids[$row[0]] = true;
+    }
+    ksort($unique_ids);
+    $categories = array_keys($unique_ids);
+    foreach($categories as $category => $value) {
+        echo '<a href="/gamelist.php?filter=system&value='.$value.'">'.$value.'</a>';
+    }
+    fclose($f);
+    echo '</div></div>';
+    
+    echo '<div class="dropdown" style="position: relative;">';
+    echo '<button onclick="GenreFunction()" class="btn btn-secondary">Genre ▾</button>';
+    echo '<div id="GenreDropdown" class="dropdown-content">';
+    $unique_ids = array();
+    $f = fopen('csv/romsinfo.csv', 'r');
+    $headers = ($row = fgetcsv($f));
+    while ($row = fgetcsv($f)) {
+        $unique_ids[$row[8]] = true;
+    }
+    ksort($unique_ids);
+    $categories = array_keys($unique_ids);
+    foreach($categories as $category => $value) {
+        echo '<a href="/gamelist.php?filter=genre&value='.$value.'">'.$value.'</a>';
+    }
+    fclose($f);
+    echo '</div></div>';
+    
+    echo '<div class="dropdown" style="position: relative;">';
+    echo '<button onclick="OrientationFunction()" class="btn btn-secondary">Orientation ▾</button>';
+    echo '<div id="OrientationDropdown" class="dropdown-content">';
+    $unique_ids = array();
+    $f = fopen('csv/romsinfo.csv', 'r');
+    $headers = ($row = fgetcsv($f));
+    while ($row = fgetcsv($f)) {
+        $unique_ids[$row[10]] = true;
+    }
+    ksort($unique_ids);
+    $categories = array_keys($unique_ids);
+    foreach($categories as $category => $value) {
+        echo '<a href="/gamelist.php?filter=orientation&value='.$value.'">'.$value.'</a>';
+    }
+    fclose($f);
+    echo '</div></div>';
+    
+    echo '<div class="dropdown" style="position: relative;">';
+    echo '<button onclick="ControlFunction()" class="btn btn-secondary">Controls ▾</button>';
+    echo '<div id="ControlDropdown" class="dropdown-content">';
+    $unique_ids = array();
+    $f = fopen('csv/romsinfo.csv', 'r');
+    $headers = ($row = fgetcsv($f));
+    while ($row = fgetcsv($f)) {
+        $unique_ids[$row[11]] = true;
+    }
+    ksort($unique_ids);
+    $categories = array_keys($unique_ids);
+    foreach($categories as $category => $value) {
+        echo '<a href="/gamelist.php?filter=controls&value='.$value.'">'.$value.'</a>';
+    }
+    fclose($f);
+    echo '</div></div>';
+    
+    echo '<a href="gamelist.php?display=faves" class="btn btn-secondary">⭐ Favorites</a>';
+    echo '</div>';
+    
+    // Alphabet navigation for modern UI
+    echo '<div class="flex" style="gap: 4px; flex-wrap: wrap; margin-bottom: 24px; font-size: 14px;">';
+    $files = array_values(array_diff(scandir($path), array('.', '..')));
+    $games_array = array();
+    $f = fopen('csv/romsinfo.csv', 'r');
+    while (($row = fgetcsv($f)) !== false) {
+        foreach ($row as $cell) {
+            if ((in_array($row[1], $files)) and ($row[12] == "Yes")){
+                $games_array[strtoupper(substr($row[4],0,1))] = true;
+            }
+        }
+    }
+    $alphabetUpper = range('A', 'Z');
+    $letters = array_keys($games_array);
+    foreach($alphabetUpper as $letter => $value) {
+        if (in_array($value, $letters)){
+            echo '<a href="#anchor'.$value.'" class="scrollLink badge badge-primary" style="cursor: pointer; text-decoration: none;">'.$value.'</a>';
+        } else {
+            echo '<span class="badge" style="opacity: 0.3;">'.$value.'</span>';
+        }
+    }
+    fclose($f);
+    echo '</div>';
+    
+    echo '<div class="grid grid-cols-4" id="gameGrid">';
+} else {
+    // Classic UI
 ?>
 
 <div class="dropdown">
@@ -155,6 +365,7 @@ fclose($f);
 
 echo '<br><br></div>';
 echo '<a id="anchorTOP" class="anchors"></a>';
+}
 
 
    $lastname = 'aaaa';
@@ -164,7 +375,6 @@ echo '<a id="anchorTOP" class="anchors"></a>';
    while (($row = fgetcsv($f)) !== false) {
         foreach ($row as $cell) {
               if ((in_array($row[1], $files)) and ($row[12] == "Yes")){
-                  echo '<div class="box1">';
                   $i++;
                   $system = $row[0];
                   $filename = $row[1];
@@ -172,30 +382,88 @@ echo '<a id="anchorTOP" class="anchors"></a>';
                   $gamename = $row[4];
                   $mapping = $row[14];
                   $ffb = $row[15];
+                  $fave = $row[13];
                   $lastletter = strtoupper(substr($lastname,0,1));
                   $thisletter = strtoupper(substr($gamename,0,1));
-                  if (strcmp($lastletter, $thisletter) < 0 ){
-                       echo '<a id="anchor'.$thisletter.'" class="anchors"></a>';
+                  
+                  if ($ui_mode === 'modern') {
+                      // Modern UI: Game card
+                      if (strcmp($lastletter, $thisletter) < 0 ){
+                           echo '<a id="anchor'.$thisletter.'" class="anchors"></a>';
+                      }
+                      echo '<a id="anchor'.$gamename.'" class="anchors"></a>';
+                      echo '<div class="game-card" data-name="'.strtolower($gamename).'" data-system="'.strtolower($system).'">';
+                      echo '<div class="game-card-image-container">';
+                      
+                      if ($menumode == 'advanced'){
+                          echo '<a href="gamelist.php?filename='.$filename.'">';
+                      } else {
+                          echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">';
+                      }
+                      
+                      echo '<img src="images/'.$image.'" alt="'.$gamename.'" class="game-card-image" loading="lazy">';
+                      echo '</a>';
+                      
+                      if ($fave == "Yes"){
+                          echo '<button class="game-card-favorite active" title="Remove from favorites">⭐</button>';
+                      }
+                      
+                      echo '<div class="game-card-overlay">';
+                      if ($menumode == 'advanced'){
+                          echo '<a href="gamelist.php?filename='.$filename.'" class="btn btn-primary btn-sm">Details</a>';
+                      } else {
+                          echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'" class="btn btn-primary btn-sm">Launch</a>';
+                      }
+                      echo '</div>';
+                      
+                      echo '</div>';
+                      echo '<div class="game-card-content">';
+                      echo '<h3 class="game-card-title">'.$gamename.'</h3>';
+                      echo '<span class="game-card-system-badge '.strtolower($system).'">'.$system.'</span>';
+                      echo '</div>';
+                      echo '</div>';
+                  } else {
+                      // Classic UI
+                      echo '<div class="box1">';
+                      if (strcmp($lastletter, $thisletter) < 0 ){
+                           echo '<a id="anchor'.$thisletter.'" class="anchors"></a>';
+                      }
+                      echo '<a id="anchor'.$gamename.'" class="anchors"></a>';                  
+                      if ($menumode == 'advanced'){
+                      echo '<a href="gamelist.php?filename='.$row[1].'"><img src="images/'.$image.'"></a></br></br>';
+                      if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$row[1].'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div>';}
+                      else {echo '<b><a href="gamelist.php?filename='.$row[1].'">'.$gamename.'</a></b><br>';}}
+                      else {
+                      echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
+                      if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br></br>';}
+                      else {echo '<b><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a><br>';}}
+                      echo '</div><br>';
                   }
-                  echo '<a id="anchor'.$gamename.'" class="anchors"></a>';                  
+                  
                   $lastname = $gamename;
-                  if ($menumode == 'advanced'){
-                  echo '<a href="gamelist.php?filename='.$row[1].'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$row[1].'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div>';}
-                  else {echo '<b><a href="gamelist.php?filename='.$row[1].'">'.$gamename.'</a></b><br>';}}
-                  else {
-                  echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br></br>';}
-                  else {echo '<b><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a><br>';}}
-                  echo '</div><br>';
                   break;
               }
          }
      }
    fclose($f);
 
+   if ($ui_mode === 'modern') {
+       echo '</div>'; // Close grid
+       echo '</div>'; // Close container
+   }
+   
    if ($i == 0){
-      echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      if ($ui_mode === 'modern') {
+          echo '<div class="container" style="padding: 40px; text-align: center;">';
+          echo '<div class="empty-state">';
+          echo '<div class="empty-state-icon">🎮</div>';
+          echo '<h2>No Games Found</h2>';
+          echo '<p>No games are currently available. Add ROM files to get started.</p>';
+          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
+          echo '</div></div>';
+      } else {
+          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      }
    }
 
 }
@@ -255,191 +523,242 @@ echo '<a href="updatecsvfave.php?rom='.$filename.'&fave=No">Remove from Favourit
 
 
 if ($filtertype == "genre" && $filename == null) {
-   echo '<div><a href="gamelist.php?display=all"></div><h1>'.$value.' Games</h1></a></h1></div><br>';
+   if ($ui_mode === 'modern') {
+       echo '<div class="container" style="padding: 20px;">';
+       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
+       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
+       echo '<h1 class="text-3xl" style="margin: 0;">'.$value.' Games</h1>';
+       echo '</div>';
+       echo '<div class="grid grid-cols-4" id="gameGrid">';
+   } else {
+       echo '<div><a href="gamelist.php?display=all"></div><h1>'.$value.' Games</h1></a></h1></div><br>';
+   }
    $i = 0;
    $files = array_values(array_diff(scandir($path), array('.', '..')));
    $f = fopen($csvfile, "r");
    while (($row = fgetcsv($f)) !== false) {
         foreach ($row as $cell) {
               if ((in_array($row[1], $files)) and ($row[12] == "Yes") and ($row[8] == $value)){
-                  echo '<div class="box1">';
                   $i++;
-                  $system = $row[0];
-                  $filename = $row[1];
-                  $image = $row[2];
-                  $gamename = $row[4];
-                  $mapping = $row[14];
-                  $ffb = $row[15];
-                  echo '<a id="anchor'.$gamename.'" class="anchors"></a>';
-                  if ($menumode == 'advanced'){
-                  echo '<a href="gamelist.php?filename='.$row[1].'&filter='.$filtertype.'&value='.$value.'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$row[1].'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                  else {echo '<b><a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b></br>';}}
-                  else {
-                  echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                  else {echo '<b><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></br>';}}
-                  echo '</div><br>';
+                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
+                  render_game_card($row, $ui_mode, $menumode, $filtertype, $value, null);
                   break;
               }
          }
      }
    fclose($f);
 
+   if ($ui_mode === 'modern') {
+       echo '</div>'; // Close grid
+       echo '</div>'; // Close container
+   }
+   
    if ($i == 0){
-      echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      if ($ui_mode === 'modern') {
+          echo '<div class="container" style="padding: 40px; text-align: center;">';
+          echo '<div class="empty-state">';
+          echo '<div class="empty-state-icon">🎮</div>';
+          echo '<h2>No '.$value.' Games Found</h2>';
+          echo '<p>No games found in this genre.</p>';
+          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
+          echo '</div></div>';
+      } else {
+          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      }
    }
 }
 
 if ($filtertype == "system" && $filename == null) {
-   echo '<a href="gamelist.php?display=all"><img src="img/'.$value.'.png"></a><br><br>';
+   if ($ui_mode === 'modern') {
+       echo '<div class="container" style="padding: 20px;">';
+       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
+       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
+       echo '<img src="img/'.$value.'.png" style="height: 48px;" alt="'.$value.'">';
+       echo '<h1 class="text-3xl" style="margin: 0;">'.$value.' Games</h1>';
+       echo '</div>';
+       echo '<div class="grid grid-cols-4" id="gameGrid">';
+   } else {
+       echo '<a href="gamelist.php?display=all"><img src="img/'.$value.'.png"></a><br><br>';
+   }
    $i = 0;
    $files = array_values(array_diff(scandir($path), array('.', '..')));
    $f = fopen($csvfile, "r");
    while (($row = fgetcsv($f)) !== false) {
         foreach ($row as $cell) {
               if ((in_array($row[1], $files)) and ($row[12] == "Yes") and ($row[0] == $value)){
-                  echo '<div class="box1">';
                   $i++;
-                  $system = $row[0];
-                  $filename = $row[1];
-                  $image = $row[2];
-                  $gamename = $row[4];
-                  $mapping = $row[14];
-                  $ffb = $row[15];
-                  echo '<a id="anchor'.$gamename.'" class="anchors"></a>';
-                  if ($menumode == 'advanced'){
-                  echo '<a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$row[1].'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                  else {echo '<b><a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b></br>';}}
-                  else {
-                  echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                  else {echo '<b><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></br>';}}
-                  echo '</div><br>';
+                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
+                  render_game_card($row, $ui_mode, $menumode, $filtertype, $value, null);
                   break;
               }
          }
      }
    fclose($f);
 
+   if ($ui_mode === 'modern') {
+       echo '</div>'; // Close grid
+       echo '</div>'; // Close container
+   }
+   
    if ($i == 0){
-      echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      if ($ui_mode === 'modern') {
+          echo '<div class="container" style="padding: 40px; text-align: center;">';
+          echo '<div class="empty-state">';
+          echo '<div class="empty-state-icon">🎮</div>';
+          echo '<h2>No '.$value.' Games Found</h2>';
+          echo '<p>No games found for this system.</p>';
+          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
+          echo '</div></div>';
+      } else {
+          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      }
    }
 }
 
 if ($filtertype == "orientation" && $filename == null) {
-   echo '<div><a href="gamelist.php?display=all"></div><h1>'.$value.' Games</h1></a></div><br>';   $i = 0;
+   if ($ui_mode === 'modern') {
+       echo '<div class="container" style="padding: 20px;">';
+       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
+       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
+       echo '<h1 class="text-3xl" style="margin: 0;">'.$value.' Games</h1>';
+       echo '</div>';
+       echo '<div class="grid grid-cols-4" id="gameGrid">';
+   } else {
+       echo '<div><a href="gamelist.php?display=all"></div><h1>'.$value.' Games</h1></a></div><br>';
+   }
+   $i = 0;
    $files = array_values(array_diff(scandir($path), array('.', '..')));
    $f = fopen($csvfile, "r");
    while (($row = fgetcsv($f)) !== false) {
         foreach ($row as $cell) {
               if ((in_array($row[1], $files)) and ($row[12] == "Yes") and ($row[10] == $value)){
-                  echo '<div class="box1">';
                   $i++;
-                  $system = $row[0];
-                  $filename = $row[1];
-                  $image = $row[2];
-                  $gamename = $row[4];
-                  $mapping = $row[14];
-                  $ffb = $row[15];
-                  echo '<a id="anchor'.$gamename.'" class="anchors"></a>';
-                  if ($menumode == 'advanced'){
-                  echo '<a href="gamelist.php?filename='.$filename.'&filter='.$filtertype.'&value='.$value.'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$row[1].'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                  else {echo '<b><a href="gamelist.php?filename='.$row[1].'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b></br>';}}
-                  else {
-                  echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                  else {echo '<b><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></br>';}}
-                  echo '</div><br>';
+                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
+                  render_game_card($row, $ui_mode, $menumode, $filtertype, $value, null);
                   break;
               }
          }
      }
    fclose($f);
 
+   if ($ui_mode === 'modern') {
+       echo '</div>'; // Close grid
+       echo '</div>'; // Close container
+   }
+   
    if ($i == 0){
-      echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      if ($ui_mode === 'modern') {
+          echo '<div class="container" style="padding: 40px; text-align: center;">';
+          echo '<div class="empty-state">';
+          echo '<div class="empty-state-icon">🎮</div>';
+          echo '<h2>No '.$value.' Games Found</h2>';
+          echo '<p>No games found with this orientation.</p>';
+          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
+          echo '</div></div>';
+      } else {
+          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      }
    }
 }
 
 if ($filtertype == "controls" && $filename == null) {
-   echo '<div><a href="gamelist.php?display=all"></div><h1>Games with '.strtolower($value).' '.$filtertype.'</h1></a></div><br>';
+   if ($ui_mode === 'modern') {
+       echo '<div class="container" style="padding: 20px;">';
+       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
+       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
+       echo '<h1 class="text-3xl" style="margin: 0;">Games with '.strtolower($value).' controls</h1>';
+       echo '</div>';
+       echo '<div class="grid grid-cols-4" id="gameGrid">';
+   } else {
+       echo '<div><a href="gamelist.php?display=all"></div><h1>Games with '.strtolower($value).' '.$filtertype.'</h1></a></div><br>';
+   }
    $i = 0;
    $files = array_values(array_diff(scandir($path), array('.', '..')));
    $f = fopen($csvfile, "r");
    while (($row = fgetcsv($f)) !== false) {
         foreach ($row as $cell) {
               if ((in_array($row[1], $files)) and ($row[12] == "Yes") and ($row[11] == $value)){
-                  echo '<div class="box1">';
                   $i++;
-                  $system = $row[0];
-                  $filename = $row[1];
-                  $image = $row[2];
-                  $gamename = $row[4];
-                  $mapping = $row[14];
-                  $ffb = $row[15];
-                  echo '<a id="anchor'.$gamename.'" class="anchors"></a>';
-                  if ($menumode == 'advanced'){
-                  echo '<a href="gamelist.php?filename='.$row[1].'&filter='.$filtertype.'&value='.$value.'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="gamelist.php?filename='.$row[1].'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                  else {echo '<b><a href="gamelist.php?filename='.$row[1].'&filter='.$filtertype.'&value='.$value.'">'.$gamename.'</a></b></br>';}}
-                  else {
-                  echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
-                  if ($row[13] == "Yes"){echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';}
-                  else {echo '<b><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></br>';}}
-                  echo '</div><br>';
+                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
+                  render_game_card($row, $ui_mode, $menumode, $filtertype, $value, null);
                   break;
               }
          }
      }
    fclose($f);
 
+   if ($ui_mode === 'modern') {
+       echo '</div>'; // Close grid
+       echo '</div>'; // Close container
+   }
+   
    if ($i == 0){
-      echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      if ($ui_mode === 'modern') {
+          echo '<div class="container" style="padding: 40px; text-align: center;">';
+          echo '<div class="empty-state">';
+          echo '<div class="empty-state-icon">🎮</div>';
+          echo '<h2>No Games Found</h2>';
+          echo '<p>No games found with '.strtolower($value).' controls.</p>';
+          echo '<a href="gamelist.php?display=all" class="btn btn-primary">View All Games</a>';
+          echo '</div></div>';
+      } else {
+          echo '<div><a href="gamelist.php?display=all"></div>NO GAMES FOUND</a></div>';
+      }
    }
 }
 
 if ($display == "faves" && $filename == null) {
-   echo '<div><a href="gamelist.php?display=all"></div><h1>Favourite Games</h1></a></div><br>';
+   if ($ui_mode === 'modern') {
+       echo '<div class="container" style="padding: 20px;">';
+       echo '<div class="flex" style="align-items: center; margin-bottom: 24px; gap: 16px;">';
+       echo '<a href="gamelist.php?display=all" class="btn btn-secondary">← Back</a>';
+       echo '<h1 class="text-3xl" style="margin: 0;">⭐ Favourite Games</h1>';
+       echo '</div>';
+       echo '<div class="grid grid-cols-4" id="gameGrid">';
+   } else {
+       echo '<div><a href="gamelist.php?display=all"></div><h1>Favourite Games</h1></a></div><br>';
+   }
    $i = 0;
    $files = array_values(array_diff(scandir($path), array('.', '..')));
    $f = fopen($csvfile, "r");
    while (($row = fgetcsv($f)) !== false) {
         foreach ($row as $cell) {
               if ((in_array($row[1], $files)) and ($row[13] == "Yes")){
-                  echo '<div class="box1">';
                   $i++;
-                  $system = $row[0];
-                  $filename = $row[1];
-                  $image = $row[2];
-                  $gamename = $row[4];
-                  $mapping = $row[14];
-                  $ffb = $row[15];
-                  echo '<a id="anchor'.$gamename.'" class="anchors"></a>';
-                  if ($menumode == 'advanced'){
-                  echo '<a href="gamelist.php?filename='.$row[1].'&display='.$display.'"><img src="images/'.$image.'"></a></br></br>';
-                  echo '<b><div class="parent"><a href="gamelist.php?filename='.$row[1].'&display='.$display.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div>';
-                  }
-                  else {
-                  echo '<a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'"><img src="images/'.$image.'"></a></br></br>';
-                  echo '<b><div class="parent"><a href="loadcheck.php?rom='.$filename.'&name='.$gamename.'&system='.$system.'&mapping='.$mapping.'&ffb='.$ffb.'">'.$gamename.'</a></b><img src="img/fave.png" class="over-img"/></div></br>';
-                  }
-                  echo '</div><br>';
+                  echo '<a id="anchor'.$row[4].'" class="anchors"></a>';
+                  render_game_card($row, $ui_mode, $menumode, null, null, $display);
                   break;
               }
          }
      }
    fclose($f);
 
+   if ($ui_mode === 'modern') {
+       echo '</div>'; // Close grid
+       echo '</div>'; // Close container
+   }
+   
    if ($i == 0){
-      echo '<div><a href="gamelist.php?display=all"></div>NO FAVOURITES FOUND</a></div>';
+      if ($ui_mode === 'modern') {
+          echo '<div class="container" style="padding: 40px; text-align: center;">';
+          echo '<div class="empty-state">';
+          echo '<div class="empty-state-icon">⭐</div>';
+          echo '<h2>No Favourites</h2>';
+          echo '<p>You haven\'t added any games to your favourites yet.</p>';
+          echo '<a href="gamelist.php?display=all" class="btn btn-primary">Browse Games</a>';
+          echo '</div></div>';
+      } else {
+          echo '<div><a href="gamelist.php?display=all"></div>NO FAVOURITES FOUND</a></div>';
+      }
    }
 }
 
 
-echo '</div>';
+if ($ui_mode === 'modern') {
+    echo '</div>'; // Close main-content
+} else {
+    echo '</div>';
+}
 
 ?>
 
@@ -491,6 +810,34 @@ function topFunction() {
   document.body.scrollTop = 0;
   document.documentElement.scrollTop = 0;
 }
+
+<?php if ($ui_mode === 'modern') { ?>
+// Sidebar toggle for Modern UI
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebarNav');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('active');
+  overlay.classList.toggle('active');
+}
+
+// Search functionality
+function filterGames() {
+  const searchInput = document.getElementById('searchInput');
+  const filter = searchInput.value.toLowerCase();
+  const gameCards = document.querySelectorAll('.game-card');
+  
+  gameCards.forEach(card => {
+    const gameName = card.getAttribute('data-name');
+    const system = card.getAttribute('data-system');
+    
+    if (gameName.includes(filter) || system.includes(filter)) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+<?php } ?>
 
 </script>
 
