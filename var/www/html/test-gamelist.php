@@ -215,9 +215,8 @@ if ($ui_mode === 'modern') {
     echo '<div id="gameInfoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;" onclick="closeGameInfo()">';
     echo '<div style="background: #1a1a1a; border-radius: 12px; padding: 32px; max-width: 900px; width: 90%; border: 2px solid #4a9eff; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" onclick="event.stopPropagation();">';
     
-    // Title at top center with game image below it
+    // Game image at top center (no text title)
     echo '<div style="text-align: center; margin-bottom: 24px;">';
-    echo '<h2 id="modalTitle" style="margin: 0 0 16px 0; color: #4a9eff; font-size: 24px;"></h2>';
     echo '<img id="modalImage" src="" alt="Game Title" style="max-width: 300px; max-height: 200px; border-radius: 8px; background: transparent;">';
     echo '</div>';
     
@@ -249,19 +248,24 @@ if ($ui_mode === 'modern') {
     echo '</video>';
     echo '</div>';
     
-    echo '<button onclick="closeGameInfo()" style="width: 100%; padding: 12px; background: #4a9eff; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#3a8eef\'" onmouseout="this.style.background=\'#4a9eff\'">Close</button>';
+    // Action buttons
+    echo '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">';
+    echo '<button id="modalLaunchBtn" onclick="launchGame()" style="padding: 12px; background: #28a745; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#218838\'" onmouseout="this.style.background=\'#28a745\'">Launch</button>';
+    echo '<button onclick="closeGameInfo()" style="padding: 12px; background: #6c757d; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#5a6268\'" onmouseout="this.style.background=\'#6c757d\'">Close</button>';
+    echo '</div>';
     echo '</div></div>';
     
     // Scripts
     echo '<script>';
-    echo 'let activeSystemFilter="all";let activeGenreFilter="all";let searchQuery="";';
+    echo 'let activeSystemFilter="all";let activeGenreFilter="all";let searchQuery="";let currentGameTitle="";';
     echo 'function toggleSidebar(){const s=document.getElementById("sidebarNav"),o=document.getElementById("sidebarOverlay"),b=document.getElementById("burgerBtn");s.classList.toggle("open");o.classList.toggle("show");b.classList.toggle("open");}';
     echo 'function applyFilters(){document.querySelectorAll(".game-card").forEach(c=>{const name=c.getAttribute("data-name");const sys=c.getAttribute("data-system");const genre=c.getAttribute("data-genre");const matchSearch=searchQuery===""||name.includes(searchQuery);const matchSystem=activeSystemFilter==="all"||sys.includes(activeSystemFilter);const matchGenre=activeGenreFilter==="all"||genre.includes(activeGenreFilter);c.style.display=(matchSearch&&matchSystem&&matchGenre)?"block":"none";});}';
     echo 'function filterGames(){searchQuery=document.getElementById("searchInput").value.toLowerCase();applyFilters();}';
     echo 'function filterBySystem(s){activeSystemFilter=s;applyFilters();}';
     echo 'function filterByGenre(g){activeGenreFilter=g;applyFilters();}';
     echo 'function resetFilters(){activeSystemFilter="all";activeGenreFilter="all";searchQuery="";document.getElementById("systemFilter").value="all";document.getElementById("genreFilter").value="all";document.getElementById("searchInput").value="";applyFilters();}';
-    echo 'function showGameInfo(data){document.getElementById("modalTitle").textContent=data.title;document.getElementById("modalSystem").textContent=data.system;document.getElementById("modalGenre").textContent=data.genre;document.getElementById("modalManufacturer").textContent=data.manufacturer;document.getElementById("modalYear").textContent=data.year;document.getElementById("modalFilename").textContent=data.filename;const img=document.getElementById("modalImage");const imgContainer=img.parentElement;if(data.image){img.src=data.image;img.onerror=function(){imgContainer.style.display="none";};img.onload=function(){imgContainer.style.display="block";};imgContainer.style.display="block";}else{imgContainer.style.display="none";}const screenshot=document.getElementById("modalScreenshot");const screenshotContainer=document.getElementById("modalScreenshotContainer");if(data.screenshot){screenshot.src=data.screenshot;screenshot.onerror=function(){screenshotContainer.style.display="none";};screenshot.onload=function(){screenshotContainer.style.display="block";};screenshotContainer.style.display="block";}else{screenshotContainer.style.display="none";}const video=document.getElementById("modalVideo");const videoSource=document.getElementById("modalVideoSource");const videoContainer=document.getElementById("modalVideoContainer");if(data.video){videoSource.src=data.video;video.load();videoContainer.style.display="block";}else{videoContainer.style.display="none";}document.getElementById("gameInfoModal").style.display="flex";}';
+    echo 'function showGameInfo(data){currentGameTitle=data.title;document.getElementById("modalSystem").textContent=data.system;document.getElementById("modalGenre").textContent=data.genre;document.getElementById("modalManufacturer").textContent=data.manufacturer;document.getElementById("modalYear").textContent=data.year;document.getElementById("modalFilename").textContent=data.filename;const img=document.getElementById("modalImage");const imgContainer=img.parentElement;if(data.image){img.src=data.image;img.onerror=function(){imgContainer.style.display="none";};img.onload=function(){imgContainer.style.display="block";};imgContainer.style.display="block";}else{imgContainer.style.display="none";}const screenshot=document.getElementById("modalScreenshot");const screenshotContainer=document.getElementById("modalScreenshotContainer");if(data.screenshot){screenshot.src=data.screenshot;screenshot.onerror=function(){screenshotContainer.style.display="none";};screenshot.onload=function(){screenshotContainer.style.display="block";};screenshotContainer.style.display="block";}else{screenshotContainer.style.display="none";}const video=document.getElementById("modalVideo");const videoSource=document.getElementById("modalVideoSource");const videoContainer=document.getElementById("modalVideoContainer");if(data.video){videoSource.src=data.video;video.load();videoContainer.style.display="block";}else{videoContainer.style.display="none";}document.getElementById("gameInfoModal").style.display="flex";}';
+    echo 'function launchGame(){alert("Launch: "+currentGameTitle);closeGameInfo();}';
     echo 'function closeGameInfo(){const video=document.getElementById("modalVideo");video.pause();video.currentTime=0;document.getElementById("gameInfoModal").style.display="none";}';
     echo '</script>';
     
