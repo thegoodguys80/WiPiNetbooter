@@ -124,12 +124,14 @@ if ($ui_mode === 'modern') {
     // Game grid - optimized for touchscreens
     echo '<div id="gameGrid" class="game-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;">';
     echo '<style>';
+    // Default desktop styles
+    echo '.game-card-img-box { height: 280px; }';
     echo '@media (max-width: 1024px) { ';
     // Game grid and cards - very compact with snap scrolling
     echo '  #gameGrid { grid-template-columns: 1fr !important; gap: 0px !important; max-width: 100% !important; scroll-snap-type: y mandatory !important; overflow-y: auto !important; } ';
     echo '  .game-card { max-width: 100% !important; scroll-snap-align: start !important; margin-bottom: 6px !important; display: flex !important; flex-direction: column !important; gap: 0 !important; padding: 0 !important; } ';
     echo '  .game-card > * { margin: 0 !important; } ';
-    echo '  .game-card-image-container { margin: 0 !important; padding: 0 !important; display: block !important; line-height: 0 !important; } ';
+    echo '  .game-card-image-container { margin: 0 !important; padding: 0 !important; display: block !important; line-height: 0 !important; aspect-ratio: unset !important; height: auto !important; } ';
     echo '  .game-card-image-container > * { margin: 0 !important; padding: 0 !important; } ';
     echo '  .game-card-img-box { height: 120px !important; font-size: 42px !important; margin: 0 !important; padding: 0 !important; display: flex !important; } ';
     echo '  .game-card-content { padding: 4px 10px 6px 10px !important; margin: 0 !important; margin-top: 0 !important; } ';
@@ -183,7 +185,7 @@ if ($ui_mode === 'modern') {
         $fallback_color = adjustBrightness($color, -20);
         
         // Container with placeholder background
-        echo '<div class="game-card-img-box" style="position: relative; width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.$fallback_color.' 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px; overflow: hidden;">';
+        echo '<div class="game-card-img-box" style="position: relative; width: 100%; background: linear-gradient(135deg, '.$color.' 0%, '.$fallback_color.' 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px; overflow: hidden;">';
         
         // Show letter
         echo '<span style="position: absolute; z-index: 1;">'.$initial.'</span>';
