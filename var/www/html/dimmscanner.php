@@ -11,8 +11,17 @@ function scan_target(){
         $scanranges = explode("\n",rtrim($ipranges));
         echo '<br><b>'.count($scanranges).' IP ranges detected<br><br></b>';
         foreach($scanranges as $scanrange){
-        echo 'Scanning '.$scanrange.' for dimms';
-	$cmd = escapeshellcmd("nmap --open -oG /sbin/piforce/nmap.txt -p10703 $scanrange");
+        // SECURITY: Validate and sanitize scan range
+        // scanrange comes from system command output, should be safe IP/CIDR
+        // but validate format to be sure
+        if (!preg_match('/^[0-9\.:\/]+$/', $scanrange)) {
+            echo '<br><span class="offline"><b>Invalid IP range: ' . htmlspecialchars($scanrange, ENT_QUOTES, 'UTF-8') . '</b></span><br>';
+            continue;
+        }
+        
+        echo 'Scanning ' . htmlspecialchars($scanrange, ENT_QUOTES, 'UTF-8') . ' for dimms';
+	// SECURITY: Use escapeshellarg for scan range parameter
+	$cmd = 'nmap --open -oG /sbin/piforce/nmap.txt -p10703 ' . escapeshellarg($scanrange);
 	echo '<pre>';
 	$a = popen($cmd, 'r'); 
 	while($b = fgets($a, 4096)) { 

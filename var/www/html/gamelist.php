@@ -237,7 +237,8 @@ if ($filename !== null && $display != "all") {
             }
             echo '<table id="gameinfo" style="width:100%"><tr><td><b>System</b></td><td>'.$system.'</td><td><b>Manufacturer</b></td><td>'.$manufacturer.'</td></tr><tr><td><b>Year</b></td><td>'.$year.'</td><td><b>Genre</b></td><td>'.$genre.'</td></tr><tr><td><b>Controls</b></td><td>'.$controls.'</td><td><b>Orientation</b></td><td>'.$orientation.'</td></tr>';
             if ($openmode == 'openon'){
-                $command = escapeshellcmd('sudo python /sbin/piforce/devicelist.py');
+                // SECURITY: Static command with no user input
+                $command = 'sudo python /sbin/piforce/devicelist.py';
                 shell_exec($command);
                 include 'devicelist.php';
                 echo '<tr><td><b>Mapping</b></td><td>'.$mapping.'</td><td><b>Controllers</b></td><td>'.$enableddevices.'</td></tr>';}

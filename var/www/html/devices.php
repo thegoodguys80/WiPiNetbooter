@@ -79,7 +79,8 @@ if (($_GET["command"] ?? '') == 'delete') {
     exit;
 }
 
-$command = escapeshellcmd("sudo python /sbin/piforce/devicefiles.py");
+// SECURITY: Static command with no user input
+$command = 'sudo python /sbin/piforce/devicefiles.py';
 shell_exec($command);
 
 $devicefiles = scandir('/etc/openjvs/devices');
