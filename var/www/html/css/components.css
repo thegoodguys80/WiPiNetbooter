@@ -842,6 +842,49 @@
   gap: var(--space-2);
 }
 
+/* Dropdown content - hidden by default, shown with .show class */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: var(--space-2);
+  min-width: 180px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: var(--space-2);
+  z-index: 1000;
+}
+
+/* Show dropdown when it has .show class (from JavaScript) */
+.dropdown-content.show {
+  display: block;
+}
+
+/* Dropdown links */
+.dropdown-content a {
+  display: block;
+  width: 100%;
+  padding: var(--space-3);
+  text-align: left;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.dropdown-content a:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-primary);
+}
+
+/* Alternative dropdown-menu for modern approach */
 .dropdown-menu {
   position: absolute;
   top: 100%;
