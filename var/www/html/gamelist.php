@@ -121,8 +121,9 @@ if ($ui_mode === 'modern') {
     echo '<button class="btn btn-secondary" onclick="resetFilters()" style="padding: 8px 16px;">Reset Filters</button>';
     echo '</div>';
     
-    // Game grid
-    echo '<div id="gameGrid" class="game-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px;">';
+    // Game grid - optimized for touchscreens
+    echo '<div id="gameGrid" class="game-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;">';
+    echo '<style>@media (max-width: 1024px) { #gameGrid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important; gap: 24px !important; } }</style>';
     
     foreach ($sample_games as $game) {
         $system = $game[0];
@@ -186,7 +187,7 @@ if ($ui_mode === 'modern') {
             'mapping' => $mapping,
             'ffb' => $ffb
         ]);
-        echo '<button class="game-card-info" onclick="showGameInfo('.htmlspecialchars($info_data, ENT_QUOTES).'); event.preventDefault();" title="Game Information" style="position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 2px solid #4a9eff; color: #4a9eff; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s;" onmouseover="this.style.background=\'#4a9eff\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'rgba(0,0,0,0.7)\'; this.style.color=\'#4a9eff\';">i</button>';
+        echo '<button class="game-card-info" onclick="showGameInfo('.htmlspecialchars($info_data, ENT_QUOTES).'); event.preventDefault();" title="Game Information" style="position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 2px solid #4a9eff; color: #4a9eff; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s;" onmouseover="this.style.background=\'#4a9eff\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'rgba(0,0,0,0.7)\'; this.style.color=\'#4a9eff\';">i</button>';
         
         echo '</div>';
         
@@ -201,7 +202,7 @@ if ($ui_mode === 'modern') {
         echo '</div>';
         
         // Launch button at bottom of card
-        echo '<a href="loadcheck.php?rom='.$filename.'&name='.urlencode($title).'&system='.urlencode($system).'&mapping='.$mapping.'&ffb='.$ffb.'" class="btn btn-primary" style="display: block; width: 100%; margin-top: 12px; padding: 8px 16px; text-align: center; text-decoration: none;">Launch</a>';
+        echo '<a href="loadcheck.php?rom='.$filename.'&name='.urlencode($title).'&system='.urlencode($system).'&mapping='.$mapping.'&ffb='.$ffb.'" class="btn btn-primary" style="display: block; width: 100%; margin-top: 12px; padding: 12px 16px; text-align: center; text-decoration: none; font-size: 15px; font-weight: 600;">Launch</a>';
         
         echo '</div>';
         echo '</div>';
@@ -248,10 +249,10 @@ if ($ui_mode === 'modern') {
     echo '</video>';
     echo '</div>';
     
-    // Action buttons
-    echo '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">';
-    echo '<button id="modalLaunchBtn" onclick="launchGame()" style="padding: 12px; background: #28a745; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#218838\'" onmouseout="this.style.background=\'#28a745\'">Launch</button>';
-    echo '<button onclick="closeGameInfo()" style="padding: 12px; background: #6c757d; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#5a6268\'" onmouseout="this.style.background=\'#6c757d\'">Close</button>';
+    // Action buttons - larger for touchscreens
+    echo '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">';
+    echo '<button id="modalLaunchBtn" onclick="launchGame()" style="padding: 16px 12px; background: #28a745; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; min-height: 56px;" onmouseover="this.style.background=\'#218838\'" onmouseout="this.style.background=\'#28a745\'">Launch</button>';
+    echo '<button onclick="closeGameInfo()" style="padding: 16px 12px; background: #6c757d; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; min-height: 56px;" onmouseover="this.style.background=\'#5a6268\'" onmouseout="this.style.background=\'#6c757d\'">Close</button>';
     echo '</div>';
     echo '</div></div>';
     
