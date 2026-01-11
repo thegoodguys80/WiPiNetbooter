@@ -9,28 +9,51 @@ echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
 if(isset($_POST["submit"]))
 {
 
-$ip = $_POST["ip"];
-$sm = $_POST["sm"];
-$gw = $_POST["gw"];
+// SECURITY: Validate all network configuration inputs
+$ip = $_POST["ip"] ?? '';
+$sm = $_POST["sm"] ?? '';
+$gw = $_POST["gw"] ?? '';
 
 if($ip != ''){
-if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-  $command = escapeshellcmd("sudo python /sbin/piforce/setstatic.py wireless '$wifimode' '$ip' '$sm' '$gw'");
-  shell_exec($command);
-}
-else{
-  $error .= '<font color="red"><b>IP Address is invalid</b></font><br>';
-}
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        // Validate subnet mask
+        if (!filter_var($sm, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $error .= '<font color="red"><b>Subnet mask is invalid</b></font><br>';
+        }
+        // Validate gateway (if provided)
+        elseif ($gw != '' && !filter_var($gw, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $error .= '<font color="red"><b>Gateway is invalid</b></font><br>';
+        }
+        else {
+            // SECURITY: Use escapeshellarg for each parameter
+            $command = 'sudo python /sbin/piforce/setstatic.py wireless ' . 
+                       escapeshellarg($wifimode) . ' ' . 
+                       escapeshellarg($ip) . ' ' . 
+                       escapeshellarg($sm) . ' ' . 
+                       escapeshellarg($gw);
+            shell_exec($command);
+        }
+    }
+    else{
+        $error .= '<font color="red"><b>IP Address is invalid</b></font><br>';
+    }
 }
 
+ // SECURITY: Validate SSID and PSK inputs
  if(empty($_POST["manssid"]))
  {
-  $ssid = $_POST['ssid'];
+  $ssid = $_POST['ssid'] ?? '';
  }
  else
  {
-  $ssid = $_POST['manssid'];
+  $ssid = $_POST['manssid'] ?? '';
  }
+ 
+ // Validate SSID (max 32 characters, alphanumeric and common symbols)
+ if (strlen($ssid) > 32 || !preg_match('/^[a-zA-Z0-9_\-\s\.]+$/', $ssid)) {
+     $error .= '<font color="red"><b>SSID is invalid (max 32 chars, alphanumeric only)</b></font><br>';
+ }
+ 
  if(empty($_POST["psk"]))
  {
   $error .= '<font color="red"><b> Password is required</b></font>';
@@ -39,6 +62,10 @@ else{
  {
   $error .= '<font color="red"><b> Password must be at least 8 characters</b></font><br>';
  }
+ else if(strlen($_POST["psk"]) > 63)
+ {
+  $error .= '<font color="red"><b> Password must be 63 characters or less</b></font><br>';
+ }
  else
  {
   $psk = $_POST['psk'];
@@ -46,11 +73,14 @@ else{
 
  if($error == '')
  {
-  $wificommand = escapeshellcmd("sudo python /sbin/piforce/wificopy.py '$ssid' '$psk'");
+  // SECURITY: Use escapeshellarg for parameters
+  $wificommand = 'sudo python /sbin/piforce/wificopy.py ' . 
+                 escapeshellarg($ssid) . ' ' . 
+                 escapeshellarg($psk);
   shell_exec($wificommand);
   $error = '<font color="green"><b>Wifi Settings Updated<br>Rebooting ...</b></font>';
-  $rebootcommand = escapeshellcmd("sudo python /sbin/piforce/reboot.py");
-  shell_exec($rebootcommand . '> /dev/null 2>/dev/null &');
+  $rebootcommand = 'sudo python /sbin/piforce/reboot.py';
+  shell_exec($rebootcommand . ' > /dev/null 2>/dev/null &');
   $ssid = '';
   $psk = '';
  }
