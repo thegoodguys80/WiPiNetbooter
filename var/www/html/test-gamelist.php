@@ -211,25 +211,17 @@ if ($ui_mode === 'modern') {
     // Game info modal
     echo '<div id="gameInfoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;" onclick="closeGameInfo()">';
     echo '<div style="background: #1a1a1a; border-radius: 12px; padding: 32px; max-width: 900px; width: 90%; border: 2px solid #4a9eff; box-shadow: 0 8px 32px rgba(0,0,0,0.5);" onclick="event.stopPropagation();">';
-    echo '<h2 id="modalTitle" style="margin: 0 0 24px 0; color: #4a9eff; font-size: 24px;"></h2>';
     
-    // Images container - side by side
-    echo '<div id="modalImagesContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">';
-    
-    // Left: Game title image (transparent background)
-    echo '<div style="text-align: center;">';
-    echo '<div style="font-size: 12px; color: #aaa; margin-bottom: 8px; font-weight: 600;">Game Title</div>';
-    echo '<img id="modalImage" src="" alt="Game Title" style="max-width: 100%; max-height: 250px; border-radius: 8px; background: transparent;">';
+    // Title at top center with game image below it
+    echo '<div style="text-align: center; margin-bottom: 24px;">';
+    echo '<h2 id="modalTitle" style="margin: 0 0 16px 0; color: #4a9eff; font-size: 24px;"></h2>';
+    echo '<img id="modalImage" src="" alt="Game Title" style="max-width: 300px; max-height: 200px; border-radius: 8px; background: transparent;">';
     echo '</div>';
     
-    // Right: Gameplay screenshot
-    echo '<div id="modalScreenshotContainer" style="text-align: center;">';
-    echo '<div style="font-size: 12px; color: #aaa; margin-bottom: 8px; font-weight: 600;">Gameplay</div>';
-    echo '<img id="modalScreenshot" src="" alt="Gameplay Screenshot" style="max-width: 100%; max-height: 250px; border-radius: 8px; background: #0a0a0a; padding: 8px;">';
-    echo '</div>';
+    // Two column layout: Game info (left) and Screenshot (right)
+    echo '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">';
     
-    echo '</div>';
-    
+    // Left: Game information
     echo '<div style="display: grid; gap: 16px;">';
     echo '<div><strong style="color: #aaa;">System:</strong> <span id="modalSystem" style="color: #fff;"></span></div>';
     echo '<div><strong style="color: #aaa;">Genre:</strong> <span id="modalGenre" style="color: #fff;"></span></div>';
@@ -237,7 +229,15 @@ if ($ui_mode === 'modern') {
     echo '<div><strong style="color: #aaa;">Year:</strong> <span id="modalYear" style="color: #fff;"></span></div>';
     echo '<div><strong style="color: #aaa;">ROM File:</strong> <span id="modalFilename" style="color: #888; font-size: 12px; word-break: break-all;"></span></div>';
     echo '</div>';
-    echo '<button onclick="closeGameInfo()" style="margin-top: 24px; width: 100%; padding: 12px; background: #4a9eff; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#3a8eef\'" onmouseout="this.style.background=\'#4a9eff\'">Close</button>';
+    
+    // Right: Gameplay screenshot
+    echo '<div id="modalScreenshotContainer" style="text-align: center;">';
+    echo '<img id="modalScreenshot" src="" alt="Gameplay Screenshot" style="max-width: 100%; max-height: 300px; border-radius: 8px; background: #0a0a0a; padding: 8px;">';
+    echo '</div>';
+    
+    echo '</div>';
+    
+    echo '<button onclick="closeGameInfo()" style="width: 100%; padding: 12px; background: #4a9eff; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#3a8eef\'" onmouseout="this.style.background=\'#4a9eff\'">Close</button>';
     echo '</div></div>';
     
     // Scripts
