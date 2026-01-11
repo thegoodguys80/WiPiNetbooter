@@ -183,25 +183,54 @@ if ($ui_mode === 'modern') {
 </center></section>
 
 <?php if ($ui_mode === 'modern'): ?>
-    <!-- Modern UI Bottom Nav -->
-    <nav class="kiosk-nav">
-        <a href="gamelist.php?display=all" class="kiosk-nav-item">
-            <span class="kiosk-nav-icon">🎮</span>
-            <span class="kiosk-nav-label">Games</span>
+    <!-- Burger Menu Button -->
+    <button class="burger-menu" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <span class="burger-menu-line"></span>
+        <span class="burger-menu-line"></span>
+        <span class="burger-menu-line"></span>
+    </button>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Left Sidebar Navigation -->
+    <nav class="sidebar-nav">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">WiPi Netbooter</h2>
+        </div>
+        <a href="gamelist.php?display=all" class="sidebar-nav-item">
+            <span class="sidebar-nav-icon">🎮</span>
+            <span class="sidebar-nav-label">Games</span>
         </a>
-        <a href="dimms.php" class="kiosk-nav-item">
-            <span class="kiosk-nav-icon">🔌</span>
-            <span class="kiosk-nav-label">NetDIMMs</span>
+        <a href="dimms.php" class="sidebar-nav-item">
+            <span class="sidebar-nav-icon">🔌</span>
+            <span class="sidebar-nav-label">NetDIMMs</span>
         </a>
-        <a href="setup.php" class="kiosk-nav-item active">
-            <span class="kiosk-nav-icon">⚙️</span>
-            <span class="kiosk-nav-label">Setup</span>
+        <a href="setup.php" class="sidebar-nav-item active">
+            <span class="sidebar-nav-icon">⚙️</span>
+            <span class="sidebar-nav-label">Setup</span>
         </a>
-        <a href="options.php" class="kiosk-nav-item">
-            <span class="kiosk-nav-icon">🎛️</span>
-            <span class="kiosk-nav-label">Options</span>
+        <a href="options.php" class="sidebar-nav-item">
+            <span class="sidebar-nav-icon">🎛️</span>
+            <span class="sidebar-nav-label">Options</span>
+        </a>
+        <a href="ui-mode-switcher.php" class="sidebar-nav-item">
+            <span class="sidebar-nav-icon">🎨</span>
+            <span class="sidebar-nav-label">UI Mode</span>
         </a>
     </nav>
+    
+    <script>
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar-nav');
+        const overlay = document.querySelector('.sidebar-overlay');
+        const burger = document.querySelector('.burger-menu');
+        
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+        burger.classList.toggle('open');
+    }
+    </script>
 <?php endif; ?>
 
 </body>
