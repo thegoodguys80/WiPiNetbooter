@@ -170,8 +170,10 @@ if ($ui_mode === 'modern') {
         // Info button
         // Convert video filename to screenshot (replace .mp4 with _screenshot.png)
         $screenshot_path = '';
+        $video_path = '';
         if (!empty($video)) {
             $screenshot_path = 'images/' . str_replace('.mp4', '_screenshot.png', $video);
+            $video_path = 'videos/' . $video;
         }
         $info_data = json_encode([
             'title' => $title,
@@ -181,7 +183,8 @@ if ($ui_mode === 'modern') {
             'year' => $year,
             'filename' => $filename,
             'image' => $image_path,
-            'screenshot' => $screenshot_path
+            'screenshot' => $screenshot_path,
+            'video' => $video_path
         ]);
         echo '<button class="game-card-info" onclick="showGameInfo('.htmlspecialchars($info_data, ENT_QUOTES).'); event.preventDefault();" title="Game Information" style="position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 2px solid #4a9eff; color: #4a9eff; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s;" onmouseover="this.style.background=\'#4a9eff\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'rgba(0,0,0,0.7)\'; this.style.color=\'#4a9eff\';">i</button>';
         
@@ -237,6 +240,15 @@ if ($ui_mode === 'modern') {
     
     echo '</div>';
     
+    // Video player section
+    echo '<div id="modalVideoContainer" style="margin-bottom: 24px; text-align: center;">';
+    echo '<div style="font-size: 14px; color: #aaa; margin-bottom: 12px; font-weight: 600;">Gameplay Video</div>';
+    echo '<video id="modalVideo" controls style="max-width: 100%; max-height: 400px; border-radius: 8px; background: #000;">';
+    echo '<source id="modalVideoSource" src="" type="video/mp4">';
+    echo 'Your browser does not support the video tag.';
+    echo '</video>';
+    echo '</div>';
+    
     echo '<button onclick="closeGameInfo()" style="width: 100%; padding: 12px; background: #4a9eff; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background=\'#3a8eef\'" onmouseout="this.style.background=\'#4a9eff\'">Close</button>';
     echo '</div></div>';
     
@@ -249,8 +261,8 @@ if ($ui_mode === 'modern') {
     echo 'function filterBySystem(s){activeSystemFilter=s;applyFilters();}';
     echo 'function filterByGenre(g){activeGenreFilter=g;applyFilters();}';
     echo 'function resetFilters(){activeSystemFilter="all";activeGenreFilter="all";searchQuery="";document.getElementById("systemFilter").value="all";document.getElementById("genreFilter").value="all";document.getElementById("searchInput").value="";applyFilters();}';
-    echo 'function showGameInfo(data){document.getElementById("modalTitle").textContent=data.title;document.getElementById("modalSystem").textContent=data.system;document.getElementById("modalGenre").textContent=data.genre;document.getElementById("modalManufacturer").textContent=data.manufacturer;document.getElementById("modalYear").textContent=data.year;document.getElementById("modalFilename").textContent=data.filename;const img=document.getElementById("modalImage");const imgContainer=img.parentElement;if(data.image){img.src=data.image;img.onerror=function(){imgContainer.style.display="none";};img.onload=function(){imgContainer.style.display="block";};imgContainer.style.display="block";}else{imgContainer.style.display="none";}const screenshot=document.getElementById("modalScreenshot");const screenshotContainer=document.getElementById("modalScreenshotContainer");if(data.screenshot){screenshot.src=data.screenshot;screenshot.onerror=function(){screenshotContainer.style.display="none";};screenshot.onload=function(){screenshotContainer.style.display="block";};screenshotContainer.style.display="block";}else{screenshotContainer.style.display="none";}document.getElementById("gameInfoModal").style.display="flex";}';
-    echo 'function closeGameInfo(){document.getElementById("gameInfoModal").style.display="none";}';
+    echo 'function showGameInfo(data){document.getElementById("modalTitle").textContent=data.title;document.getElementById("modalSystem").textContent=data.system;document.getElementById("modalGenre").textContent=data.genre;document.getElementById("modalManufacturer").textContent=data.manufacturer;document.getElementById("modalYear").textContent=data.year;document.getElementById("modalFilename").textContent=data.filename;const img=document.getElementById("modalImage");const imgContainer=img.parentElement;if(data.image){img.src=data.image;img.onerror=function(){imgContainer.style.display="none";};img.onload=function(){imgContainer.style.display="block";};imgContainer.style.display="block";}else{imgContainer.style.display="none";}const screenshot=document.getElementById("modalScreenshot");const screenshotContainer=document.getElementById("modalScreenshotContainer");if(data.screenshot){screenshot.src=data.screenshot;screenshot.onerror=function(){screenshotContainer.style.display="none";};screenshot.onload=function(){screenshotContainer.style.display="block";};screenshotContainer.style.display="block";}else{screenshotContainer.style.display="none";}const video=document.getElementById("modalVideo");const videoSource=document.getElementById("modalVideoSource");const videoContainer=document.getElementById("modalVideoContainer");if(data.video){videoSource.src=data.video;video.load();videoContainer.style.display="block";}else{videoContainer.style.display="none";}document.getElementById("gameInfoModal").style.display="flex";}';
+    echo 'function closeGameInfo(){const video=document.getElementById("modalVideo");video.pause();video.currentTime=0;document.getElementById("gameInfoModal").style.display="none";}';
     echo '</script>';
     
 } else {
