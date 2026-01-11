@@ -5,25 +5,30 @@ $ui_mode = get_ui_mode();
 
 // Load all games from CSV
 $sample_games = [];
+$rom_folder = '/boot/roms/';
 if (file_exists('csv/romsinfo.csv')) {
     $f = fopen('csv/romsinfo.csv', 'r');
     $headers = fgetcsv($f); // Skip header row
     while (($row = fgetcsv($f)) !== false) {
-        // Only include enabled games
-        if (isset($row[12]) && $row[12] === 'Yes') {
-            $sample_games[] = [
-                $row[0],  // 0: system
-                $row[1],  // 1: romname
-                $row[2],  // 2: image
-                $row[3],  // 3: video
-                $row[4],  // 4: description (title)
-                $row[6],  // 5: manufacturer
-                $row[7],  // 6: year
-                $row[8],  // 7: genre
-                $row[13], // 8: favourite
-                $row[14], // 9: openjvs (mapping)
-                $row[15], // 10: openffb (ffb)
-            ];
+        // Only include enabled games AND if ROM file exists
+        if (isset($row[12]) && $row[12] === 'Yes' && isset($row[1])) {
+            $rom_path = $rom_folder . $row[1];
+            // Check if ROM file exists before adding to list
+            if (file_exists($rom_path)) {
+                $sample_games[] = [
+                    $row[0],  // 0: system
+                    $row[1],  // 1: romname
+                    $row[2],  // 2: image
+                    $row[3],  // 3: video
+                    $row[4],  // 4: description (title)
+                    $row[6],  // 5: manufacturer
+                    $row[7],  // 6: year
+                    $row[8],  // 7: genre
+                    $row[13], // 8: favourite
+                    $row[14], // 9: openjvs (mapping)
+                    $row[15], // 10: openffb (ffb)
+                ];
+            }
         }
     }
     fclose($f);
@@ -63,7 +68,7 @@ if ($ui_mode === 'modern') {
     echo '<div class="container" style="padding: 20px;">';
     echo '<div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 24px;">';
     echo '<h1 class="text-3xl" style="margin: 0;">🎮 Game Library</h1>';
-    echo '<input type="text" id="searchInput" class="form-input" placeholder="🔍 Search games..." style="max-width: 300px;" oninput="filterGames()">';
+    echo '<input type="search" inputmode="search" id="searchInput" class="form-input" placeholder="🔍 Search games..." style="max-width: 300px;" oninput="filterGames()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">';
     echo '</div>';
     
     
@@ -124,8 +129,20 @@ if ($ui_mode === 'modern') {
     // Game grid - optimized for touchscreens
     echo '<div id="gameGrid" class="game-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;">';
     echo '<style>';
-    // Default desktop styles
+    // Default desktop styles - eliminate white space
     echo '.game-card-img-box { height: 280px; }';
+    echo '.game-card { display: flex; flex-direction: column; gap: 0; padding: 0; }';
+    echo '.game-card > * { margin: 0; }';
+    echo '.game-card-image-container { margin: 0; padding: 0; display: block; line-height: 0; aspect-ratio: unset; height: auto; }';
+    echo '.game-card-image-container > * { margin: 0; padding: 0; }';
+    echo '.game-card-content { padding: 12px; margin: 0; }';
+    // Ensure burger menu is always visible
+    echo '.burger-menu { display: flex !important; }';
+    // Ensure sidebar items are visible
+    echo '.sidebar-nav { background-color: #1a1a1a !important; }';
+    echo '.sidebar-nav-item { color: #ffffff !important; display: flex !important; }';
+    echo '.sidebar-nav-icon { color: #ffffff !important; }';
+    echo '.sidebar-nav-label { color: #ffffff !important; }';
     echo '@media (max-width: 1024px) { ';
     // Game grid and cards - very compact with snap scrolling
     echo '  #gameGrid { grid-template-columns: 1fr !important; gap: 0px !important; max-width: 100% !important; scroll-snap-type: y mandatory !important; overflow-y: auto !important; } ';
@@ -160,6 +177,18 @@ if ($ui_mode === 'modern') {
     echo '  .container { padding: 8px !important; } ';
     echo '}';
     echo '</style>';
+    
+    // Check if no games available
+    if (empty($sample_games)) {
+        echo '<div style="display: flex; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 40px 20px; color: #aaa;">';
+        echo '<div>';
+        echo '<div style="font-size: 96px; margin-bottom: 24px;">🕹️</div>';
+        echo '<h2 style="font-size: 32px; margin-bottom: 16px; color: #fff; font-weight: 600;">No Games Available</h2>';
+        echo '<p style="font-size: 18px; margin-bottom: 12px; color: #ccc;">Add ROM files to the <code style="background: #2a2a2a; padding: 6px 12px; border-radius: 6px; color: #4a9eff; font-size: 16px;">/boot/roms/</code> folder</p>';
+        echo '<p style="font-size: 16px; color: #888;">Only games with ROM files present will be displayed</p>';
+        echo '</div>';
+        echo '</div>';
+    }
     
     foreach ($sample_games as $game) {
         $system = $game[0];
