@@ -58,7 +58,8 @@ if ($ui_mode === 'modern') {
     echo '<form action="scanning.php"><button type="submit" class="dropbtn" value="Cancel">Wifi Setup</button> <a href="wired.php" style="font-weight:normal" class="dropbtn">Wired Setup</a></form>';
     echo '<br><br>';
 }
-<?php 
+
+// Network information retrieval
 $wiredip = `ip -o -f inet addr show | awk '/eth0/ {print $4}'`;
 $wirelessip = `ip -o -f inet addr show | awk '/wlan0/ {print $4}'`;
 $wiredstatus =  `ip -o -f inet addr show | awk '/eth0/ {print $9}'`;
