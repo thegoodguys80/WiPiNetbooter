@@ -5,44 +5,59 @@ $wifimode = file_get_contents('/sbin/piforce/wifimode.txt');
 echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
 echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
 
+// SECURITY: Initialize error variable
+$error = '';
+
 if(isset($_POST["submit"]))
 {
-$ip = $_POST["ip"];
-$sm = $_POST["sm"];
-$gw = $_POST["gw"];
+    // SECURITY: Validate all network inputs
+    $ip = $_POST["ip"] ?? '';
+    $sm = $_POST["sm"] ?? '';
+    $gw = $_POST["gw"] ?? '';
 
-if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-
- if($error == '')
- {
-  if ($gw == ''){
-     $gw = 'none';
-  }
-  $command = escapeshellcmd("sudo python /sbin/piforce/setstatic.py wired '$wifimode' '$ip' '$sm' '$gw'");
-  shell_exec($command);
-  $error = '<font color="green"><b>Wired Settings Updated</b></font>';
-  $rebootcommand = escapeshellcmd("sudo python /sbin/piforce/reboot.py");
-  shell_exec($rebootcommand . '> /dev/null 2>/dev/null &');
-  $ssid = '';
-  $psk = '';
- }
-}
-else{
-  $error .= '<font color="red"><b>IP Address is invalid</b></font><br>';
-}
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        // Validate subnet mask
+        if (!filter_var($sm, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $error .= '<font color="red"><b>Subnet mask is invalid</b></font><br>';
+        }
+        // Validate gateway (if provided and not 'none')
+        elseif ($gw != '' && $gw != 'none' && !filter_var($gw, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $error .= '<font color="red"><b>Gateway is invalid</b></font><br>';
+        }
+        else {
+            if ($gw == '') {
+                $gw = 'none';
+            }
+            // SECURITY: Use escapeshellarg for each parameter
+            $command = 'sudo python /sbin/piforce/setstatic.py wired ' . 
+                       escapeshellarg($wifimode) . ' ' . 
+                       escapeshellarg($ip) . ' ' . 
+                       escapeshellarg($sm) . ' ' . 
+                       escapeshellarg($gw);
+            shell_exec($command);
+            $error = '<font color="green"><b>Wired Settings Updated</b></font>';
+            $rebootcommand = 'sudo python /sbin/piforce/reboot.py';
+            shell_exec($rebootcommand . ' > /dev/null 2>/dev/null &');
+            $ssid = '';
+            $psk = '';
+        }
+    }
+    else{
+        $error .= '<font color="red"><b>IP Address is invalid</b></font><br>';
+    }
 }
 
 if(isset($_POST["dhcp"]))
 {
-
- if($error == '')
- {
-  $command = escapeshellcmd("sudo python /sbin/piforce/setdhcp.py wired '$wifimode'");
-  shell_exec($command);
-  $error = '<font color="green"><b>Wired Settings Updated</b></font>';
-  $rebootcommand = escapeshellcmd("sudo python /sbin/piforce/reboot.py");
-  shell_exec($rebootcommand . '> /dev/null 2>/dev/null &');
- }
+    if($error == '')
+    {
+        // SECURITY: Use escapeshellarg for parameter
+        $command = 'sudo python /sbin/piforce/setdhcp.py wired ' . escapeshellarg($wifimode);
+        shell_exec($command);
+        $error = '<font color="green"><b>Wired Settings Updated</b></font>';
+        $rebootcommand = 'sudo python /sbin/piforce/reboot.py';
+        shell_exec($rebootcommand . ' > /dev/null 2>/dev/null &');
+    }
 }
 
 
@@ -55,11 +70,12 @@ $wirelessstatus = `ip -o -f inet addr show | awk '/wlan0/ {print $9}'`;
 $ssid = `iwgetid -r`;
 if ($wiredstatus == "dynamic\n"){$wiredtype = "DHCP";}else{$wiredtype = "Static";}
 if ($wirelessstatus == "dynamic\n"){$wirelesstype = "DHCP";}else{$wirelesstype = "Static";}
-echo 'Wireless IP: <b>'.$wirelessip.' ('.$wirelesstype.')</b><br>';
-echo 'Wired IP: <b>'.$wiredip.' ('.$wiredtype.')</b><br><br>';
+// SECURITY: HTML escape output
+echo 'Wireless IP: <b>' . htmlspecialchars(trim($wirelessip), ENT_QUOTES, 'UTF-8') . ' (' . htmlspecialchars($wirelesstype, ENT_QUOTES, 'UTF-8') . ')</b><br>';
+echo 'Wired IP: <b>' . htmlspecialchars(trim($wiredip), ENT_QUOTES, 'UTF-8') . ' (' . htmlspecialchars($wiredtype, ENT_QUOTES, 'UTF-8') . ')</b><br><br>';
 if ($wifimode == 'hotspot'){
 echo 'Current Wifi Mode: <b>HotSpot</b><br><br>';}
-else {echo 'Current Wifi Mode: <b>Home WiFi</b><br>Current SSID: <b>'.$ssid.'</b><br><br>';}
+else {echo 'Current Wifi Mode: <b>Home WiFi</b><br>Current SSID: <b>' . htmlspecialchars(trim($ssid), ENT_QUOTES, 'UTF-8') . '</b><br><br>';}
 if ($wifimode == 'hotspot'){
 echo 'The Pi is currently set up in HotSpot mode broadcasting its own WiFi network<br><br>';
 }
