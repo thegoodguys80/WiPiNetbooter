@@ -1,5 +1,4 @@
 <?php
-mb_internal_encoding("UTF-8");
 include 'ui_mode.php';
 $ui_mode = get_ui_mode();
 
@@ -38,9 +37,18 @@ if ($ui_mode === 'modern') {
     echo '<table border="1">';
 }
 
-$f = fopen("csv/romsinfo.csv", "r");
-$first_row = true;
-while (($line = fgetcsv($f)) !== false) {
+if (!file_exists("csv/romsinfo.csv")) {
+    if ($ui_mode === 'modern') {
+        echo '<div class="card"><div class="card-body">';
+        echo '<p style="color: #ff4a4a;">Error: CSV file not found at csv/romsinfo.csv</p>';
+        echo '</div></div>';
+    } else {
+        echo '<p style="color: red;">Error: CSV file not found</p>';
+    }
+} else {
+    $f = fopen("csv/romsinfo.csv", "r");
+    $first_row = true;
+    while (($line = fgetcsv($f)) !== false) {
     if ($ui_mode === 'modern') {
         if ($first_row) {
             echo '<thead><tr style="background: #2a2a2a;">';
@@ -63,8 +71,9 @@ while (($line = fgetcsv($f)) !== false) {
         }
         echo '</tr>\n';
     }
+    }
+    fclose($f);
 }
-fclose($f);
 
 if ($ui_mode === 'modern') {
     echo '</tbody></table></div></div></div>'; // Close tbody, table, overflow div, card-body, card
