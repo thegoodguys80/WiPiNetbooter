@@ -1,7 +1,6 @@
 <?php
 include 'ui_mode.php';
 $ui_mode = get_ui_mode();
-load_ui_styles($ui_mode);
 
 if ($ui_mode !== 'modern') {
     include 'menu.php';
