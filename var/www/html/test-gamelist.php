@@ -140,7 +140,6 @@ if ($ui_mode === 'modern') {
         
         echo '<div class="game-card" data-name="'.strtolower($title).'" data-system="'.strtolower($system).'" data-genre="'.strtolower($genre).'">';
         echo '<div class="game-card-image-container">';
-        echo '<a href="#" onclick="alert(\'Launch: '.$title.'\'); return false;">';
         
         // Always show placeholder with image attempt on top
         $image_path = 'images/' . $image;
@@ -162,7 +161,6 @@ if ($ui_mode === 'modern') {
         echo 'onerror="this.style.display=\'none\';">';
         
         echo '</div>';
-        echo '</a>';
         
         if ($fave == 'Yes') {
             echo '<button class="game-card-favorite active" title="Remove from favorites">⭐</button>';
@@ -180,9 +178,6 @@ if ($ui_mode === 'modern') {
         ]);
         echo '<button class="game-card-info" onclick="showGameInfo('.htmlspecialchars($info_data, ENT_QUOTES).'); event.preventDefault();" title="Game Information" style="position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 2px solid #4a9eff; color: #4a9eff; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s;" onmouseover="this.style.background=\'#4a9eff\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'rgba(0,0,0,0.7)\'; this.style.color=\'#4a9eff\';">i</button>';
         
-        echo '<div class="game-card-overlay">';
-        echo '<a href="#" onclick="alert(\'Launch: '.$title.'\'); return false;" class="btn btn-primary btn-sm">Launch</a>';
-        echo '</div>';
         echo '</div>';
         
         echo '<div class="game-card-content">';
@@ -194,6 +189,10 @@ if ($ui_mode === 'modern') {
         echo '<div style="margin-top: 8px; font-size: 12px; color: #888;">';
         echo $manufacturer.' • '.$year;
         echo '</div>';
+        
+        // Launch button at bottom of card
+        echo '<a href="#" onclick="alert(\'Launch: '.$title.'\'); return false;" class="btn btn-primary" style="display: block; width: 100%; margin-top: 12px; padding: 8px 16px; text-align: center; text-decoration: none;">🚀 Launch</a>';
+        
         echo '</div>';
         echo '</div>';
     }
