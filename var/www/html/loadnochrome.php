@@ -9,12 +9,35 @@ $relaymode = file_get_contents('/sbin/piforce/relaymode.txt');
 $zeromode = file_get_contents('/sbin/piforce/zeromode.txt');
 $openmode = file_get_contents('/sbin/piforce/openmode.txt');
 $ffbmode = file_get_contents('/sbin/piforce/ffbmode.txt');
-$rom = $_GET["rom"];
-$rompath = '/boot/roms/'.$rom;
-$name = $_GET["name"];
-$dimm = $_GET["dimm"];
-$mapping = $_GET["mapping"];
-$ffb = $_GET["ffb"];
+// SECURITY: Validate user inputs
+$rom = $_GET["rom"] ?? '';
+$name = $_GET["name"] ?? '';
+$dimm = $_GET["dimm"] ?? '';
+$mapping = $_GET["mapping"] ?? '';
+$ffb = $_GET["ffb"] ?? '';
+
+// Validate ROM filename (basename only, no path traversal)
+$rom = basename($rom);
+if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $rom)) {
+    header("Location: gamelist.php");
+    exit;
+}
+
+// Validate DIMM IP address
+if (!filter_var($dimm, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+    header("Location: gamelist.php");
+    exit;
+}
+
+// Validate device paths if provided
+if ($mapping !== '' && !preg_match('/^\/dev\/[a-zA-Z0-9\/]+$/', $mapping)) {
+    $mapping = '';
+}
+if ($ffb !== '' && !preg_match('/^\/dev\/[a-zA-Z0-9\/]+$/', $ffb)) {
+    $ffb = '';
+}
+
+$rompath = '/boot/roms/' . $rom;
 
 echo '<p>';
 
@@ -23,13 +46,21 @@ echo '<p>';
 <section><center>
 
 <?php
-echo '<h1><a href="gamelist.php?display=all#anchor'.$name.'">Loading<br>'.$name.'</a></h1></center>';
+// SECURITY: HTML escape output
+echo '<h1><a href="gamelist.php?display=all#anchor' . urlencode($name) . '">Loading<br>' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a></h1></center>';
 ?>
 
 <?php
 
-$command = escapeshellcmd('sudo python /sbin/piforce/webforce.py '.$rom.' '.$dimm.' '.$relaymode.' '.$zeromode.' '.$mapping.' '.$ffb);
-$output = shell_exec($command . '> /dev/null 2>/dev/null &');
+// SECURITY: Use escapeshellarg for all parameters
+$command = 'sudo python /sbin/piforce/webforce.py ' . 
+           escapeshellarg($rom) . ' ' . 
+           escapeshellarg($dimm) . ' ' . 
+           escapeshellarg($relaymode) . ' ' . 
+           escapeshellarg($zeromode) . ' ' . 
+           escapeshellarg($mapping) . ' ' . 
+           escapeshellarg($ffb);
+$output = shell_exec($command . ' > /dev/null 2>/dev/null &');
 
 $progress = 100;
 while(is_int($progress) && $progress != 0 || $progress == 'COMPLETE'){
@@ -43,6 +74,7 @@ sleep(0.1);
 
 <script type="text/javascript">
 <?php
-echo 'setTimeout(function(){window.location="loadprogress.php?name='.$name.'";}, 1)';
+// SECURITY: URL encode for JavaScript
+echo 'setTimeout(function(){window.location="loadprogress.php?name=' . urlencode($name) . '";}, 1)'
 ?>
 </script>

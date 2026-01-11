@@ -13,14 +13,35 @@ else {
 echo '<h1><a href="cardmanagement.php?mode=main">Card Data Management</a></h1>';}
 
 if ($_GET["command"] == 'delete') {
-$deletefile = $_GET["filetodelete"];
-$command1 = escapeshellcmd("sudo python /sbin/piforce/delete.py $deletefile");
-shell_exec($command1);
-$path_parts = pathinfo($deletefile);
-$phpfile = '/var/www/html/cards/'.$mode.'/'.$path_parts['filename'].'.printdata.php';
-$command2 = escapeshellcmd("sudo python /sbin/piforce/delete.py $phpfile");
-shell_exec($command2);
-header ("Location: cardmanagement.php");
+    // SECURITY: Validate file path and mode
+    $deletefile = $_GET["filetodelete"] ?? '';
+    $mode = $_GET['mode'] ?? '';
+    
+    // Whitelist allowed modes
+    $allowed_modes = ['idas', 'id2', 'id3', 'fzero'];
+    if (!in_array($mode, $allowed_modes)) {
+        header("Location: cardmanagement.php");
+        exit;
+    }
+    
+    // Validate file path starts with expected directory
+    $expected_path = '/boot/config/cards/' . $mode . '/';
+    if (strpos($deletefile, $expected_path) !== 0) {
+        header("Location: cardmanagement.php");
+        exit;
+    }
+    
+    // SECURITY: Use escapeshellarg for file parameter
+    $command1 = 'sudo python /sbin/piforce/delete.py ' . escapeshellarg($deletefile);
+    shell_exec($command1);
+    
+    $path_parts = pathinfo($deletefile);
+    $phpfile = '/var/www/html/cards/' . $mode . '/' . basename($path_parts['filename']) . '.printdata.php';
+    
+    $command2 = 'sudo python /sbin/piforce/delete.py ' . escapeshellarg($phpfile);
+    shell_exec($command2);
+    header("Location: cardmanagement.php");
+    exit;
 }
 
 $emumode = file_get_contents('/sbin/piforce/emumode.txt');
@@ -41,12 +62,34 @@ if ($mode == 'main'){
 }
 
 if ($_GET["command"] == 'nfc') {
-$copyfile = $_GET["filetocopy"];
-$path_parts = pathinfo($copyfile);
-$phpfile = '/var/www/html/cards/'.$mode.'/'.$path_parts['filename'].'.printdata.php';
-$command1 = escapeshellcmd("sudo python3 /sbin/piforce/card_emulator/nfcwrite.py $copyfile $phpfile");
-shell_exec($command1 . '> /dev/null 2>/dev/null &');
-header ("Location: cardmanagement.php");
+    // SECURITY: Validate file path and mode
+    $copyfile = $_GET["filetocopy"] ?? '';
+    $mode = $_GET['mode'] ?? '';
+    
+    // Whitelist allowed modes
+    $allowed_modes = ['idas', 'id2', 'id3', 'fzero'];
+    if (!in_array($mode, $allowed_modes)) {
+        header("Location: cardmanagement.php");
+        exit;
+    }
+    
+    // Validate file path starts with expected directory
+    $expected_path = '/boot/config/cards/' . $mode . '/';
+    if (strpos($copyfile, $expected_path) !== 0) {
+        header("Location: cardmanagement.php");
+        exit;
+    }
+    
+    $path_parts = pathinfo($copyfile);
+    $phpfile = '/var/www/html/cards/' . $mode . '/' . basename($path_parts['filename']) . '.printdata.php';
+    
+    // SECURITY: Use escapeshellarg for parameters
+    $command1 = 'sudo python3 /sbin/piforce/card_emulator/nfcwrite.py ' . 
+                escapeshellarg($copyfile) . ' ' . 
+                escapeshellarg($phpfile);
+    shell_exec($command1 . ' > /dev/null 2>/dev/null &');
+    header("Location: cardmanagement.php");
+    exit;
 }
 
 if ($mode == 'idas'){

@@ -9,10 +9,28 @@ echo '<table class="center" id="options">';
 echo '<tr><th>Mapping File</th><th>Actions</th></tr>';
 
 if ($_GET["command"] == 'delete') {
-$deletefile = $_GET["filetodelete"];
-$command = escapeshellcmd("sudo python /sbin/piforce/delete.py $deletefile");
-shell_exec($command);
-header ("Location: ffbmapping.php");
+    // SECURITY: Validate file path
+    $deletefile = $_GET["filetodelete"] ?? '';
+    
+    // Validate file path is in expected directory
+    $expected_path = '/etc/openffb/games/';
+    if (strpos($deletefile, $expected_path) !== 0) {
+        header("Location: ffbmapping.php");
+        exit;
+    }
+    
+    // Additional validation: only allow alphanumeric, dash, underscore in filename
+    $filename = basename($deletefile);
+    if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $filename)) {
+        header("Location: ffbmapping.php");
+        exit;
+    }
+    
+    // SECURITY: Use escapeshellarg for parameter
+    $command = 'sudo python /sbin/piforce/delete.py ' . escapeshellarg($deletefile);
+    shell_exec($command);
+    header("Location: ffbmapping.php");
+    exit;
 }
 
 if(isset($_POST["submit"]))
@@ -38,7 +56,8 @@ if(isset($_POST["submit"]))
 }
 
 
-$command = escapeshellcmd("sudo python /sbin/piforce/mappingfiles.py");
+// SECURITY: Static command with no user input
+$command = 'sudo python /sbin/piforce/mappingfiles.py';
 shell_exec($command);
 
 $mappingfiles = scandir('/etc/openffb/games');
@@ -49,8 +68,9 @@ $mappingfilename = $mappingfiles[$i];
 $mappingfilepath = '/etc/openffb/games/'.$mappingfilename;
 
 echo '<tr>';
-echo '<td>'.$mappingfilename.'</td>';
-echo '<td><a href="editor.php?mode=ffb&mappingfile='.$mappingfilepath.'">edit</a> / <a href="ffbmapping.php?command=delete&filetodelete='.$mappingfilepath.'">delete</a></td>';
+// SECURITY: HTML escape and URL encode output
+echo '<td>' . htmlspecialchars($mappingfilename, ENT_QUOTES, 'UTF-8') . '</td>';
+echo '<td><a href="editor.php?mode=ffb&mappingfile=' . urlencode($mappingfilepath) . '">edit</a> / <a href="ffbmapping.php?command=delete&filetodelete=' . urlencode($mappingfilepath) . '">delete</a></td>';
 echo '</tr>';
 }
 

@@ -23,10 +23,16 @@ if(!$output = fopen($tempfile,'w')){
 if ($_GET["rename"] == 'yes') {
 
 for ($x = 1; $x <= $successes; $x++) {
-  $oldname = $rompath.${'filename'.$x};
-  $newname = $rompath.${'auditname'.$x};
-  $renamecmd = escapeshellcmd("sudo python /sbin/piforce/renamecsv.py $oldname $newname $lcdmode");
-  shell_exec($renamecmd . '> /dev/null 2>/dev/null &');
+  // SECURITY: Validate filenames using basename to prevent path traversal
+  $oldname = $rompath . basename(${'filename'.$x});
+  $newname = $rompath . basename(${'auditname'.$x});
+  
+  // SECURITY: Use escapeshellarg for each parameter
+  $renamecmd = 'sudo python /sbin/piforce/renamecsv.py ' . 
+               escapeshellarg($oldname) . ' ' . 
+               escapeshellarg($newname) . ' ' . 
+               escapeshellarg($lcdmode);
+  shell_exec($renamecmd . ' > /dev/null 2>/dev/null &');
 }
 
 $i = 1;
@@ -45,7 +51,11 @@ fflush($output);
 fclose($input);
 fclose($output);
 
-$command = escapeshellcmd("sudo python /sbin/piforce/renamecsv.py $tempfile $csvfile $lcdmode");
+// SECURITY: Use escapeshellarg for parameters
+$command = 'sudo python /sbin/piforce/renamecsv.py ' . 
+           escapeshellarg($tempfile) . ' ' . 
+           escapeshellarg($csvfile) . ' ' . 
+           escapeshellarg($lcdmode);
 shell_exec($command);
 }
  
@@ -66,7 +76,11 @@ fflush($output);
 fclose($input);
 fclose($output);
 
-$command = escapeshellcmd("sudo python /sbin/piforce/renamecsv.py $tempfile $csvfile $lcdmode");
+// SECURITY: Use escapeshellarg for parameters
+$command = 'sudo python /sbin/piforce/renamecsv.py ' . 
+           escapeshellarg($tempfile) . ' ' . 
+           escapeshellarg($csvfile) . ' ' . 
+           escapeshellarg($lcdmode);
 shell_exec($command);
 }
 

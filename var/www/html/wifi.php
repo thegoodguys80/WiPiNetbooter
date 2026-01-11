@@ -88,14 +88,21 @@ if($ip != ''){
 
 if(isset($_POST["hotspotsubmit"]))
 {
+ // SECURITY: Validate SSID and PSK inputs
  if(empty($_POST["manssid"]))
  {
-  $ssid = $_POST['ssid'];
+  $ssid = $_POST['ssid'] ?? '';
  }
  else
  {
-  $ssid = $_POST['manssid'];
+  $ssid = $_POST['manssid'] ?? '';
  }
+ 
+ // Validate SSID
+ if (strlen($ssid) > 32 || !preg_match('/^[a-zA-Z0-9_\-\s\.]+$/', $ssid)) {
+     $error .= '<font color="red"><b>SSID is invalid (max 32 chars, alphanumeric only)</b></font><br>';
+ }
+ 
  if(empty($_POST["psk"]))
  {
   $error .= '<font color="red"><b> Password is required</b></font>';
@@ -104,6 +111,10 @@ if(isset($_POST["hotspotsubmit"]))
  {
   $error .= '<font color="red"><b> Password must be at least 8 characters</b></font><br>';
  }
+ else if(strlen($_POST["psk"]) > 63)
+ {
+  $error .= '<font color="red"><b> Password must be 63 characters or less</b></font><br>';
+ }
  else
  {
   $psk = $_POST['psk'];
@@ -111,11 +122,14 @@ if(isset($_POST["hotspotsubmit"]))
 
  if($error == '')
  {
-  $command = escapeshellcmd("sudo python /sbin/piforce/hotspotupdate.py '$ssid' '$psk'");
+  // SECURITY: Use escapeshellarg for parameters
+  $command = 'sudo python /sbin/piforce/hotspotupdate.py ' . 
+             escapeshellarg($ssid) . ' ' . 
+             escapeshellarg($psk);
   shell_exec($command);
   $error = '<font color="green"><b>HotSpot Settings Updated<br>Rebooting ...</b></font>';
-  $rebootcommand = escapeshellcmd("sudo python /sbin/piforce/reboot.py");
-  shell_exec($rebootcommand . '> /dev/null 2>/dev/null &');
+  $rebootcommand = 'sudo python /sbin/piforce/reboot.py';
+  shell_exec($rebootcommand . ' > /dev/null 2>/dev/null &');
   $ssid = '';
   $psk = '';
  }
@@ -123,14 +137,21 @@ if(isset($_POST["hotspotsubmit"]))
 
 if(isset($_POST["homesubmit"]))
 {
+ // SECURITY: Validate SSID and PSK inputs
  if(empty($_POST["manssid"]))
  {
-  $ssid = $_POST['ssid'];
+  $ssid = $_POST['ssid'] ?? '';
  }
  else
  {
-  $ssid = $_POST['manssid'];
+  $ssid = $_POST['manssid'] ?? '';
  }
+ 
+ // Validate SSID
+ if (strlen($ssid) > 32 || !preg_match('/^[a-zA-Z0-9_\-\s\.]+$/', $ssid)) {
+     $error .= '<font color="red"><b>SSID is invalid (max 32 chars, alphanumeric only)</b></font><br>';
+ }
+ 
  if(empty($_POST["psk"]))
  {
   $error .= '<font color="red"><b> Password is required</b></font>';
@@ -139,6 +160,10 @@ if(isset($_POST["homesubmit"]))
  {
   $error .= '<font color="red"><b> Password must be at least 8 characters</b></font><br>';
  }
+ else if(strlen($_POST["psk"]) > 63)
+ {
+  $error .= '<font color="red"><b> Password must be 63 characters or less</b></font><br>';
+ }
  else
  {
   $psk = $_POST['psk'];
@@ -146,11 +171,14 @@ if(isset($_POST["homesubmit"]))
 
  if($error == '')
  {
-  $command = escapeshellcmd("sudo python /sbin/piforce/homeupdate.py '$ssid' '$psk'");
+  // SECURITY: Use escapeshellarg for parameters
+  $command = 'sudo python /sbin/piforce/homeupdate.py ' . 
+             escapeshellarg($ssid) . ' ' . 
+             escapeshellarg($psk);
   shell_exec($command);
   $error = '<font color="green"><b>WiFi Settings Updated<br>Rebooting ...</b></font>';
-  $rebootcommand = escapeshellcmd("sudo python /sbin/piforce/reboot.py");
-  shell_exec($rebootcommand . '> /dev/null 2>/dev/null &');
+  $rebootcommand = 'sudo python /sbin/piforce/reboot.py';
+  shell_exec($rebootcommand . ' > /dev/null 2>/dev/null &');
   $ssid = '';
   $psk = '';
  }
@@ -158,52 +186,65 @@ if(isset($_POST["homesubmit"]))
 
 if(isset($_POST["static"]))
 {
-$ip = $_POST["ip"];
-$sm = $_POST["sm"];
-$gw = $_POST["gw"];
+    // SECURITY: Validate network configuration inputs
+    $ip = $_POST["ip"] ?? '';
+    $sm = $_POST["sm"] ?? '';
+    $gw = $_POST["gw"] ?? '';
 
-if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-
- if($error == '')
- {
-  $command = escapeshellcmd("sudo python /sbin/piforce/setstatic.py wireless '$wifimode' '$ip' '$sm' '$gw'");
-  shell_exec($command);
-  $error = '<font color="green"><b>WiFi Settings Updated<br>Rebooting ...</b></font>';
-  $rebootcommand = escapeshellcmd("sudo python /sbin/piforce/reboot.py");
-  shell_exec($rebootcommand . '> /dev/null 2>/dev/null &');
-  $ssid = '';
-  $psk = '';
- }
-}
-else{
-  $error .= '<font color="red"><b>IP Address is invalid</b></font><br>';
-}
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        // Validate subnet mask
+        if (!filter_var($sm, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $error .= '<font color="red"><b>Subnet mask is invalid</b></font><br>';
+        }
+        // Validate gateway (if provided)
+        elseif ($gw != '' && !filter_var($gw, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $error .= '<font color="red"><b>Gateway is invalid</b></font><br>';
+        }
+        elseif($error == '')
+        {
+            // SECURITY: Use escapeshellarg for each parameter
+            $command = 'sudo python /sbin/piforce/setstatic.py wireless ' . 
+                       escapeshellarg($wifimode) . ' ' . 
+                       escapeshellarg($ip) . ' ' . 
+                       escapeshellarg($sm) . ' ' . 
+                       escapeshellarg($gw);
+            shell_exec($command);
+            $error = '<font color="green"><b>WiFi Settings Updated<br>Rebooting ...</b></font>';
+            $rebootcommand = 'sudo python /sbin/piforce/reboot.py';
+            shell_exec($rebootcommand . ' > /dev/null 2>/dev/null &');
+            $ssid = '';
+            $psk = '';
+        }
+    }
+    else{
+        $error .= '<font color="red"><b>IP Address is invalid</b></font><br>';
+    }
 }
 
 if(isset($_POST["wifidhcp"]))
 {
-
- if($error == '')
- {
-  $command = escapeshellcmd("sudo python /sbin/piforce/setdhcp.py wireless &");
-  shell_exec($command);
-  $error = '<font color="green"><b>WiFi Settings Updated<br>Rebooting ...</b></font>';
-  $rebootcommand = escapeshellcmd("sudo python /sbin/piforce/reboot.py");
-  shell_exec($rebootcommand . '> /dev/null 2>/dev/null &');
- }
+    if($error == '')
+    {
+        // SECURITY: No user input, static command only
+        $command = 'sudo python /sbin/piforce/setdhcp.py wireless &';
+        shell_exec($command);
+        $error = '<font color="green"><b>WiFi Settings Updated<br>Rebooting ...</b></font>';
+        $rebootcommand = 'sudo python /sbin/piforce/reboot.py';
+        shell_exec($rebootcommand . ' > /dev/null 2>/dev/null &');
+    }
 }
 
 if(isset($_POST["hotspotrestore"]))
 {
-
- if($error == '')
- {
-  $command = escapeshellcmd("sudo python /sbin/piforce/hotspotwifi.py &");
-  shell_exec($command);
-  $error = '<font color="green"><b>WiFi Settings Updated<br>Rebooting ...</b></font>';
-  $rebootcommand = escapeshellcmd("sudo python /sbin/piforce/reboot.py");
-  shell_exec($rebootcommand . '> /dev/null 2>/dev/null &');
- }
+    if($error == '')
+    {
+        // SECURITY: No user input, static command only
+        $command = 'sudo python /sbin/piforce/hotspotwifi.py &';
+        shell_exec($command);
+        $error = '<font color="green"><b>WiFi Settings Updated<br>Rebooting ...</b></font>';
+        $rebootcommand = 'sudo python /sbin/piforce/reboot.py';
+        shell_exec($rebootcommand . ' > /dev/null 2>/dev/null &');
+    }
 }
 
 
@@ -216,11 +257,12 @@ $wirelessstatus = `ip -o -f inet addr show | awk '/wlan0/ {print $9}'`;
 $ssid = `iwgetid -r`;
 if ($wiredstatus == "dynamic\n"){$wiredtype = "DHCP";}else{$wiredtype = "Static";}
 if ($wirelessstatus == "dynamic\n"){$wirelesstype = "DHCP";}else{$wirelesstype = "Static";}
-echo 'Wireless IP: <b>'.$wirelessip.' ('.$wirelesstype.')</b><br>';
-echo 'Wired IP: <b>'.$wiredip.' ('.$wiredtype.')</b><br><br>';
+// SECURITY: HTML escape output
+echo 'Wireless IP: <b>' . htmlspecialchars(trim($wirelessip), ENT_QUOTES, 'UTF-8') . ' (' . htmlspecialchars($wirelesstype, ENT_QUOTES, 'UTF-8') . ')</b><br>';
+echo 'Wired IP: <b>' . htmlspecialchars(trim($wiredip), ENT_QUOTES, 'UTF-8') . ' (' . htmlspecialchars($wiredtype, ENT_QUOTES, 'UTF-8') . ')</b><br><br>';
 if ($wifimode == 'hotspot'){
 echo 'Current Wifi Mode: <b>HotSpot</b><br><br>';}
-else {echo 'Current Wifi Mode: <b>Home WiFi</b><br>Current SSID: <b>'.$ssid.'</b><br><br>';}
+else {echo 'Current Wifi Mode: <b>Home WiFi</b><br>Current SSID: <b>' . htmlspecialchars(trim($ssid), ENT_QUOTES, 'UTF-8') . '</b><br><br>';}
 if ($wifimode == 'hotspot'){
 echo 'The Pi is currently set up in HotSpot mode broadcasting its own WiFi network<br><br>';
 echo 'Use the form below to enter your home network details then press the Apply button to disable HotSpot Mode<br><br>';

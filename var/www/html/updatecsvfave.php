@@ -11,8 +11,22 @@ if(!$output = fopen($tempfile,'w')){
     die('could not open temporary output file');
 }
 
-$rom = $_GET['rom'];
-$fave = $_GET['fave'];
+// SECURITY: Validate user inputs
+$rom = $_GET['rom'] ?? '';
+$fave = $_GET['fave'] ?? '';
+
+// Validate ROM filename (basename only, no path traversal)
+$rom = basename($rom);
+if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $rom)) {
+    header("Location: gamelist.php");
+    exit;
+}
+
+// Validate fave value (should be boolean-like)
+if (!in_array($fave, ['0', '1', 'true', 'false', 'yes', 'no'])) {
+    header("Location: gamelist.php?filename=$rom");
+    exit;
+}
 
 while(($data = fgetcsv($input)) !== FALSE){
     if($data[1] == $rom){
@@ -26,7 +40,11 @@ fflush($output);
 fclose($input);
 fclose($output);
 
-$command = escapeshellcmd("sudo python /sbin/piforce/renamecsv.py $tempfile $csvfile $lcdmode");
+// SECURITY: Use escapeshellarg for parameters
+$command = 'sudo python /sbin/piforce/renamecsv.py ' . 
+           escapeshellarg($tempfile) . ' ' . 
+           escapeshellarg($csvfile) . ' ' . 
+           escapeshellarg($lcdmode);
 shell_exec($command);
 header ("Location: gamelist.php?filename=$rom");
 ?>

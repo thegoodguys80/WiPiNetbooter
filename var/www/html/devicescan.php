@@ -1,5 +1,6 @@
 <?php
-$command = escapeshellcmd('sudo python /sbin/piforce/devicelist.py');
+// SECURITY: Static command with no user input
+$command = 'sudo python /sbin/piforce/devicelist.py';
 shell_exec($command);
 include 'menu.php';
 include 'devicelist.php';
@@ -23,25 +24,63 @@ header ("Location: devicescan.php");
 }
 
 if ($_GET["command"] == 'enable') {
-$enablefile = $_GET["file"];
-$without_extension = substr($_GET["file"], 0, strrpos($_GET["file"], "."));
-$command = escapeshellcmd("sudo python /sbin/piforce/renamecsv.py $enablefile $without_extension");
-shell_exec($command);
-header ("Location: devicescan.php");
+    // SECURITY: Validate file parameter
+    $enablefile = $_GET["file"] ?? '';
+    
+    // Validate it's a .disabled file in the correct directory
+    $enablefile = basename($enablefile);
+    if (!preg_match('/^[a-zA-Z0-9_\-\.]+\.disabled$/', $enablefile)) {
+        header("Location: devicescan.php");
+        exit;
+    }
+    
+    $without_extension = substr($enablefile, 0, strrpos($enablefile, "."));
+    
+    // SECURITY: Use escapeshellarg for parameters
+    $command = 'sudo python /sbin/piforce/renamecsv.py ' . 
+               escapeshellarg($enablefile) . ' ' . 
+               escapeshellarg($without_extension);
+    shell_exec($command);
+    header("Location: devicescan.php");
+    exit;
 }
 
 if ($_GET["command"] == 'disable') {
-$disablefile = $_GET["file"];
-$command = escapeshellcmd("sudo python /sbin/piforce/renamecsv.py $disablefile $disablefile.disabled");
-shell_exec($command);
-header ("Location: devicescan.php");
+    // SECURITY: Validate file parameter
+    $disablefile = $_GET["file"] ?? '';
+    
+    // Validate filename pattern
+    $disablefile = basename($disablefile);
+    if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $disablefile)) {
+        header("Location: devicescan.php");
+        exit;
+    }
+    
+    // SECURITY: Use escapeshellarg for parameters
+    $command = 'sudo python /sbin/piforce/renamecsv.py ' . 
+               escapeshellarg($disablefile) . ' ' . 
+               escapeshellarg($disablefile . '.disabled');
+    shell_exec($command);
+    header("Location: devicescan.php");
+    exit;
 }
 
 if ($_GET["command"] == 'delete') {
-$deletefile = $_GET["file"];
-$command = escapeshellcmd("sudo python /sbin/piforce/delete.py $deletefile");
-shell_exec($command);
-header ("Location: devicescan.php");
+    // SECURITY: Validate file parameter
+    $deletefile = $_GET["file"] ?? '';
+    
+    // Validate filename pattern
+    $deletefile = basename($deletefile);
+    if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $deletefile)) {
+        header("Location: devicescan.php");
+        exit;
+    }
+    
+    // SECURITY: Use escapeshellarg for parameter
+    $command = 'sudo python /sbin/piforce/delete.py ' . escapeshellarg($deletefile);
+    shell_exec($command);
+    header("Location: devicescan.php");
+    exit;
 }
 
 if (file_exists($filename)) {
@@ -53,14 +92,22 @@ if (file_exists($filename)) {
 }
 
 echo '<tr>';
-echo '<td>'.${'name'.$i}.'</td>';
-echo '<td>'.${'path'.$i}.'</td>';
+// SECURITY: HTML escape output
+echo '<td>' . htmlspecialchars(${'name'.$i}, ENT_QUOTES, 'UTF-8') . '</td>';
+echo '<td>' . htmlspecialchars(${'path'.$i}, ENT_QUOTES, 'UTF-8') . '</td>';
 if ($status == 'enabled') {
 echo '<td><b>'.$status.'</b></td>';}
 else {echo '<td>'.$status.'</td>';}
-if ($status == 'disabled'){echo '<td><a href="devicescan.php?command=enable&file='.$disabledfilename.'">enable</a> / <a href="devicescan.php?command=delete&file='.$disabledfilename.'">delete</a></td>';}
-else if ($status == 'enabled'){echo '<td><a href="devicescan.php?command=disable&file='.$filename.'">disable</a>';}
-else {echo '<td><a href="deviceconfig.php?path='.${'path'.$i}.'">configure</a></td>';}
+// SECURITY: URL encode parameters
+if ($status == 'disabled'){
+    echo '<td><a href="devicescan.php?command=enable&file=' . urlencode($disabledfilename) . '">enable</a> / <a href="devicescan.php?command=delete&file=' . urlencode($disabledfilename) . '">delete</a></td>';
+}
+else if ($status == 'enabled'){
+    echo '<td><a href="devicescan.php?command=disable&file=' . urlencode($filename) . '">disable</a>';
+}
+else {
+    echo '<td><a href="deviceconfig.php?path=' . urlencode(${'path'.$i}) . '">configure</a></td>';
+}
 echo "</tr>";
 }
 echo '</table>';

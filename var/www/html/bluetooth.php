@@ -15,6 +15,7 @@ echo 'The Pi will scan for new devices for 15 seconds and display any it finds i
 echo 'Use the Pair Device option to initiate bluetooth pairing<br><br>';
 echo 'If pairing fails the device can be removed from the scan results page<br><br>';
 echo '<br><a href="bluetoothscan.php" style="font-weight:normal" class="dropbtn">Start Scan</a><br><br><br>';
+// SECURITY: Static command with no user input
 $connected = shell_exec('sudo bluetoothctl devices');
 $btarray = explode('Device ', $connected);
 echo 'Detected Devices:<br><br><b>';
@@ -52,37 +53,53 @@ echo '<br><br></b>';
 
 if(isset($_POST["pair"]))
 {
-$mac = $_POST["mac"];
-$i = 0;
-ini_set('output_buffering', false);
-    $handle = popen('sudo python3 /sbin/piforce/bluetoothpair.py add '.$mac, 'r');
-    while(!feof($handle) && $i <=10) {
-      $i++;
-      $buffer = fgets($handle, 2000);
-      echo "$buffer";
-      echo '<br>';
-      flush();
-}
-pclose($handle);
-
-echo '<br><b><a href="bluetooth.php?mode=results">Pairing attempt complete</a></b>';
+    // SECURITY: Validate MAC address format
+    $mac = $_POST["mac"] ?? '';
+    
+    // Validate MAC address (XX:XX:XX:XX:XX:XX format)
+    if (!preg_match('/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/', $mac)) {
+        echo '<font color="red"><b>Invalid MAC address format</b></font><br>';
+    } else {
+        $i = 0;
+        ini_set('output_buffering', false);
+        // SECURITY: Use escapeshellarg for MAC parameter
+        $handle = popen('sudo python3 /sbin/piforce/bluetoothpair.py add ' . escapeshellarg($mac), 'r');
+        while(!feof($handle) && $i <=10) {
+            $i++;
+            $buffer = fgets($handle, 2000);
+            // SECURITY: HTML escape output
+            echo htmlspecialchars($buffer, ENT_QUOTES, 'UTF-8');
+            echo '<br>';
+            flush();
+        }
+        pclose($handle);
+        echo '<br><b><a href="bluetooth.php?mode=results">Pairing attempt complete</a></b>';
+    }
 }
 if(isset($_POST["remove"]))
 {
-$mac = $_POST["mac"];
-$i = 0;
-ini_set('output_buffering', false);
-    $handle = popen('sudo python3 /sbin/piforce/bluetoothpair.py remove '.$mac, 'r');
-    while(!feof($handle) && $i <=10) {
-      $i++;
-      $buffer = fgets($handle, 2000);
-      echo "$buffer";
-      echo '<br>';
-      flush();
-}
-pclose($handle);
-
-echo '<b><a href="bluetooth.php?mode=results">Removal attempt complete</a></b>';
+    // SECURITY: Validate MAC address format
+    $mac = $_POST["mac"] ?? '';
+    
+    // Validate MAC address (XX:XX:XX:XX:XX:XX format)
+    if (!preg_match('/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/', $mac)) {
+        echo '<font color="red"><b>Invalid MAC address format</b></font><br>';
+    } else {
+        $i = 0;
+        ini_set('output_buffering', false);
+        // SECURITY: Use escapeshellarg for MAC parameter
+        $handle = popen('sudo python3 /sbin/piforce/bluetoothpair.py remove ' . escapeshellarg($mac), 'r');
+        while(!feof($handle) && $i <=10) {
+            $i++;
+            $buffer = fgets($handle, 2000);
+            // SECURITY: HTML escape output
+            echo htmlspecialchars($buffer, ENT_QUOTES, 'UTF-8');
+            echo '<br>';
+            flush();
+        }
+        pclose($handle);
+        echo '<b><a href="bluetooth.php?mode=results">Removal attempt complete</a></b>';
+    }
 }
 }
 
