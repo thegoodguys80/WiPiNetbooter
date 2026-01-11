@@ -35,7 +35,7 @@ if (file_exists('csv/romsinfo.csv')) {
 }
 
 echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter - Test Game List</title>';
-echo '<meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1">';
+echo '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">';
 load_ui_styles();
 echo '</head><body>';
 
