@@ -126,20 +126,23 @@ if ($ui_mode === 'modern') {
         echo '<div class="game-card-image-container">';
         echo '<a href="#" onclick="alert(\'Launch: '.$title.'\'); return false;">';
         
-        // Check if actual image exists
+        // Try to show actual image, but use onerror to fallback to placeholder
         $image_path = 'images/' . $image;
-        if (file_exists($image_path)) {
-            // Use actual game image
-            echo '<img src="'.$image_path.'" alt="'.$title.'" style="width: 100%; height: 280px; object-fit: cover; border-radius: 8px;">';
-        } else {
-            // Show placeholder with game initial
-            $initial = substr($title, 0, 1);
-            $colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#fa709a', '#fee140'];
-            $color = $colors[ord($initial) % count($colors)];
-            echo '<div style="width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.adjustBrightness($color, -20).' 100%); display: flex; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px;">';
-            echo $initial;
-            echo '</div>';
-        }
+        $initial = substr($title, 0, 1);
+        $colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#fa709a', '#fee140'];
+        $color = $colors[ord($initial) % count($colors)];
+        $fallback_color = adjustBrightness($color, -20);
+        
+        // Show image with fallback placeholder using inline style and JS
+        echo '<img src="'.$image_path.'" alt="'.$title.'" ';
+        echo 'style="width: 100%; height: 280px; object-fit: cover; border-radius: 8px; display: block;" ';
+        echo 'onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">';
+        
+        // Fallback placeholder (hidden by default, shown if image fails to load)
+        echo '<div style="width: 100%; height: 280px; background: linear-gradient(135deg, '.$color.' 0%, '.$fallback_color.' 100%); display: none; align-items: center; justify-content: center; font-size: 72px; font-weight: bold; color: white; border-radius: 8px;">';
+        echo $initial;
+        echo '</div>';
+        
         echo '</a>';
         
         if ($fave == 'Yes') {
