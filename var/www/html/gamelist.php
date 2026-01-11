@@ -102,10 +102,10 @@ include 'menu.php';
 
 <?php
 
-$display = $_GET['display'];
-$filtertype = $_GET['filter'];
-$value = $_GET['value'];
-$filename = $_GET['filename'];
+$display = isset($_GET['display']) ? $_GET['display'] : null;
+$filtertype = isset($_GET['filter']) ? $_GET['filter'] : null;
+$value = isset($_GET['value']) ? $_GET['value'] : null;
+$filename = isset($_GET['filename']) ? $_GET['filename'] : null;
 $csvfile = 'csv/romsinfo.csv';
 $path = '/boot/roms';
 $menumode = file_get_contents('/sbin/piforce/menumode.txt');
