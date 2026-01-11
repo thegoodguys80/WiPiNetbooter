@@ -88,14 +88,14 @@ if ($ui_mode === 'modern') {
     echo '<button class="burger-menu" id="burgerBtn" onclick="toggleSidebar()" aria-label="Toggle menu"><span></span><span></span><span></span></button>';
     echo '<div class="sidebar-nav" id="sidebarNav">';
     echo '<nav>';
+    echo '<a href="menu.php" class="sidebar-nav-item">';
+    echo '<span class="sidebar-nav-icon">📊</span><span class="sidebar-nav-label">Dashboard</span></a>';
     echo '<a href="gamelist.php?display=all" class="sidebar-nav-item">';
     echo '<span class="sidebar-nav-icon">🎮</span><span class="sidebar-nav-label">Games</span></a>';
     echo '<a href="dimms.php" class="sidebar-nav-item active">';
     echo '<span class="sidebar-nav-icon">💾</span><span class="sidebar-nav-label">NetDIMMs</span></a>';
     echo '<a href="setup.php" class="sidebar-nav-item">';
     echo '<span class="sidebar-nav-icon">⚙️</span><span class="sidebar-nav-label">Setup</span></a>';
-    echo '<a href="menu.php" class="sidebar-nav-item">';
-    echo '<span class="sidebar-nav-icon">📋</span><span class="sidebar-nav-label">Options</span></a>';
     echo '<a href="ui-mode-switcher.php" class="sidebar-nav-item">';
     echo '<span class="sidebar-nav-icon">🎨</span><span class="sidebar-nav-label">UI Mode</span></a>';
     echo '</nav></div>';

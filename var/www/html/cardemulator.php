@@ -15,7 +15,8 @@ if ($ui_mode === 'modern') {
     echo '<div class="sidebar" id="sidebarNav">';
     echo '<div class="sidebar-header"><h2>WiPi Netbooter</h2></div>';
     echo '<nav class="sidebar-nav">';
-    echo '<a href="gamelist.php" class="nav-item"><span class="nav-icon">🎮</span> Games</a>';
+    echo '<a href="menu.php" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+    <a href="gamelist.php" class="nav-item"><span class="nav-icon">🎮</span> Games</a>';
     echo '<a href="dimms.php" class="nav-item"><span class="nav-icon">🖥️</span> NetDIMMs</a>';
     echo '<a href="setup.php" class="nav-item active"><span class="nav-icon">⚙️</span> Setup</a>';
     echo '<a href="menu.php" class="nav-item"><span class="nav-icon">📋</span> Menu</a>';
