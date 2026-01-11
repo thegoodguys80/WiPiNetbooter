@@ -1,10 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
 # Triforce Netfirm Toolbox, put into the public domain. 
 # Please attribute properly, but only if you want.
 
 # Written by debugmode
 # Trimmed to be exportable by Capane.us
+# MIGRATION: Updated to Python 3 compatibility
 
 import struct, sys
 import socket
@@ -18,7 +20,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def connect(ip, port):
 	global s
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect((ip, port))
 
 def disconnect():
@@ -27,7 +29,8 @@ def disconnect():
 
 # a function to receive a number of bytes with hard blocking
 def readsocket(n):
-	res = ""
+	# MIGRATION: Python 3 uses bytes, not strings for socket data
+	res = b""
 	while len(res) < n:
 		res += s.recv(n - len(res))
 	return res
@@ -36,9 +39,10 @@ def readsocket(n):
 def HOST_Read16(addr):
 	s.send(struct.pack("<II", 0xf0000004, addr))
 	data = readsocket(0x20)
-	res = ""
-	for d in xrange(0x10):
-		res += data[4 + (d ^ 3)]
+	# MIGRATION: Python 3 uses bytes() and range() instead of xrange()
+	res = b""
+	for d in range(0x10):
+		res += bytes([data[4 + (d ^ 3)]])
 	return res
 
 # same, but 4 bytes.
@@ -53,7 +57,7 @@ def HOST_Restart():
 	s.send(struct.pack("<I", 0x0A000000))
 
 def DIMM_CheckOff():
-        s.send(struct.pack(">IIIIIIIIH", 0x00000001, 0x1a008104, 0x01000000, 0xf0fffe3f, 0x0000ffff, 0xffffffff, 0xffff0000, 0x00000000, 0x0000))
+	s.send(struct.pack(">IIIIIIIIH", 0x00000001, 0x1a008104, 0x01000000, 0xf0fffe3f, 0x0000ffff, 0xffffffff, 0xffff0000, 0x00000000, 0x0000))
 
 
 # Read a number of bytes (up to 32k) from DIMM memory (i.e. where the game is). Probably doesn't work for NAND-based games.
@@ -81,6 +85,9 @@ def CONTROL_Read(addr):
 
 def SECURITY_SetKeycode(data):
 	assert len(data) == 8
+	# MIGRATION: Ensure data is bytes
+	if isinstance(data, str):
+		data = data.encode('latin-1')
 	s.send(struct.pack("<I", 0x7F000008) + data)
 
 def HOST_SetMode(v_and, v_or):
@@ -93,10 +100,16 @@ def DIMM_SetMode(v_and, v_or):
 
 def DIMM22(data):
 	assert len(data) >= 8
+	# MIGRATION: Ensure data is bytes
+	if isinstance(data, str):
+		data = data.encode('latin-1')
 	s.send(struct.pack("<I", 0x22000000 | len(data)) + data)
 
 def MEDIA_SetInformation(data):
 	assert len(data) >= 8
+	# MIGRATION: Ensure data is bytes
+	if isinstance(data, str):
+		data = data.encode('latin-1')
 	s.send(struct.pack("<I",	0x25000000 | len(data)) + data)
 
 def MEDIA_Format(data):
@@ -106,7 +119,8 @@ def TIME_SetLimit(data):
 	s.send(struct.pack("<II", 0x17000004, data))
 
 def DIMM_DumpToFile(file):
-	for x in xrange(0, 0x20000, 1):
+	# MIGRATION: Python 3 uses range() instead of xrange()
+	for x in range(0, 0x20000, 1):
 		file.write(DIMM_Read(x * 0x8000, 0x8000))
 		sys.stderr.write("%08x\r" % x)
 
@@ -142,7 +156,7 @@ def DIMM_UploadFile(name, key = None):
 	sys.stderr.write("Filesize: ")
 	sys.stderr.write(str(f))
 	sys.stderr.write("\n")
-        progressfile = open("/var/log/progress.txt", "w")
+	progressfile = open("/var/log/progress.txt", "w")
 	last = 0
 	if key:
 		d = DES.new(key[::-1], DES.MODE_ECB)
@@ -165,10 +179,11 @@ def DIMM_UploadFile(name, key = None):
 		crc = zlib.crc32(data, crc)
 		addr += len(data)
 	crc = ~crc
-	DIMM_Upload(addr, "12345678", 1)
+	# MIGRATION: Convert string to bytes for Python 3
+	DIMM_Upload(addr, b"12345678", 1)
 	DIMM_SetInformation(crc, addr)
 	time.sleep(0.2)
-        progressfile.write("COMPLETE")
+	progressfile.write("COMPLETE")
 	progressfile.close()
 
 # obsolete
