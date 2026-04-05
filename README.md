@@ -4,34 +4,66 @@
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Raspberry Pi based Netbooter for Sega Naomi/Chihiro/Triforce arcade boards
+Raspberry Pi based Netbooter for Sega Naomi / Naomi 2 / Atomiswave arcade boards with a modern web interface.
 
-## 🎉 Version 2.0 - Security & Python 3 Release
+---
 
-**⚠️ IMPORTANT:** This release includes **critical security fixes**. All users should update immediately.
+## What's New in 3.0 — UI/UX Overhaul
 
-### ✅ What's New in 2.0
-- **🛡️ Security Hardened** - 29 files secured, 50+ vulnerabilities fixed
-- **🐍 Python 3 Compatible** - Modern Python support (Python 2 no longer supported)
-- **✨ Code Quality** - Clean, documented, maintainable code
-- **🧪 Tested** - Comprehensive test suite included
+### Modern Theme
+- **Dark & light mode** — toggle in the sidebar on every page, persisted across sessions
+- **Consistent arcade theme** — all pages share the same arcade-retro colour palette; dark and light mode work correctly everywhere
+- **CSS variable architecture** — theme switching is instant, no page reload needed
+- **48px touch targets** — optimised for arcade cabinet touchscreens
+- **Responsive layout** — works on desktop browsers and small touchscreens
 
-**See [CHANGELOG.md](CHANGELOG.md) for full details** | **Security Info: [SECURITY.md](SECURITY.md)**
+### Dashboard (menu.php)
+- **Recently Played** — shows the last launched game with a one-tap Launch button
+- **Live NetDIMM status** — each configured NetDIMM shows Online/Offline in real time
+- Consistent theme with all other pages (naomi2-dashboard special case removed)
+
+### Game Library
+- **System filter tabs** — quickly filter by Naomi, Naomi 2, or Atomiswave
+- **Search** — filter games by name as you type
+- **Launch overlay** — full-screen animation when sending a game to a NetDIMM
+- **Skeleton loading** — placeholder tiles while artwork loads
+- **Return-to-top button** — appears after scrolling, floats bottom-right
+- **Favourites** — star your most-played games for quick access
+
+### Sidebar Navigation
+- Available on every page — slides in from the left with a burger button
+- **Links:** Dashboard, Games, NetDIMMs, Setup, Options, Network, Card Emulator, Help, Shutdown
+- **Live WiFi SSID** — shows the connected network name in the sidebar footer
+- **Live NetDIMM count** — shows how many boards are online (e.g. `1/2 NetDIMM`)
+- **Theme toggle** — dark/light switch at the bottom of the sidebar
+
+### Card Emulator
+- Fully modernised with card-based grid UI
+- Breadcrumb navigation (`Dashboard › Card Emulator › Initial D`)
+- Back button on sub-pages
+- Proper form styling with labelled inputs and primary action button
+- Empty state shown when no cards are saved
+
+### Card Management
+- Themed data tables — no more hardcoded dark colours; light mode works correctly
+- Delete buttons now show a confirmation dialog before deleting card data
+- NFC Copy and Delete actions use proper button styling
+- Breadcrumb navigation
+
+### All Pages
+- Viewport meta tag on every page (fixes mobile scaling)
+- Correct `width=device-width, initial-scale=1` format (commas, not semicolons)
+- Light mode tested and working across all pages
 
 ---
 
 ## Requirements
 
-### **NEW:** Python 3.6+ Required
-- Python 2 is no longer supported
-- Update existing installations: `sudo apt-get install python3 python3-pip`
-
 ### Hardware
 - Raspberry Pi 3B, 3B+ or 4B
 - 32GB Class 10 microSD card recommended
-- Naomi/Naomi2/Triforce/Chihiro with NetDIMM (firmware 3.03+)
-- Standard network cable
-- 5V power source for Pi
+- Naomi / Naomi 2 / Atomiswave with NetDIMM (firmware 3.03+)
+- Standard network cable and 5V power source for Pi
 
 ### Optional Hardware
 - Zero security PIC chip (recommended)
@@ -40,105 +72,106 @@ Raspberry Pi based Netbooter for Sega Naomi/Chihiro/Triforce arcade boards
 - OpenJVS Pi HAT
 - ACS ACR122U NFC Card Reader
 
+### Software
+- Python 3.6+ (Python 2 no longer supported)
+- Apache + PHP 8.x
+- nmcli (for WiFi scanning and status)
+
 ---
 
 ## Quick Start
 
 ### Download Pre-Built Image
-<b>Full image download link:</b> https://drive.google.com/drive/folders/1d2ToNeE02WAdE3Jo_62NHlxzVegzloVy?usp=sharing<br><br>
-<b>Instruction manual:</b> https://drive.google.com/file/d/19VvqMnIEYF-vSp-SlMRuhi5AT0qcu-_e/view?usp=drivesdk<br>
-<p>This version of the Pi Netbooter code is a scratch rewrite of the original solution written by devtty0 and has been enhanced with a new user interface and richer functionality. It has full support for all netbootable Sega arcade ROMs for the Naomi, Naomi2, Triforce, Chihiro and the Atomiswave conversions made possible by Darksoft. This version also includes the card reader emulator code for games that support it, the original python scripts were written by Winteriscoming on the arcade-projects.com forums and have been adapted for use in a web interface. The entire netbooting suite of scripts including the on screen menu and server mode was written by DragonMinded and integrated into WiPi.</p>
-<p>You will need:</p>
-<p>A Raspberry Pi v3B, 3B+ or 4B and microSD Card - 32GB Class 10 card recommended</p>
-<p>A Naomi, Naomi2, Triforce or Chihiro with a netdimm running firmware 3.03 or greater</p>
-<p>A standard network cable and 5v power source for the Pi &ndash; you can make a custom cable to draw power directly from the system</p>
-<p>A Web Browser :)</p>
-<p>Optional but recommended: a zero security pic chip</p>
-<p>Optional: a Trendnet TU-S9 USB-Serial adaptor and custom serial cable for the Card Emulator</p>
-<p>Optional: an FTDI based RS485 to USB adaptor for OpenJVS (see <a href="https://github.com/OpenJVS/OpenJVS">https://github.com/OpenJVS/OpenJVS</a> for more information)</p>
-<p>Optional: OpenJVS Pi HAT (see <a href="https://github.com/OpenJVS/OpenJVS">https://github.com/OpenJVS/OpenJVS</a> for more information)</p>
-<p>Optional: ACS ACR122U NFC Card Reader</p>
+**Full image:** https://drive.google.com/drive/folders/1d2ToNeE02WAdE3Jo_62NHlxzVegzloVy?usp=sharing
 
-## Testing
+**Instruction manual:** https://drive.google.com/file/d/19VvqMnIEYF-vSp-SlMRuhi5AT0qcu-_e/view?usp=drivesdk
 
-Version 2.0 includes a comprehensive test suite to validate security fixes:
+### Fresh Raspberry Pi Install
 
 ```bash
-# Run security validation tests
-python3 tests/test_security_fixes.py
+# Clone the repo onto the Pi
+git clone https://github.com/thegoodguys80/WiPiNetbooter.git
+cd WiPiNetbooter
+
+# Run the installer
+sudo bash install.sh
 ```
 
-**Test Coverage:**
-- ✅ Command injection prevention
-- ✅ XSS protection verification
-- ✅ Input validation checks
-- ✅ Python 3 compatibility
-- ✅ Secure subprocess usage
+The installer sets up Apache, PHP, Python 3 dependencies, file permissions, and configures the web interface automatically.
+
+### Access the Interface
+Open a browser and navigate to your Pi's IP address:
+```
+http://<pi-ip-address>
+```
+
+---
+
+## NetDIMM Online Detection
+
+WiPiNetbooter detects NetDIMM boards using TCP connection to port 10703:
+
+| Result | Meaning |
+|---|---|
+| Connection succeeds (errno 0) | Board online, ready to receive a game |
+| Connection refused (errno 111) | Board online, game currently running |
+| Timeout | Board offline or unreachable |
+
+This is more reliable than ICMP ping because NetDIMM boards respond to TCP even when a game is running.
+
+---
 
 ## Security
 
 This project has undergone a complete security audit. All critical vulnerabilities have been addressed.
 
-**Key Security Features:**
-- **Command Injection Prevention** - All shell commands use proper parameter escaping
-- **XSS Protection** - All user input is properly escaped in output
-- **Path Traversal Prevention** - File operations are validated and restricted
-- **Input Validation** - Comprehensive validation of all user inputs
+- **Command injection prevention** — all shell commands use `escapeshellarg()`
+- **XSS protection** — all user input is escaped with `htmlspecialchars()`
+- **Path traversal prevention** — file operations are validated and restricted
+- **Input validation** — all user inputs are validated before use
 
-For detailed security information, see [SECURITY.md](SECURITY.md).
+For details see [SECURITY.md](SECURITY.md).
 
-**Security Reporting:** If you discover a vulnerability, please see SECURITY.md for responsible disclosure.
+---
 
 ## Development
 
-### Docker Development Environment
-
-For development without Raspberry Pi hardware:
+### Docker
 
 ```bash
-# Start Docker environment
+# Start development environment
 docker-compose up -d
 
-# Access web interface
+# Open web interface
 open http://localhost:8080
 
 # Run tests
 docker exec -it wipinetbooter-dev python3 tests/test_security_fixes.py
 ```
 
-See [DOCKER.md](DOCKER.md) for complete Docker setup instructions.
+See [DOCKER.md](DOCKER.md) for full Docker setup.
 
 ### Contributing
 
-Contributions are welcome! When contributing:
+1. Follow security best practices in [SECURITY.md](SECURITY.md)
+2. Use Python 3.6+ for all Python code
+3. Use `escapeshellarg()` for all shell command parameters
+4. Validate and sanitise all user inputs
+5. Run the test suite before submitting a PR
 
-#### Setup Pre-Commit Hooks
-
-Install pre-commit hooks to catch issues before committing:
-
-```bash
-./install-hooks.sh
-```
-
-This will automatically:
-- Check Python and PHP syntax
-- Validate security patterns
-- Run security tests
-- Check for secrets
-
-#### Guidelines
-
-1. Follow the security best practices in [SECURITY.md](SECURITY.md)
-2. Run the test suite before submitting
-3. Use Python 3.6+ for all Python code
-4. Use `escapeshellarg()` for all shell command parameters
-5. Validate and sanitize all user inputs
-6. Pre-commit hooks must pass before submitting PRs
+---
 
 ## Documentation
 
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
-- **[SECURITY.md](SECURITY.md)** - Security policy and best practices
-- **[DOCKER.md](DOCKER.md)** - Docker development environment
-- **[WARP.md](WARP.md)** - Development guidance for AI assistants
+- [CHANGELOG.md](CHANGELOG.md) — version history
+- [SECURITY.md](SECURITY.md) — security policy
+- [DOCKER.md](DOCKER.md) — Docker development environment
+- [IMPROVEMENTS.md](IMPROVEMENTS.md) — UI/UX improvement log
 
+---
+
+## Credits
+
+This project is a scratch rewrite of the original solution by **devtty0**, enhanced with a new UI and richer functionality. It supports all netbootable Sega arcade ROMs for Naomi, Naomi 2, and Sammy Atomiswave (Darksoft conversions).
+
+Card reader emulator scripts were originally written by **Winteriscoming** on arcade-projects.com and adapted for the web interface. The netbooting suite including server mode was written by **DragonMinded** and integrated into WiPi.
