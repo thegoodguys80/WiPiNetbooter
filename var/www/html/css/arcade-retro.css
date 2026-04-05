@@ -1,0 +1,562 @@
+/* ============================================================================
+   WiPiNetbooter — Retro arcade cabinet aesthetic (Sega-inspired, unofficial)
+   Loaded after modern-theme, components, and kiosk-mode.
+   ============================================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap");
+
+/* --- Design tokens: electric cab / late-80s–90s arcade --- */
+:root {
+  --arcade-cyan: #00d4ff;
+  --arcade-cyan-dim: #0099cc;
+  --arcade-gold: #ffc832;
+  --arcade-gold-dim: #c89400;
+  --arcade-magenta: #ff3d9a;
+  --arcade-deep: #050810;
+  --arcade-panel: #0c1224;
+  --arcade-panel-2: #111a32;
+  --arcade-glow: rgba(0, 212, 255, 0.12);
+
+  --color-accent: var(--arcade-cyan);
+  --color-accent-hover: #5ce8ff;
+  --color-accent-subtle: rgba(0, 212, 255, 0.08);
+
+  --color-primary: var(--arcade-cyan);
+  --color-primary-hover: var(--color-accent-hover);
+  --color-primary-light: rgba(0, 212, 255, 0.18);
+
+  --color-background: var(--arcade-deep);
+  --color-surface: var(--arcade-panel);
+  --color-surface-hover: var(--arcade-panel-2);
+  --color-border: rgba(0, 212, 255, 0.22);
+  --color-border-hover: rgba(255, 200, 50, 0.45);
+
+  --color-text-primary: #eef6ff;
+  --color-text-secondary: #9db0cc;
+  --color-text-tertiary: #6b7f9e;
+  --color-text-inverse: #050810;
+
+  --color-secondary: #5a6b82;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 20px var(--arcade-glow);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 32px rgba(0, 212, 255, 0.08);
+  --shadow-xl: 0 24px 56px rgba(0, 0, 0, 0.7);
+
+  --font-display: "Orbitron", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Rajdhani", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+}
+
+/* Kill light “paper” theme when OS prefers light — cab is always dark */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="light"]) {
+    --color-background: var(--arcade-deep);
+    --color-surface: var(--arcade-panel);
+    --color-text-primary: #eef6ff;
+  }
+}
+
+[data-theme="dark"] {
+  --color-background: var(--arcade-deep);
+  --color-surface: var(--arcade-panel);
+  --color-surface-hover: var(--arcade-panel-2);
+  --color-border: rgba(0, 212, 255, 0.22);
+  --color-text-primary: #eef6ff;
+  --color-text-secondary: #9db0cc;
+  --color-text-tertiary: #6b7f9e;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background-color: var(--arcade-deep);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(0, 100, 180, 0.35), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(255, 60, 150, 0.06), transparent),
+    linear-gradient(180deg, #070c18 0%, var(--arcade-deep) 45%, #03060c 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Subtle CRT scanlines */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.06;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.45) 2px,
+    rgba(0, 0, 0, 0.45) 3px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    display: none;
+  }
+}
+
+h1,
+h2,
+.sidebar-header h2,
+.game-library-header h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 0 24px rgba(0, 212, 255, 0.25), 0 2px 0 rgba(0, 0, 0, 0.8);
+}
+
+h1 {
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  border-left: 4px solid var(--arcade-gold);
+  padding-left: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.page-intro {
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: 0.03em;
+  font-weight: 500;
+  border-left: 2px solid rgba(255, 200, 50, 0.35);
+  padding-left: var(--space-4);
+}
+
+.section-heading {
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--arcade-gold);
+  border-bottom-color: rgba(0, 212, 255, 0.25);
+  text-shadow: 0 0 12px rgba(255, 200, 50, 0.2);
+}
+
+.section-heading::after {
+  width: 4rem;
+  height: 3px;
+  background: linear-gradient(90deg, var(--arcade-cyan), var(--arcade-gold));
+  border-radius: 0;
+  bottom: -2px;
+}
+
+/* --- Cards: bezel / marquee feel --- */
+.card {
+  background: linear-gradient(165deg, var(--arcade-panel-2) 0%, var(--arcade-panel) 100%);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+}
+
+.card:hover {
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: var(--shadow-md);
+}
+
+.card-interactive:hover {
+  border-color: var(--arcade-cyan);
+  box-shadow: var(--shadow-lg), 0 0 20px rgba(0, 212, 255, 0.12);
+}
+
+.dashboard-card-link .card-body h3 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card-settings-panel {
+  border: 1px solid rgba(255, 200, 50, 0.25);
+  box-shadow: inset 0 0 0 1px rgba(0, 212, 255, 0.08);
+}
+
+.dashboard-card-link--danger {
+  border-color: rgba(255, 80, 100, 0.5);
+  background: linear-gradient(165deg, rgba(80, 20, 30, 0.5) 0%, var(--arcade-panel) 100%);
+}
+
+/* --- Buttons: illuminated panel --- */
+.btn {
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #1ad4ff 0%, var(--arcade-cyan-dim) 45%, #006699 100%);
+  color: #001018;
+  border-color: rgba(0, 212, 255, 0.6);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, #5ce8ff 0%, var(--arcade-cyan) 50%, #0088bb 100%);
+  color: #001018;
+}
+
+.btn-secondary {
+  background: linear-gradient(180deg, #3a4558 0%, #252d3d 100%);
+  color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.btn-success {
+  background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+  color: #001008;
+}
+
+/* --- Forms --- */
+.form-input,
+.form-select,
+.form-textarea {
+  background: rgba(5, 10, 20, 0.85);
+  border-color: rgba(0, 212, 255, 0.3);
+  font-family: var(--font-body);
+}
+
+.form-input:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.35);
+}
+
+/* --- Stats & game library --- */
+.stat-card {
+  background: linear-gradient(135deg, var(--arcade-panel-2), var(--arcade-panel));
+  border-left-color: var(--arcade-gold);
+  border-top: 1px solid rgba(255, 200, 50, 0.15);
+}
+
+.stat-card__value {
+  color: var(--arcade-cyan);
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.45);
+}
+
+.game-info-modal__panel {
+  border-top-color: var(--arcade-gold);
+  border-top-width: 4px;
+  box-shadow: var(--shadow-xl), 0 0 40px rgba(0, 212, 255, 0.1);
+}
+
+.game-card-info-btn {
+  border-color: var(--arcade-gold);
+  color: var(--arcade-gold);
+}
+
+.game-card-info-btn:hover {
+  background: var(--arcade-gold);
+  color: var(--arcade-deep);
+}
+
+/* System badges: keep distinction, slightly more neon */
+.game-card-system-badge.naomi {
+  background: linear-gradient(135deg, #00a8ff 0%, #0066cc 100%);
+}
+.game-card-system-badge.naomi2 {
+  background: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%);
+}
+
+/* --- Sidebar: cab control panel (both markup variants) --- */
+.sidebar {
+  background: linear-gradient(180deg, #0a1020 0%, #060a14 100%);
+  border-right: 2px solid rgba(0, 212, 255, 0.25);
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-header {
+  border-bottom-color: rgba(255, 200, 50, 0.2);
+}
+
+.sidebar-header h2 {
+  font-size: var(--font-size-sm);
+  color: var(--arcade-gold);
+  letter-spacing: 0.15em;
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.sidebar-nav,
+.sidebar-nav.sidebar-shell {
+  background: linear-gradient(180deg, #0c1428 0%, #080c18 100%);
+  border-right: 2px solid rgba(0, 212, 255, 0.2);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45);
+}
+
+.sidebar-nav-item,
+.nav-item {
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary) !important;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-nav-item:hover,
+.nav-item:hover {
+  background: rgba(0, 212, 255, 0.08) !important;
+  color: var(--arcade-cyan) !important;
+}
+
+.sidebar-nav-item.active,
+.nav-item.active {
+  background: rgba(0, 212, 255, 0.12) !important;
+  border-left-color: var(--arcade-gold);
+  color: var(--arcade-cyan) !important;
+  text-shadow: 0 0 12px rgba(0, 212, 255, 0.4);
+}
+
+/* Burger buttons */
+.burger-menu,
+.burger-btn {
+  background: linear-gradient(180deg, #2a3548 0%, #1a2235 100%);
+  border: 2px solid rgba(0, 212, 255, 0.45);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 0 16px rgba(0, 212, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.burger-menu:hover,
+.burger-btn:hover {
+  background: linear-gradient(180deg, #3d4d68 0%, #253044 100%);
+  border-color: var(--arcade-gold);
+}
+
+.burger-menu span,
+.burger-btn span {
+  background: var(--arcade-cyan);
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.6);
+}
+
+.sidebar-overlay.show {
+  background: rgba(0, 4, 12, 0.75);
+  backdrop-filter: blur(3px);
+}
+
+/* --- Links --- */
+a {
+  color: var(--arcade-cyan);
+}
+
+a:hover {
+  color: var(--arcade-gold);
+}
+
+/* --- Skip link --- */
+.skip-link {
+  background: var(--arcade-gold);
+  color: var(--arcade-deep);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ============================================================================
+   Light theme overrides — restore readable day-mode colors
+   arcade-retro.css hardcodes dark arcade values on components; these rules
+   undo them when data-theme="light" is active.
+   ============================================================================ */
+html[data-theme="light"] body {
+  background-image: none;
+}
+
+html[data-theme="light"] .stat-card {
+  background: #ffffff;
+  border-left-color: var(--color-primary);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="light"] .stat-card__value {
+  color: var(--color-primary);
+  text-shadow: none;
+}
+
+html[data-theme="light"] .stat-card__label {
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="light"] .form-input,
+html[data-theme="light"] .form-select,
+html[data-theme="light"] .form-textarea,
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea {
+  background: #ffffff;
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  box-shadow: none;
+}
+
+html[data-theme="light"] .form-input:focus,
+html[data-theme="light"] .form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+html[data-theme="light"] .btn {
+  border-color: transparent;
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="light"] .btn-primary {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  text-shadow: none;
+}
+
+html[data-theme="light"] .btn-primary:hover {
+  background: var(--color-primary-hover);
+  color: #ffffff;
+}
+
+html[data-theme="light"] .btn-secondary {
+  background: #e2eaff;
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+html[data-theme="light"] .btn-secondary:hover {
+  background: var(--color-border);
+}
+
+html[data-theme="light"] .card {
+  background: #ffffff;
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="light"] .card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+html[data-theme="light"] .game-card {
+  background: var(--color-surface);
+  border-color: transparent;
+}
+
+html[data-theme="light"] .game-card:hover {
+  border-color: var(--color-primary);
+}
+
+html[data-theme="light"] .game-card-info-btn {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+html[data-theme="light"] .game-card-info-btn:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+html[data-theme="light"] .game-card-genre-pill {
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+}
+
+html[data-theme="light"] .game-card-meta-line {
+  color: var(--color-text-tertiary);
+}
+
+html[data-theme="light"] .game-info-modal__panel {
+  background: #ffffff;
+  border-top-color: var(--color-primary);
+  border-color: var(--color-border);
+}
+
+html[data-theme="light"] .sidebar-nav,
+html[data-theme="light"] .sidebar-nav.sidebar-shell {
+  background: #ffffff;
+  border-right-color: var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+html[data-theme="light"] .sidebar-nav-item,
+html[data-theme="light"] .nav-item {
+  color: var(--color-text-secondary) !important;
+  font-family: var(--font-display);
+}
+
+html[data-theme="light"] .sidebar-nav-item:hover,
+html[data-theme="light"] .nav-item:hover {
+  background: var(--color-surface-hover) !important;
+  color: var(--color-primary) !important;
+}
+
+html[data-theme="light"] .sidebar-nav-item.active,
+html[data-theme="light"] .nav-item.active {
+  background: var(--color-accent-subtle) !important;
+  border-left-color: var(--color-primary);
+  color: var(--color-primary) !important;
+  text-shadow: none;
+}
+
+html[data-theme="light"] .burger-menu,
+html[data-theme="light"] .burger-btn {
+  background: #ffffff;
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="light"] .burger-menu:hover,
+html[data-theme="light"] .burger-btn:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-primary);
+}
+
+html[data-theme="light"] .burger-menu span,
+html[data-theme="light"] .burger-btn span {
+  background: var(--color-text-primary);
+  box-shadow: none;
+}
+
+html[data-theme="light"] a {
+  color: var(--color-primary);
+}
+
+html[data-theme="light"] a:hover {
+  color: var(--color-primary-hover);
+}
+
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] .game-library-header h1 {
+  text-shadow: none;
+  color: var(--color-text-primary);
+}
+
+html[data-theme="light"] .sys-tab.active,
+html[data-theme="light"] .sys-tab:hover {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .section-heading {
+  color: var(--color-text-primary);
+  text-shadow: none;
+}

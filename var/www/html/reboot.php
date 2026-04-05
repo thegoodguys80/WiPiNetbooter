@@ -4,6 +4,6 @@ echo '<html><body><p align="center"><font face="verdana" color="grey">';
 echo '</br>';
 
 // SECURITY: Static command with no user input
-$command = 'sudo python /sbin/piforce/reboot.py';
+$command = 'sudo python3 /sbin/piforce/reboot.py';
 shell_exec($command . ' > /dev/null 2>/dev/null &');
 ?>

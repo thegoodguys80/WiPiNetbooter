@@ -1,4 +1,4 @@
-#!/usr/bin/python -u
+#!/usr/bin/env python3
 from smartcard.CardRequest import CardRequest
 from smartcard.Exceptions import CardRequestTimeoutException
 from smartcard.CardType import AnyCardType

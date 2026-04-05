@@ -1,3 +1,4 @@
+<?php include_once 'ui_mode.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +7,9 @@
     <title>UI Component Showcase - WiPiNetbooter</title>
     <link rel="stylesheet" href="css/modern-theme.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/arcade-icons.css">
+    <link rel="stylesheet" href="css/kiosk-mode.css">
+    <link rel="stylesheet" href="css/arcade-retro.css">
     <style>
         /* Demo-specific styles */
         .demo-section {
@@ -29,7 +33,7 @@
     <!-- Theme Toggle -->
     <div style="position: fixed; top: 16px; right: 16px; z-index: 9999;">
         <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">
-            🌓 Toggle Dark Mode
+            <?php echo arcade_icon('palette'); ?> Toggle Dark Mode
         </button>
     </div>
 
@@ -153,8 +157,8 @@
                         </button>
                         <div class="game-card-overlay">
                             <div class="game-card-overlay-buttons">
-                                <button class="btn btn-primary btn-sm">🎮 Launch</button>
-                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);">ℹ Info</button>
+                                <button class="btn btn-primary btn-sm"><?php echo arcade_icon('rocket'); ?> Launch</button>
+                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);"><?php echo arcade_icon('help'); ?> Info</button>
                             </div>
                         </div>
                     </div>
@@ -176,8 +180,8 @@
                         </button>
                         <div class="game-card-overlay">
                             <div class="game-card-overlay-buttons">
-                                <button class="btn btn-primary btn-sm">🎮 Launch</button>
-                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);">ℹ Info</button>
+                                <button class="btn btn-primary btn-sm"><?php echo arcade_icon('rocket'); ?> Launch</button>
+                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);"><?php echo arcade_icon('help'); ?> Info</button>
                             </div>
                         </div>
                     </div>
@@ -199,8 +203,8 @@
                         </button>
                         <div class="game-card-overlay">
                             <div class="game-card-overlay-buttons">
-                                <button class="btn btn-primary btn-sm">🎮 Launch</button>
-                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);">ℹ Info</button>
+                                <button class="btn btn-primary btn-sm"><?php echo arcade_icon('rocket'); ?> Launch</button>
+                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);"><?php echo arcade_icon('help'); ?> Info</button>
                             </div>
                         </div>
                     </div>
@@ -222,8 +226,8 @@
                         </button>
                         <div class="game-card-overlay">
                             <div class="game-card-overlay-buttons">
-                                <button class="btn btn-primary btn-sm">🎮 Launch</button>
-                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);">ℹ Info</button>
+                                <button class="btn btn-primary btn-sm"><?php echo arcade_icon('rocket'); ?> Launch</button>
+                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);"><?php echo arcade_icon('help'); ?> Info</button>
                             </div>
                         </div>
                     </div>
@@ -245,8 +249,8 @@
                         </button>
                         <div class="game-card-overlay">
                             <div class="game-card-overlay-buttons">
-                                <button class="btn btn-primary btn-sm">🎮 Launch</button>
-                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);">ℹ Info</button>
+                                <button class="btn btn-primary btn-sm"><?php echo arcade_icon('rocket'); ?> Launch</button>
+                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);"><?php echo arcade_icon('help'); ?> Info</button>
                             </div>
                         </div>
                     </div>
@@ -268,8 +272,8 @@
                         </button>
                         <div class="game-card-overlay">
                             <div class="game-card-overlay-buttons">
-                                <button class="btn btn-primary btn-sm">🎮 Launch</button>
-                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);">ℹ Info</button>
+                                <button class="btn btn-primary btn-sm"><?php echo arcade_icon('rocket'); ?> Launch</button>
+                                <button class="btn btn-ghost btn-sm" style="color: white; border: 1px solid rgba(255,255,255,0.3);"><?php echo arcade_icon('help'); ?> Info</button>
                             </div>
                         </div>
                     </div>
@@ -377,7 +381,7 @@
             <h2 class="demo-section-title">Empty State</h2>
             <div class="card">
                 <div class="empty-state">
-                    <div class="empty-state-icon">📦</div>
+                    <span class="empty-state__icon arcade-icon arcade-icon--package" aria-hidden="true"></span>
                     <h3 class="empty-state-title">No Games Found</h3>
                     <p class="empty-state-message">
                         No ROM files were found in the /boot/roms directory. Add some games to get started.

@@ -1,47 +1,39 @@
 <?php
 include 'ui_mode.php';
-$ui_mode = get_ui_mode();
 
-if ($ui_mode !== 'modern') {
-    include 'menu_include.php';
-}
-
-// SECURITY: Validate device path input
+// SECURITY: Validate device path input — allow /dev/input/eventN and /dev/ttyUSBN, /dev/ttyACMN
 $device_path = $_GET["path"] ?? '';
-if (empty($device_path) || !preg_match('#^/dev/input/event[0-9]+$#', $device_path)) {
-    die('Error: Invalid device path');
+$valid_path = !empty($device_path) && preg_match('#^/dev/(input/event|ttyUSB|ttyACM)[0-9]+$#', $device_path);
+if (!$valid_path) {
+        echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter - Device Configuration</title>';
+        echo '<link rel="stylesheet" href="css/modern-theme.css">';
+        echo '<link rel="stylesheet" href="css/components.css">';
+        echo '<link rel="stylesheet" href="css/arcade-icons.css">';
+        echo '<link rel="stylesheet" href="css/kiosk-mode.css">';
+        echo '<link rel="stylesheet" href="css/arcade-retro.css">';
+        echo '</head><body>';
+        echo modern_sliding_sidebar_nav('setup');
+        echo '<div class="container p-6">';
+        echo '<div class="alert alert-warning"><strong>No device path specified.</strong> Please select a device from the device scan page.</div>';
+        echo '<a href="devicescan.php" class="btn btn-primary" style="margin-top:16px;">&#8592; Back to Device Scan</a>';
+        echo '</div>';
+        echo '<script>function toggleSidebar(){const s=document.getElementById("sidebarNav"),o=document.getElementById("sidebarOverlay"),b=document.getElementById("burgerBtn");if(s)s.classList.toggle("open");if(o)o.classList.toggle("show");if(b)b.classList.toggle("open");}</script>';
+        echo '</body></html>';
+    exit;
 }
 
-if ($ui_mode === 'modern') {
     echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter - Device Configuration</title>';
     echo '<link rel="stylesheet" href="css/modern-theme.css">';
     echo '<link rel="stylesheet" href="css/components.css">';
+    echo '<link rel="stylesheet" href="css/arcade-icons.css">';
     echo '<link rel="stylesheet" href="css/kiosk-mode.css">';
+    echo '<link rel="stylesheet" href="css/arcade-retro.css">';
     echo '</head><body>';
     
-    // Sidebar navigation
-    echo '<div class="sidebar" id="sidebarNav">';
-    echo '<div class="sidebar-header">';
-    echo '<h2>WiPi Netbooter</h2>';
-    echo '</div>';
-    echo '<nav class="sidebar-nav">';
-    echo '<a href="menu.php" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
-    <a href="gamelist.php" class="nav-item"><span class="nav-icon">🎮</span> Games</a>';
-    echo '<a href="dimms.php" class="nav-item"><span class="nav-icon">🖥️</span> NetDIMMs</a>';
-    echo '<a href="setup.php" class="nav-item active"><span class="nav-icon">⚙️</span> Setup</a>';
-    echo '<a href="menu.php" class="nav-item"><span class="nav-icon">📋</span> Menu</a>';
-    echo '</nav>';
-    echo '</div>';
-    
-    echo '<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>';
-    
+    echo modern_sliding_sidebar_nav('setup');
     echo '<div class="container">';
-    echo '<div class="main-content">';
-    echo '<button class="burger-btn" id="burgerBtn" onclick="toggleSidebar()">';
-    echo '<span></span><span></span><span></span>';
-    echo '</button>';
     
-    echo '<h1>🎮 Device Configuration Wizard</h1>';
+    echo '<h1>'.arcade_icon('gamepad').' Device Configuration Wizard</h1>';
     echo '<p style="margin-bottom: 24px;">Configuring device: <code>'.htmlspecialchars($device_path, ENT_QUOTES, 'UTF-8').'</code></p>';
     
     echo '<div class="card">';
@@ -51,13 +43,6 @@ if ($ui_mode === 'modern') {
     echo '<table class="table" style="width: 100%;">';
     echo '<thead><tr><th>Control</th><th>Input</th></tr></thead>';
     echo '<tbody>';
-} else {
-    echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
-    echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
-    echo '<section><center><p>';
-    echo '<table class="center" id="options">';
-    echo '<tr><th>Control</th><th>Input</th></tr>';
-}
 
 ini_set('output_buffering', false);
 $handle = popen('sudo python3 /sbin/piforce/configuration.py ' . escapeshellarg($device_path), 'r');
@@ -68,13 +53,12 @@ while(!feof($handle)) {
 }
 pclose($handle);
 
-if ($ui_mode === 'modern') {
     echo '</tbody></table>';
     echo '</div></div>';
     
     echo '<div style="margin-top: 24px;">';
     echo '<a href="devicescan.php" class="btn btn-primary">← Return to Device Scan</a>';
-    echo '<a href="devices.php" class="btn btn-secondary" style="margin-left: 8px;">💾 View Device Files</a>';
+    echo '<a href="devices.php" class="btn btn-secondary" style="margin-left: 8px;">'.arcade_icon('list').' View Device Files</a>';
     echo '</div>';
     
     echo '</div></div>'; // Close main-content and container
@@ -82,17 +66,9 @@ if ($ui_mode === 'modern') {
     // Add sidebar toggle script
     echo '<script>';
     echo 'function toggleSidebar() {';
-    echo '  const sidebar = document.getElementById("sidebarNav");';
-    echo '  const overlay = document.getElementById("sidebarOverlay");';
-    echo '  const burger = document.getElementById("burgerBtn");';
-    echo '  sidebar.classList.toggle("open");';
-    echo '  overlay.classList.toggle("show");';
-    echo '  burger.classList.toggle("open");';
+    echo '  const s=document.getElementById("sidebarNav"),o=document.getElementById("sidebarOverlay"),b=document.getElementById("burgerBtn");';
+    echo '  if(s)s.classList.toggle("open");if(o)o.classList.toggle("show");if(b)b.classList.toggle("open");';
     echo '}';
     echo '</script>';
     echo '</body></html>';
-} else {
-    echo '</table>';
-    echo '<br><a href="devicescan.php">Return to Device Scan</a>';
-}
 ?>

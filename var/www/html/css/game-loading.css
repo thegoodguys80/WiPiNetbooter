@@ -1,0 +1,260 @@
+/* ============================================================================
+   Game netboot loading screen — art, title, progress bar only (minimal variant)
+   Used on load.php, loadnochrome.php, loadprogress.php
+   ============================================================================ */
+
+body.game-loading-page {
+  min-height: 100vh;
+}
+
+body.game-loading-page--minimal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+body.game-loading-page--minimal .container.p-6 {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 720px;
+}
+
+body.game-loading-page .container.p-6 {
+  max-width: 720px;
+}
+
+.game-loading {
+  position: relative;
+  margin: var(--space-4) auto var(--space-8);
+  padding: var(--space-10) var(--space-6);
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  background:
+    linear-gradient(145deg, rgba(12, 24, 48, 0.92) 0%, rgba(5, 10, 22, 0.96) 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 200, 50, 0.08),
+    0 16px 48px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+/* Animated mesh / scan sweep */
+.game-loading::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 212, 255, 0.03) 3px,
+      rgba(0, 212, 255, 0.03) 4px
+    ),
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 120, 200, 0.18), transparent 55%);
+  animation: game-loading-bg-drift 18s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes game-loading-bg-drift {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(-4%, 2%) rotate(1deg);
+  }
+}
+
+.game-loading__inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.game-loading__eyebrow {
+  font-family: var(--font-display, ui-sans-serif);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--arcade-cyan, #00d4ff);
+  margin: 0 0 var(--space-3);
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.45);
+  animation: game-loading-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes game-loading-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* List artwork (csv images/) — large hero on loading screen */
+.game-loading__art-wrap {
+  margin: 0 auto var(--space-6);
+  width: 100%;
+  max-width: min(520px, 92vw);
+}
+
+.game-loading__art {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(42vh, 380px);
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(255, 200, 50, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.game-loading__title {
+  font-family: var(--font-display, ui-sans-serif);
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-primary, #eef6ff);
+  margin: 0 0 var(--space-5);
+  line-height: 1.25;
+  text-shadow: 0 2px 24px rgba(0, 80, 160, 0.35);
+}
+
+body.game-loading-page--minimal .game-loading__title {
+  margin-bottom: var(--space-6);
+}
+
+.game-loading__rom {
+  font-family: var(--font-body, ui-sans-serif);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary, #9db0cc);
+  margin: 0 0 var(--space-8);
+  word-break: break-word;
+}
+
+/* Spinner ring */
+.game-loading__spinner-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-8);
+}
+
+.game-loading__spinner {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 212, 255, 0.15);
+  border-top-color: var(--arcade-cyan, #00d4ff);
+  border-right-color: rgba(255, 200, 50, 0.5);
+  animation: game-loading-spin 0.95s linear infinite;
+}
+
+@keyframes game-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Progress */
+.load-progress-wrap {
+  max-width: 100%;
+  margin: 0 auto var(--space-5);
+}
+
+.load-progress-bar {
+  width: 100%;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(0, 212, 255, 0.28);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.load-progress-fill {
+  position: relative;
+  height: 100%;
+  width: 0%;
+  min-width: 0;
+  background: linear-gradient(
+    90deg,
+    #006699 0%,
+    var(--arcade-cyan, #00d4ff) 45%,
+    #5ce8ff 100%
+  );
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #001018;
+  font-family: var(--font-display, ui-sans-serif);
+  font-weight: 800;
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: width 0.35s ease;
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.25);
+}
+
+.load-progress-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: game-loading-shimmer 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes game-loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.game-loading__status {
+  font-family: var(--font-body, ui-sans-serif);
+  font-size: var(--font-size-base);
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary, #9db0cc);
+  margin: 0;
+  min-height: 1.5em;
+  transition: opacity 0.25s ease;
+}
+
+.game-loading__status.is-updating {
+  opacity: 0.55;
+}
+
+.game-loading__pct-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary, #6b7f9e);
+  margin-top: var(--space-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-loading::before,
+  .game-loading__eyebrow,
+  .game-loading__spinner,
+  .load-progress-fill::after {
+    animation: none;
+  }
+
+  .game-loading::before {
+    transform: none;
+  }
+}

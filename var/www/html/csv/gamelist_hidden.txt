@@ -1,0 +1,1 @@
+# ROM filenames hidden from the main game list (one per line)

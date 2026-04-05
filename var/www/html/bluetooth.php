@@ -1,106 +1,125 @@
 <?php
+include_once 'ui_mode.php';
 
-include 'menu_include.php';
-include 'btlist.php';
-echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
-echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
-echo '<section><center>';
-$mode = $_GET['mode'];
+$mode = $_GET['mode'] ?? 'main';
 
-if ($mode == 'main'){
-echo '<h1><a href="openjvs.php">Bluetooth Devices</a></h1><br>';
-echo 'The Pi can support bluetooth devices for use with OpenJVS<br><br>';
-echo 'To add a new device it needs to be powered on and in discovery mode<br><br>';
-echo 'The Pi will scan for new devices for 15 seconds and display any it finds in a drop down menu<br><br>';
-echo 'Use the Pair Device option to initiate bluetooth pairing<br><br>';
-echo 'If pairing fails the device can be removed from the scan results page<br><br>';
-echo '<br><a href="bluetoothscan.php" style="font-weight:normal" class="dropbtn">Start Scan</a><br><br><br>';
-// SECURITY: Static command with no user input
-$connected = shell_exec('sudo bluetoothctl devices');
-$btarray = explode('Device ', $connected);
-echo 'Detected Devices:<br><br><b>';
-if ($connected != ''){
-foreach ($btarray as &$device) {
-if ($device != ''){
-echo substr($device, 17);
-echo '<br>';}}}
-else {echo 'None';}
-}
+$connected = shell_exec('sudo bluetoothctl devices') ?? '';
+$btarray   = array_filter(explode('Device ', $connected));
 
-if ($mode == 'results'){
-echo '<h1><a href="bluetooth.php?mode=main">Bluetooth Devices</a></h1><br>';
-echo 'To pair a device select it from the drop down list and press the Pair Device button<br><br>';
-$connected = shell_exec('sudo bluetoothctl devices');
-$btarray = explode('Device ', $connected);
-echo 'Detected devices:<br><br><b>';
-if ($connected != ''){
-foreach ($btarray as &$value) {
-if ($value != ''){
-echo substr($value, 17);
-echo '<br>';}}}
-else {echo 'None';}
-echo '</b><br><br><div class="box2"><br>';
-echo '<form action="bluetooth.php?mode=results" method="post" id="form1">';
-echo '<select name="mac">';
-  foreach ($btarray as &$value) {
-  if ($value != ''){
-  $mac = substr($value, 0, 17);
-  $name = substr($value, 17);
-  echo '<option value="'.$mac.'">'.$name.'</option>';}}
-echo '</select><br><br>';
-echo '<input type="submit" class="dropbtn" name="pair" value="Pair Device"> <input type="submit" class="dropbtn" name="remove" value="Remove Device"><br><br><a href="bluetoothscan.php" style="font-weight:normal" class="dropbtn">Rescan</a><br><br></div>';
-echo '<br><br></b>';
+$msg = '';
+$msgType = 'info';
 
-if(isset($_POST["pair"]))
-{
-    // SECURITY: Validate MAC address format
+if ($mode === 'results' && isset($_POST["pair"])) {
     $mac = $_POST["mac"] ?? '';
-    
-    // Validate MAC address (XX:XX:XX:XX:XX:XX format)
     if (!preg_match('/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/', $mac)) {
-        echo '<font color="red"><b>Invalid MAC address format</b></font><br>';
+        $msg = 'Invalid MAC address format.';
+        $msgType = 'warning';
     } else {
-        $i = 0;
-        ini_set('output_buffering', false);
-        // SECURITY: Use escapeshellarg for MAC parameter
+        ob_start();
         $handle = popen('sudo python3 /sbin/piforce/bluetoothpair.py add ' . escapeshellarg($mac), 'r');
-        while(!feof($handle) && $i <=10) {
-            $i++;
-            $buffer = fgets($handle, 2000);
-            // SECURITY: HTML escape output
-            echo htmlspecialchars($buffer, ENT_QUOTES, 'UTF-8');
-            echo '<br>';
-            flush();
-        }
-        pclose($handle);
-        echo '<br><b><a href="bluetooth.php?mode=results">Pairing attempt complete</a></b>';
-    }
-}
-if(isset($_POST["remove"]))
-{
-    // SECURITY: Validate MAC address format
-    $mac = $_POST["mac"] ?? '';
-    
-    // Validate MAC address (XX:XX:XX:XX:XX:XX format)
-    if (!preg_match('/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/', $mac)) {
-        echo '<font color="red"><b>Invalid MAC address format</b></font><br>';
-    } else {
         $i = 0;
-        ini_set('output_buffering', false);
-        // SECURITY: Use escapeshellarg for MAC parameter
-        $handle = popen('sudo python3 /sbin/piforce/bluetoothpair.py remove ' . escapeshellarg($mac), 'r');
-        while(!feof($handle) && $i <=10) {
-            $i++;
-            $buffer = fgets($handle, 2000);
-            // SECURITY: HTML escape output
-            echo htmlspecialchars($buffer, ENT_QUOTES, 'UTF-8');
-            echo '<br>';
-            flush();
-        }
+        while (!feof($handle) && $i <= 10) { $i++; ob_end_clean(); ob_start(); fgets($handle, 2000); }
         pclose($handle);
-        echo '<b><a href="bluetooth.php?mode=results">Removal attempt complete</a></b>';
+        ob_end_clean();
+        $msg = 'Pairing attempt complete for <strong>' . htmlspecialchars($mac, ENT_QUOTES, 'UTF-8') . '</strong>.';
+        $msgType = 'success';
     }
-}
 }
 
-echo '</p><center></body></html>';
+if ($mode === 'results' && isset($_POST["remove"])) {
+    $mac = $_POST["mac"] ?? '';
+    if (!preg_match('/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/', $mac)) {
+        $msg = 'Invalid MAC address format.';
+        $msgType = 'warning';
+    } else {
+        $handle = popen('sudo python3 /sbin/piforce/bluetoothpair.py remove ' . escapeshellarg($mac), 'r');
+        while (!feof($handle)) { fgets($handle, 2000); }
+        pclose($handle);
+        $msg = 'Device <strong>' . htmlspecialchars($mac, ENT_QUOTES, 'UTF-8') . '</strong> removed.';
+        $msgType = 'success';
+    }
+}
+
+
+    echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter - Bluetooth</title>';
+    echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+    echo '<link rel="stylesheet" href="css/modern-theme.css">';
+    echo '<link rel="stylesheet" href="css/components.css">';
+    echo '<link rel="stylesheet" href="css/arcade-icons.css">';
+    echo '<link rel="stylesheet" href="css/kiosk-mode.css">';
+    echo '<link rel="stylesheet" href="css/arcade-retro.css">';
+    echo '</head><body>';
+    echo modern_sliding_sidebar_nav('setup');
+    echo '<div class="container p-6">';
+    echo '<h1>&#9654; Bluetooth Devices</h1>';
+
+    if ($mode === 'main') {
+        echo '<p class="page-intro">Pair Bluetooth controllers for use with OpenJVS.</p>';
+        echo '<div class="card" style="max-width:560px;margin-bottom:24px;">';
+        echo '<div class="card-header"><h2 class="card-title">Instructions</h2></div>';
+        echo '<div class="card-body">';
+        echo '<p>Put your device in discovery mode, then start a scan. The Pi will search for 15 seconds.</p>';
+        echo '</div><div class="card-footer">';
+        echo '<a href="bluetoothscan.php" class="btn btn-primary">' . arcade_icon('scan') . ' Start Scan</a>';
+        echo '</div></div>';
+
+        echo '<div class="card" style="max-width:560px;">';
+        echo '<div class="card-header"><h2 class="card-title">Known Devices</h2></div>';
+        echo '<div class="card-body">';
+        if ($connected) {
+            echo '<ul style="list-style:none;padding:0;margin:0;">';
+            foreach ($btarray as $device) {
+                if ($device !== '') {
+                    echo '<li style="padding:8px 0;border-bottom:1px solid var(--color-border,#333);">' . htmlspecialchars(trim(substr($device, 17)), ENT_QUOTES, 'UTF-8') . '</li>';
+                }
+            }
+            echo '</ul>';
+        } else {
+            echo '<p class="text-secondary">No devices detected.</p>';
+        }
+        echo '</div></div>';
+
+    } else { // results mode
+        if ($msg) {
+            echo '<div class="alert alert-' . $msgType . '" style="max-width:560px;margin-bottom:16px;">' . $msg . '</div>';
+        }
+
+        echo '<div class="card" style="max-width:560px;">';
+        echo '<div class="card-header"><h2 class="card-title">Pair or Remove Device</h2></div>';
+        echo '<div class="card-body">';
+        echo '<p style="margin-bottom:16px;">Detected devices:</p>';
+        if ($connected) {
+            echo '<ul style="list-style:none;padding:0;margin:0 0 16px 0;">';
+            foreach ($btarray as $device) {
+                if ($device !== '') {
+                    echo '<li style="padding:6px 0;">' . htmlspecialchars(trim(substr($device, 17)), ENT_QUOTES, 'UTF-8') . '</li>';
+                }
+            }
+            echo '</ul>';
+            echo '<form action="bluetooth.php?mode=results" method="post">';
+            echo '<select name="mac" class="form-select" style="margin-bottom:16px;">';
+            foreach ($btarray as $value) {
+                if ($value !== '') {
+                    $mac  = substr($value, 0, 17);
+                    $name = trim(substr($value, 17));
+                    echo '<option value="' . htmlspecialchars($mac, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</option>';
+                }
+            }
+            echo '</select><br>';
+            echo '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+            echo '<input type="submit" class="btn btn-primary" name="pair" value="Pair Device">';
+            echo '<input type="submit" class="btn btn-warning" name="remove" value="Remove Device">';
+            echo '<a href="bluetoothscan.php" class="btn btn-secondary">Rescan</a>';
+            echo '</div></form>';
+        } else {
+            echo '<p class="text-secondary">No devices found. <a href="bluetoothscan.php">Run a scan</a>.</p>';
+        }
+        echo '</div></div>';
+    }
+
+    echo '</div>';
+    echo '<script>function toggleSidebar(){const s=document.getElementById("sidebarNav"),o=document.getElementById("sidebarOverlay"),b=document.getElementById("burgerBtn");if(s)s.classList.toggle("open");if(o)o.classList.toggle("show");if(b)b.classList.toggle("open");}</script>';
+    echo '</body></html>';
+
+
+?>

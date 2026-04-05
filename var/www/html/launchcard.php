@@ -1,120 +1,88 @@
 <?php
-
 header("Refresh: 2; url=cardemulator.php?mode=main");
-include 'menu_include.php';
-echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
-echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
-echo '<section><center><p>';
-// SECURITY: Validate all user inputs
-$card = $_GET["card"] ?? '';
-$mode = $_GET["mode"] ?? '';
+include_once 'ui_mode.php';
+
+$card       = $_GET["card"] ?? '';
+$mode       = $_GET["mode"] ?? '';
 $launchmode = $_GET["launchmode"] ?? '';
 
-// Validate card filename (alphanumeric, underscore, dash, dot only)
-if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $card)) {
-    die('Error: Invalid card filename');
-}
-
-// Validate mode (whitelist of allowed modes)
+if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $card)) { die('Error: Invalid card filename'); }
 $allowed_modes = ['idas', 'id2', 'id3', 'fzero', 'mkgp', 'wmmt'];
-if (!in_array($mode, $allowed_modes)) {
-    die('Error: Invalid card mode');
-}
+if (!in_array($mode, $allowed_modes)) { die('Error: Invalid card mode'); }
+if (!in_array($launchmode, ['manual', 'auto'])) { die('Error: Invalid launch mode'); }
 
-// Validate launch mode
-if (!in_array($launchmode, ['manual', 'auto'])) {
-    die('Error: Invalid launch mode');
-}
-$emuport = '';
-$devices = array();
-$devices = glob('/dev' . '/ttyUSB*');
+$emumode    = in_array($mode, ['idas', 'id2', 'id3']) ? 'id' : $mode;
+$devices    = glob('/dev/ttyUSB*') ?: [];
 $dropfolder = '/var/log/activecard';
-$isdirempty = !(new \FilesystemIterator($dropfolder))->valid();
+$isdirempty = is_dir($dropfolder) ? !(new \FilesystemIterator($dropfolder))->valid() : true;
+$emuport    = '';
+$statusMsg  = '';
+$statusType = 'info';
 
-if ($mode == 'idas' || $mode == 'id2' || $mode == 'id3'){
-$emumode = 'id';
-}
-else{
-$emumode = $mode;
-}
-
-if (readlink("/dev/COM1")){
-echo 'COM1 is present - checking ports<br>';
-$comport = readlink("/dev/COM1");
-$compath = '/dev/'.$comport;
-// SECURITY: HTML escape output
-echo 'COM1 path: ' . htmlspecialchars($compath, ENT_QUOTES, 'UTF-8') . '<br>';
-foreach ($devices as $device) {
-    if ($device != $compath){
-       $emuport = $device;
+if (@readlink("/dev/COM1")) {
+    $compath = '/dev/' . readlink("/dev/COM1");
+    foreach ($devices as $device) {
+        if ($device !== $compath) { $emuport = $device; }
     }
-  }
-}
-else{
-$emuport = '/dev/ttyUSB0';
-}
-
-if ($launchmode == "manual"){
-
-if(empty($devices) || $emuport == null){
-   echo '<br><b>No serial adaptor detected<br>';
-   echo 'Please check connections</b>';}
-else {
-// SECURITY: HTML escape output
-echo '<br>Card emulator will launch on: ' . htmlspecialchars($emuport, ENT_QUOTES, 'UTF-8') . '<br>';
-echo '<b>Starting card emulator with card ' . htmlspecialchars($card, ENT_QUOTES, 'UTF-8') . '</b>';
-
-// SECURITY: Validate device path
-if (!preg_match('#^/dev/ttyUSB[0-9]+$#', $emuport)) {
-    die('Error: Invalid serial device path');
-}
-
-// SECURITY: Build commands with escaped arguments
-$cardlog_path = '/boot/config/cards/' . escapeshellarg($mode) . '/' . escapeshellarg($card);
-$command1 = 'sudo python /sbin/piforce/card_emulator/cardlog.py ' . escapeshellarg($cardlog_path);
-shell_exec($command1 . ' > /dev/null 2>/dev/null &');
-
-if ($emumode == 'id') {
-    $command2 = 'sudo python3 /sbin/piforce/card_emulator/' . escapeshellarg($emumode . 'cardemu.py') . 
-                ' -cp ' . escapeshellarg($emuport) . 
-                ' -f ' . escapeshellarg('/boot/config/cards/' . $mode . '/' . $card) . 
-                ' -m ' . escapeshellarg($mode);
 } else {
-    $command2 = 'sudo python3 /sbin/piforce/card_emulator/' . escapeshellarg($emumode . 'cardemu.py') . 
-                ' -cp ' . escapeshellarg($emuport) . 
-                ' -f ' . escapeshellarg('/boot/config/cards/' . $mode . '/' . $card);
-}
-shell_exec($command2 . ' > /dev/null 2>/dev/null &');
-}
+    $emuport = '/dev/ttyUSB0';
 }
 
-if ($launchmode == "auto"){
-exec("ps -ax | grep -i cardemu | grep -v grep", $pids);
-if (empty($pids)) {
-    echo '<br><b><p style="color:red">Card emulator is not running</p></b>';
-    echo '<b>Card cannot be inserted yet!</b>';
+if ($launchmode === 'manual') {
+    if (empty($devices) || $emuport === '') {
+        $statusMsg  = 'No serial adaptor detected. Please check connections.';
+        $statusType = 'warning';
+    } else {
+        if (!preg_match('#^/dev/ttyUSB[0-9]+$#', $emuport)) { die('Error: Invalid serial device path'); }
+        $cardlog_path = '/boot/config/cards/' . $mode . '/' . $card;
+        shell_exec('sudo python3 /sbin/piforce/card_emulator/cardlog.py ' . escapeshellarg($cardlog_path) . ' > /dev/null 2>/dev/null &');
+        if ($emumode === 'id') {
+            $cmd = 'sudo python3 /sbin/piforce/card_emulator/' . $emumode . 'cardemu.py -cp ' . escapeshellarg($emuport) . ' -f ' . escapeshellarg('/boot/config/cards/' . $mode . '/' . $card) . ' -m ' . escapeshellarg($mode);
+        } else {
+            $cmd = 'sudo python3 /sbin/piforce/card_emulator/' . $emumode . 'cardemu.py -cp ' . escapeshellarg($emuport) . ' -f ' . escapeshellarg('/boot/config/cards/' . $mode . '/' . $card);
+        }
+        shell_exec($cmd . ' > /dev/null 2>/dev/null &');
+        $statusMsg  = 'Card emulator starting on ' . htmlspecialchars($emuport, ENT_QUOTES, 'UTF-8') . ' with card <strong>' . htmlspecialchars($card, ENT_QUOTES, 'UTF-8') . '</strong>.';
+        $statusType = 'success';
+    }
 }
-elseif ($isdirempty){
-echo '<br><b><p style="color:green">Card emulator ready</p></b>';
-echo '<b>Inserting card ...</b>';
 
-// SECURITY: Use escaped arguments for cp command
-$source = '/boot/config/cards/' . $mode . '/' . $card;
-$dest = $dropfolder . '/' . $card;
-
-// Verify source file exists
-if (!file_exists($source)) {
-    die('Error: Card file not found');
+if ($launchmode === 'auto') {
+    exec("ps -ax | grep -i cardemu | grep -v grep", $pids);
+    if (empty($pids)) {
+        $statusMsg  = 'Card emulator is not running. Card cannot be inserted yet!';
+        $statusType = 'warning';
+    } elseif ($isdirempty) {
+        $source = '/boot/config/cards/' . $mode . '/' . $card;
+        if (!file_exists($source)) { die('Error: Card file not found'); }
+        shell_exec('sudo cp ' . escapeshellarg($source) . ' ' . escapeshellarg($dropfolder . '/' . $card) . ' > /dev/null 2>/dev/null &');
+        file_put_contents('/sbin/piforce/nfcwriteback.txt', 'no');
+        $statusMsg  = 'Inserting card <strong>' . htmlspecialchars($card, ENT_QUOTES, 'UTF-8') . '</strong>…';
+        $statusType = 'success';
+    } else {
+        $statusMsg  = 'Existing card detected. Card cannot be inserted yet!';
+        $statusType = 'warning';
+    }
 }
 
-$insertcommand = 'sudo cp ' . escapeshellarg($source) . ' ' . escapeshellarg($dest);
-shell_exec($insertcommand . ' > /dev/null 2>/dev/null &');
-file_put_contents('/sbin/piforce/nfcwriteback.txt','no');
-}
-else {
-    echo '<br><b><p style="color:red">Existing card detected</p></b>';
-    echo '<b>Card cannot be inserted yet!</b>';
-}
-}
+
+    echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter - Launch Card</title>';
+    echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+    echo '<link rel="stylesheet" href="css/modern-theme.css">';
+    echo '<link rel="stylesheet" href="css/components.css">';
+    echo '<link rel="stylesheet" href="css/arcade-icons.css">';
+    echo '<link rel="stylesheet" href="css/kiosk-mode.css">';
+    echo '<link rel="stylesheet" href="css/arcade-retro.css">';
+    echo '</head><body>';
+    echo modern_sliding_sidebar_nav('setup');
+    echo '<div class="container p-6">';
+    echo '<h1>' . arcade_icon('card') . ' Launching Card</h1>';
+    if ($statusMsg) {
+        echo '<div class="alert alert-' . $statusType . '" style="max-width:560px;">' . $statusMsg . '</div>';
+    }
+    echo '<p style="margin-top:16px;color:var(--color-text-secondary);">Redirecting back to card emulator…</p>';
+    echo '</div>';
+    echo '<script>function toggleSidebar(){const s=document.getElementById("sidebarNav"),o=document.getElementById("sidebarOverlay"),b=document.getElementById("burgerBtn");if(s)s.classList.toggle("open");if(o)o.classList.toggle("show");if(b)b.classList.toggle("open");}</script>';
+    echo '</body></html>';
 
 ?>

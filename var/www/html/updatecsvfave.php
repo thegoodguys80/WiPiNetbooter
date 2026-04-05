@@ -41,7 +41,7 @@ fclose($input);
 fclose($output);
 
 // SECURITY: Use escapeshellarg for parameters
-$command = 'sudo python /sbin/piforce/renamecsv.py ' . 
+$command = 'sudo python3 /sbin/piforce/renamecsv.py ' . 
            escapeshellarg($tempfile) . ' ' . 
            escapeshellarg($csvfile) . ' ' . 
            escapeshellarg($lcdmode);

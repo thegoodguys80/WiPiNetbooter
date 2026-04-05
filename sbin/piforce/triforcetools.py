@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Triforce Netfirm Toolbox, put into the public domain. 
@@ -167,52 +167,37 @@ def DIMM_UploadFile(name, key=None):
 	"""
 	import zlib
 	crc = 0
-	if name.endswith(".gz"):
-		a = gzip.open(name, 'rb')
-	else:
-		a = open(name, "rb")
 	addr = 0
 	f = getuncompressedsize(name)
-	sys.stderr.write("Filesize: ")
-	sys.stderr.write(str(f))
-	sys.stderr.write("\n")
-	# CODE_QUALITY: Use context manager for progress file
-	with open("/var/log/progress.txt", "w") as progressfile:
-		progressfile.write("0\n")
-		progressfile.flush()
-	last = 0
+	sys.stderr.write("Filesize: %s\n" % f)
 	if key:
 		d = DES.new(key[::-1], DES.MODE_ECB)
-	
-	# CODE_QUALITY: Re-open progress file for upload loop
-	progressfile = open("/var/log/progress.txt", "w")
-	while True:
-		i = int("%08x\r" % addr, 16)
-		progress = str(i)+"/"+str(f)
-		percentage = str(getPercent(float(i),f,True))
-		status = str(progress)+" "+str(percentage)+"%"+"\r"
-		sys.stderr.write(status)
-		sys.stderr.flush()
-		progressfile.write(percentage)
-		progressfile.write("\n")
+
+	opener = gzip.open if name.endswith(".gz") else open
+	with opener(name, 'rb') as a, open("/var/log/progress.txt", "w") as progressfile:
+		progressfile.write("0\n")
 		progressfile.flush()
-		data = a.read(0x8000)
-		if not len(data):
-			break
-		if key:
-			data = d.encrypt(data[::-1])[::-1]
-		DIMM_Upload(addr, data, 0)
-		crc = zlib.crc32(data, crc)
-		addr += len(data)
-	crc = ~crc
-	# MIGRATION: Convert string to bytes for Python 3
-	DIMM_Upload(addr, b"12345678", 1)
-	DIMM_SetInformation(crc, addr)
-	time.sleep(0.2)
-	# CODE_QUALITY: Ensure file is closed properly
-	if progressfile and not progressfile.closed:
-		progressfile.write("COMPLETE")
-		progressfile.close()
+		while True:
+			i = int("%08x\r" % addr, 16)
+			percentage = str(getPercent(float(i), f, True))
+			sys.stderr.write("%s/%s %s%%\r" % (i, f, percentage))
+			sys.stderr.flush()
+			progressfile.write(percentage + "\n")
+			progressfile.flush()
+			data = a.read(0x8000)
+			if not len(data):
+				break
+			if key:
+				data = d.encrypt(data[::-1])[::-1]
+			DIMM_Upload(addr, data, 0)
+			crc = zlib.crc32(data, crc)
+			addr += len(data)
+		crc = ~crc
+		# MIGRATION: Convert string to bytes for Python 3
+		DIMM_Upload(addr, b"12345678", 1)
+		DIMM_SetInformation(crc, addr)
+		time.sleep(0.2)
+		progressfile.write("COMPLETE\n")
 
 # CODE_QUALITY: Obsolete functions removed
 # These patch functions were version-specific and are no longer used

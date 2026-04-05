@@ -1,4 +1,4 @@
-#!/usr/bin/python -u
+#!/usr/bin/env python3
 
 class Unbuffered(object):
    def __init__(self, stream):
@@ -19,7 +19,7 @@ from evdev import *
 import threading
 from select import select
 from multiprocessing import Queue
-from os import system, name
+import os
 
 # set unbuffered output to allow real time display in browser
 
@@ -53,8 +53,6 @@ if (analogcheck != 'NA'):
 # define the device file to be written to based on the device name and print device info for debug
 
 devicefile = '/etc/openjvs/devices/'+dev.name.replace(' ', '-').lower()
-#print('Configuration file = '+devicefile)
-#print(dev.capabilities(verbose=True))
 print('<b>Configuring '+dev.name+' -- Press any input to begin</b><br>')
 time.sleep(1)
 
@@ -187,6 +185,7 @@ dev.close()
 
 # write out controller mappings to the device file
 
-w = csv.writer(open(devicefile, "w"),delimiter=' ',escapechar=' ',quoting=csv.QUOTE_NONE)
-for key, val in controls.items():
-    w.writerow([key, val])
+with open(devicefile, "w") as f:
+    w = csv.writer(f, delimiter=' ', escapechar=' ', quoting=csv.QUOTE_NONE)
+    for key, val in controls.items():
+        w.writerow([key, val])

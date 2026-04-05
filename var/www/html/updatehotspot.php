@@ -16,7 +16,7 @@ if (strlen($psk) < 8 || strlen($psk) > 63) {
 }
 
 // SECURITY: Use escapeshellarg for parameters
-$command = 'sudo python /sbin/piforce/hotspotwifi.py ' . 
+$command = 'sudo python3 /sbin/piforce/hotspotwifi.py ' . 
            escapeshellarg($ssid) . ' ' . 
            escapeshellarg($psk);
 shell_exec($command);

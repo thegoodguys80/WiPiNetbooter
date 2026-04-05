@@ -4,33 +4,24 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: wipinetbooter-dev
-    ports:
-      - "8081:80"      # Web interface
-      - "10703:10703"  # Netdimm protocol port
+    network_mode: host  # Use host network for LAN scanning (nmap sees real network)
     volumes:
-      # Mount code for live development
+      # Live-reload: edits on host are reflected immediately
       - ./sbin/piforce:/sbin/piforce
       - ./var/www/html:/var/www/html
-      # Mount ROMs directory (create if needed)
+      # ROMs — drop .bin/.bin.gz files here to see them in the game library
       - ./boot/roms:/boot/roms
-      # Persist logs
+      # Persistent logs
       - ./logs:/var/www/logs
-      - ./logs:/var/log/wipi:rw
-      # Persist CSV data
+      - ./logs:/var/log/wipi
+      # Persistent CSV data (game list, DIMM config)
       - ./var/www/html/csv:/var/www/html/csv
     environment:
       - TZ=UTC
       - PYTHONUNBUFFERED=1
-    # Privileged mode needed for GPIO simulation and device access
     privileged: false
-    # Add USB devices if available (for real hardware testing)
+    # Uncomment to pass through USB-serial adapters for card emulator testing:
     # devices:
     #   - /dev/ttyUSB0:/dev/ttyUSB0
     #   - /dev/ttyACM0:/dev/ttyACM0
     restart: unless-stopped
-    networks:
-      - wipi-network
-
-networks:
-  wipi-network:
-    driver: bridge

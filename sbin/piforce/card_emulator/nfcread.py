@@ -11,9 +11,8 @@ class transmitobserver(CardObserver):
 
     def update(self, observable, actions):
         (addedcards, removedcards) = actions
-        controlfile = open('/sbin/piforce/nfccontrol.txt', 'r')
-        nfcstate = controlfile.read()
-        controlfile.close
+        with open('/sbin/piforce/nfccontrol.txt', 'r') as controlfile:
+            nfcstate = controlfile.read()
         if nfcstate != 'reading':
             self.cards = []
         for card in addedcards:

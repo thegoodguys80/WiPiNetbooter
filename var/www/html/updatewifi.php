@@ -16,7 +16,7 @@ if (strlen($psk) < 8 || strlen($psk) > 63) {
 }
 
 // SECURITY: Use escapeshellarg for parameters
-$command = 'sudo python /sbin/piforce/homewifi.py ' . 
+$command = 'sudo python3 /sbin/piforce/homewifi.py ' . 
            escapeshellarg($ssid) . ' ' . 
            escapeshellarg($psk);
 shell_exec($command . ' > /dev/null 2>/dev/null &');

@@ -1,7 +1,6 @@
-import os,sys
+import sys
 
-wififile = open('/boot/wifi.txt', 'w')
-wifi = '"'+sys.argv[1]+'" "'+sys.argv[2]+'"'
+wifi = '"' + sys.argv[1] + '" "' + sys.argv[2] + '"'
 clean = wifi.replace("\\", "")
-wififile.write(clean)
-wififile.close
+with open('/boot/wifi.txt', 'w') as wififile:
+    wififile.write(clean)
