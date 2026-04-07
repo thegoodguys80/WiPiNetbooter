@@ -7,8 +7,13 @@ echo '<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content=
 
     echo modern_sliding_sidebar_nav('dashboard');
     echo '<div class="container p-6">';
-    echo '<h1 class="text-3xl">'.arcade_icon('home').' Dashboard</h1>';
-    echo '<p style="color:var(--color-text-secondary);margin-bottom:28px;">Welcome to WiPi Netbooter — your Sega arcade netbooting hub.</p>';
+
+    // Header with INSERT COIN ticker
+    echo '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;">';
+    echo '<h1 class="text-3xl" style="margin:0;">'.arcade_icon('home').' Dashboard</h1>';
+    echo '<span class="insert-coin">&#9654; INSERT COIN</span>';
+    echo '</div>';
+    echo '<p style="color:var(--color-text-secondary);margin-bottom:24px;font-size:13px;letter-spacing:0.04em;">WIPI NETBOOTER &mdash; SEGA ARCADE NETBOOT SYSTEM</p>';
     
     // NetDIMM live status strip
     $dimms_list = [];
@@ -25,17 +30,18 @@ echo '<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content=
     }
 
     if (!empty($dimms_list)) {
-        echo '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:28px;">';
+        echo '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;">';
         foreach ($dimms_list as $d) {
             $ip   = htmlspecialchars($d['ip'],   ENT_QUOTES, 'UTF-8');
             $name = htmlspecialchars($d['name'], ENT_QUOTES, 'UTF-8');
             $id   = 'ndstatus_' . preg_replace('/[^a-z0-9]/i', '_', $d['ip']);
-            echo '<div style="display:flex;align-items:center;gap:10px;background:var(--color-surface,#1a1a1a);border:1px solid var(--color-border,#333);border-radius:10px;padding:10px 16px;">';
-            echo '<span id="'.$id.'_dot" style="font-size:18px;color:#666;">●</span>';
+            echo '<div class="netdimm-status-card">';
+            echo '<span id="'.$id.'_dot" class="netdimm-status-dot" aria-hidden="true">&#9679;</span>';
             echo '<div>';
-            echo '<div style="font-weight:600;font-size:14px;">'.$name.'</div>';
-            echo '<div style="font-size:12px;color:#888;">'.$ip.' &nbsp;<span id="'.$id.'_badge" style="font-size:11px;">checking…</span></div>';
+            echo '<div class="netdimm-status-name">'.$name.'</div>';
+            echo '<div class="netdimm-status-ip">'.$ip.'</div>';
             echo '</div>';
+            echo '<span id="'.$id.'_badge" class="netdimm-status-badge" style="color:var(--color-text-tertiary);">…</span>';
             echo '</div>';
         }
         echo '</div>';
@@ -45,9 +51,9 @@ echo '<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content=
         echo 'fetch("pingtest.php?ip="+encodeURIComponent(d.ip)).then(r=>r.json()).then(data=>{';
         echo '  const dot=document.getElementById(d.id+"_dot");';
         echo '  const badge=document.getElementById(d.id+"_badge");';
-        echo '  if(dot)dot.style.color=data.online?"#4caf50":"#f44336";';
-        echo '  if(badge)badge.textContent=data.online?"Online":"Offline";';
-        echo '}).catch(()=>{const b=document.getElementById(d.id+"_badge");if(b)b.textContent="Error";});';
+        echo '  if(dot){dot.classList.toggle("online",data.online);dot.classList.toggle("offline",!data.online);}';
+        echo '  if(badge){badge.textContent=data.online?"ONLINE":"OFFLINE";badge.style.color=data.online?"var(--arcade-green,#00ff88)":"var(--arcade-red,#ff2244)";}';
+        echo '}).catch(()=>{const b=document.getElementById(d.id+"_badge");if(b){b.textContent="ERR";b.style.color="var(--color-warning)";}});';
         echo '});})();</script>';
     }
 
@@ -80,14 +86,14 @@ echo '<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content=
     }
     if ($last_game_title) {
         $launch_url = 'loadcheck.php?rom='.urlencode($last_rom).'&name='.urlencode($last_game_title).'&system='.urlencode($last_game_system).'&mapping='.urlencode($last_game_mapping).'&ffb='.urlencode($last_game_ffb);
-        echo '<div class="card" style="display:flex;align-items:center;gap:20px;padding:16px 20px;margin-bottom:28px;">';
-        echo '<img src="images/'.htmlspecialchars($last_game_image, ENT_QUOTES, 'UTF-8').'" style="width:64px;height:64px;object-fit:contain;border-radius:8px;background:var(--color-surface-hover);flex-shrink:0;" onerror="this.style.display=\'none\'">';
+        echo '<div class="last-played-card">';
+        echo '<img src="images/'.htmlspecialchars($last_game_image, ENT_QUOTES, 'UTF-8').'" style="width:72px;height:72px;object-fit:contain;border-radius:6px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.2);flex-shrink:0;padding:4px;" onerror="this.style.display=\'none\'">';
         echo '<div style="flex:1;min-width:0;">';
-        echo '<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:4px;">'.arcade_icon('lastgame').' Last Played</div>';
-        echo '<div style="font-size:18px;font-weight:700;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'.htmlspecialchars($last_game_title, ENT_QUOTES, 'UTF-8').'</div>';
-        echo '<div style="font-size:13px;color:var(--color-text-secondary);">'.htmlspecialchars($last_game_system, ENT_QUOTES, 'UTF-8').'</div>';
+        echo '<div class="last-played-label">'.arcade_icon('lastgame').' Last Played</div>';
+        echo '<div class="last-played-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'.htmlspecialchars($last_game_title, ENT_QUOTES, 'UTF-8').'</div>';
+        echo '<div class="last-played-system">'.htmlspecialchars($last_game_system, ENT_QUOTES, 'UTF-8').'</div>';
         echo '</div>';
-        echo '<a href="'.htmlspecialchars($launch_url, ENT_QUOTES, 'UTF-8').'" class="btn btn-primary" style="white-space:nowrap;flex-shrink:0;">'.arcade_icon('rocket').' Launch</a>';
+        echo '<a href="'.htmlspecialchars($launch_url, ENT_QUOTES, 'UTF-8').'" class="btn-launch" style="width:auto;padding:10px 20px;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;">'.arcade_icon('rocket').' LAUNCH</a>';
         echo '</div>';
     }
 

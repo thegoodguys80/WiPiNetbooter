@@ -74,9 +74,9 @@ body.game-loading-page .container.p-6 {
 }
 
 .game-loading__eyebrow {
-  font-family: var(--font-display, ui-sans-serif);
-  font-size: var(--font-size-xs);
-  letter-spacing: 0.45em;
+  font-family: var(--font-pixel, "Press Start 2P", "Courier New", monospace);
+  font-size: 9px;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--arcade-cyan, #00d4ff);
   margin: 0 0 var(--space-3);
@@ -115,15 +115,17 @@ body.game-loading-page .container.p-6 {
 }
 
 .game-loading__title {
-  font-family: var(--font-display, ui-sans-serif);
-  font-size: clamp(1.25rem, 4vw, 1.75rem);
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-family: var(--font-display, "Orbitron", ui-sans-serif);
+  font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-primary, #eef6ff);
   margin: 0 0 var(--space-5);
   line-height: 1.25;
-  text-shadow: 0 2px 24px rgba(0, 80, 160, 0.35);
+  text-shadow:
+    0 0 20px rgba(0, 212, 255, 0.25),
+    0 2px 0 rgba(0, 0, 0, 0.6);
 }
 
 body.game-loading-page--minimal .game-loading__title {
@@ -169,12 +171,12 @@ body.game-loading-page--minimal .game-loading__title {
 
 .load-progress-bar {
   width: 100%;
-  height: 36px;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: var(--radius-lg);
+  height: 40px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
   overflow: hidden;
-  border: 1px solid rgba(0, 212, 255, 0.28);
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(0, 212, 255, 0.35);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 8px rgba(0, 212, 255, 0.1);
 }
 
 .load-progress-fill {
@@ -193,13 +195,13 @@ body.game-loading-page--minimal .game-loading__title {
   align-items: center;
   justify-content: center;
   color: #001018;
-  font-family: var(--font-display, ui-sans-serif);
-  font-weight: 800;
-  font-size: var(--font-size-sm);
-  letter-spacing: 0.06em;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  font-family: var(--font-vt323, "VT323", "Courier New", monospace);
+  font-weight: 400;
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  text-shadow: none;
   transition: width 0.35s ease;
-  box-shadow: 0 0 24px rgba(0, 212, 255, 0.25);
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.25), 0 0 8px rgba(0, 212, 255, 0.4);
 }
 
 .load-progress-fill::after {

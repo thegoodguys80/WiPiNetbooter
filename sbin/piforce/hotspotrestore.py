@@ -1,18 +1,15 @@
 import subprocess
-import os,sys,shutil
-from time import sleep
+import shutil
 
-shutil.copy('/etc/wpa_supplicant/wpa_supplicant.conf.new','/etc/wpa_supplicant/wpa_supplicant.conf')
+shutil.copy('/etc/wpa_supplicant/wpa_supplicant.conf.new', '/etc/wpa_supplicant/wpa_supplicant.conf')
 
-bashCommand1 = 'sudo systemctl enable hostapd.service'
-os.system(bashCommand1)
-bashCommand2 = 'systemctl enable isc-dhcp-server.service'
-os.system(bashCommand2)
+subprocess.run(['sudo', 'systemctl', 'enable', 'hostapd.service'], check=True)
+subprocess.run(['systemctl', 'enable', 'isc-dhcp-server.service'], check=True)
 
-shutil.copy('/etc/network/interfaces.restore','/etc/network/interfaces')
+shutil.copy('/etc/network/interfaces.restore', '/etc/network/interfaces')
 
-updateCommand1 = 'sudo echo -n hotspot | tee /sbin/piforce/wifimode.txt'
-os.system(updateCommand1)
+with open('/sbin/piforce/wifimode.txt', 'w') as f:
+    f.write('hotspot')
 
-updateCommand2 = 'sudo echo -n | tee /boot/wifi.txt'
-os.system(updateCommand2)
+with open('/boot/wifi.txt', 'w') as f:
+    f.write('')

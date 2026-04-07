@@ -1,8 +1,6 @@
-import os, sys
+import subprocess, shutil
 from time import sleep
 
 sleep(1)
-bashCommand = 'cp /var/www/html/csv/romsinfo.csv /boot/config/romsinfo.csv'
-os.system(bashCommand)
-shutdwn = 'sudo shutdown now'
-os.system(shutdwn)
+shutil.copy('/var/www/html/csv/romsinfo.csv', '/boot/config/romsinfo.csv')
+subprocess.run(['sudo', 'shutdown', 'now'], check=True)

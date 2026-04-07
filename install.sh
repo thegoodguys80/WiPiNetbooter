@@ -138,17 +138,17 @@ echo "  ✓ State files initialised"
 echo "[6/7] Setting permissions…"
 chown -R www-data:www-data /var/www/html /var/www/logs
 chmod -R 755 /var/www/html
-chmod -R 777 /var/www/html/csv
-chmod -R 777 /sbin/piforce
-chmod 666 /var/log/progress.txt
-chmod -R 777 /var/log/activecard /var/log/printdata /var/log/cardcheck
+chmod -R 755 /var/www/html/csv
+chmod -R 755 /sbin/piforce
+chmod 644 /var/log/progress.txt
+chmod -R 755 /var/log/activecard /var/log/printdata /var/log/cardcheck
 chmod +x /sbin/piforce/*.py 2>/dev/null || true
 chmod +x /sbin/piforce/card_emulator/*.py 2>/dev/null || true
 chmod +x /root/*.sh 2>/dev/null || true
 
-# Allow www-data to run scripts without password (needed for game loading)
+# Allow www-data to run only the piforce scripts as root without password
 grep -q 'www-data ALL=(ALL) NOPASSWD' /etc/sudoers || \
-    echo 'www-data ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+    echo 'www-data ALL=(ALL) NOPASSWD: /usr/bin/python3 /sbin/piforce/*, /usr/bin/python3 /sbin/piforce/card_emulator/*, /usr/bin/tail -n 1 /var/log/progress.txt' >> /etc/sudoers
 echo "  ✓ Permissions set"
 
 # ── 7. Apache ────────────────────────────────────────────────────────────────

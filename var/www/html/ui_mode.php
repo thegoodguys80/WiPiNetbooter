@@ -105,36 +105,40 @@ function modern_sliding_sidebar_nav($active = '') {
         $out .= '</div>';
     }
 
-    // Theme toggle
-    $out .= '<button class="sidebar-theme-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle dark/light mode" aria-label="Toggle theme">';
-    $out .= '<span id="themeIcon">◑</span>';
-    $out .= '<span class="sidebar-nav-label" id="themeLabel">Theme</span>';
-    $out .= '</button>';
+    // Theme picker (4 swatches)
+    $out .= '<div class="sidebar-theme-picker" id="themePicker">';
+    $out .= '<span class="sidebar-nav-label sidebar-theme-picker__label">THEME</span>';
+    $out .= '<div class="sidebar-theme-swatches">';
+    $out .= '<button class="theme-swatch" data-theme="arcade"    onclick="setTheme(\'arcade\')"    title="Arcade (Cyan)"    aria-label="Arcade theme"    aria-pressed="false"><span class="swatch-dot" style="background:#00d4ff;"></span></button>';
+    $out .= '<button class="theme-swatch" data-theme="light"     onclick="setTheme(\'light\')"     title="Light"            aria-label="Light theme"     aria-pressed="false"><span class="swatch-dot" style="background:#1a56dc;"></span></button>';
+    $out .= '<button class="theme-swatch" data-theme="sega-blue" onclick="setTheme(\'sega-blue\')" title="Sega Blue"        aria-label="Sega Blue theme" aria-pressed="false"><span class="swatch-dot" style="background:#ff6600;"></span></button>';
+    $out .= '<button class="theme-swatch" data-theme="terminal"  onclick="setTheme(\'terminal\')"  title="Terminal Green"   aria-label="Terminal theme"  aria-pressed="false"><span class="swatch-dot" style="background:#00ff41;"></span></button>';
+    $out .= '</div></div>';
     $out .= '</div>'; // sidebar-footer
 
     $out .= '</nav></div>';
     $out .= '<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>';
     $out .= '<div class="main-content">';
 
-    // JS: theme toggle + async status checks
+    // JS: theme picker + async status checks
     $out .= '<script>';
-    $out .= 'function toggleTheme(){';
-    $out .= '  var cur=localStorage.getItem("wipi-theme")||"dark";';
-    $out .= '  var next=cur==="dark"?"light":"dark";';
-    $out .= '  document.documentElement.setAttribute("data-theme",next);';
-    $out .= '  localStorage.setItem("wipi-theme",next);';
-    $out .= '  _updateThemeIcon(next);';
+    $out .= 'function setTheme(name){';
+    $out .= '  document.documentElement.setAttribute("data-theme",name);';
+    $out .= '  localStorage.setItem("wipi-theme",name);';
+    $out .= '  _updateSwatches(name);';
     $out .= '}';
-    $out .= 'function _updateThemeIcon(t){';
-    $out .= '  var i=document.getElementById("themeIcon");';
-    $out .= '  var l=document.getElementById("themeLabel");';
-    $out .= '  if(i)i.textContent=t==="dark"?"☀":"◑";';
-    $out .= '  if(l)l.textContent=t==="dark"?"Light mode":"Dark mode";';
+    $out .= 'function _updateSwatches(t){';
+    $out .= '  document.querySelectorAll(".theme-swatch").forEach(function(b){';
+    $out .= '    var active=b.dataset.theme===t;';
+    $out .= '    b.classList.toggle("active",active);';
+    $out .= '    b.setAttribute("aria-pressed",active?"true":"false");';
+    $out .= '  });';
     $out .= '}';
     $out .= '(function(){';
-    $out .= '  var t=localStorage.getItem("wipi-theme")||"dark";';
+    $out .= '  var t=localStorage.getItem("wipi-theme")||"arcade";';
+    $out .= '  if(t==="dark")t="arcade";'; // backward compat
     $out .= '  document.documentElement.setAttribute("data-theme",t);';
-    $out .= '  document.addEventListener("DOMContentLoaded",function(){_updateThemeIcon(t);});';
+    $out .= '  document.addEventListener("DOMContentLoaded",function(){_updateSwatches(t);});';
     $out .= '})();';
     // WiFi status async
     $out .= '(function(){fetch("wifistatus.php").then(function(r){return r.json();}).then(function(d){';
@@ -183,36 +187,10 @@ function load_ui_styles() {
     echo '<link rel="stylesheet" href="css/kiosk-mode.css">' . "\n";
     echo '<link rel="stylesheet" href="css/arcade-retro.css">' . "\n";
     // Prevent flash of wrong theme — runs before first paint
-    echo '<script>(function(){var t=localStorage.getItem("wipi-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();</script>' . "\n";
+    echo '<script>(function(){var t=localStorage.getItem("wipi-theme")||"arcade";if(t==="dark")t="arcade";document.documentElement.setAttribute("data-theme",t);})();</script>' . "\n";
 }
 
 function theme_toggle_js() {
-    return <<<'JS'
-<script>
-function toggleTheme() {
-    var html = document.documentElement;
-    var cur = html.getAttribute('data-theme');
-    // If no explicit theme, check computed background to detect current mode
-    if (!cur) {
-        var bg = getComputedStyle(html).getPropertyValue('--color-background').trim();
-        cur = (bg === '#FFFFFF' || bg === '#ffffff') ? 'light' : 'dark';
-    }
-    var next = (cur === 'dark') ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('wipi-theme', next);
-    var icon = document.getElementById('themeIcon');
-    var label = document.getElementById('themeLabel');
-    if (icon) icon.textContent = next === 'dark' ? '☀' : '◑';
-    if (label) label.textContent = next === 'dark' ? 'Light mode' : 'Dark mode';
-}
-// Set correct icon on load
-(function(){
-    var t = localStorage.getItem('wipi-theme') || 'dark';
-    var icon = document.getElementById('themeIcon');
-    var label = document.getElementById('themeLabel');
-    if (icon) icon.textContent = t === 'dark' ? '☀' : '◑';
-    if (label) label.textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
-})();
-</script>
-JS;
+    // Legacy stub — theme switching now handled by modern_sliding_sidebar_nav()
+    return '';
 }

@@ -109,28 +109,32 @@ echo '<div class="grid grid-cols-3" style="margin-bottom: 32px;">';
 while (($row = fgetcsv($f)) !== false) {
     $isOnline = pinger($row[1]);
 
+        $safe_name = htmlspecialchars($row[0], ENT_QUOTES, 'UTF-8');
+        $safe_ip   = htmlspecialchars($row[1], ENT_QUOTES, 'UTF-8');
+        $delete_url = htmlspecialchars('updatedimms.php?action=delete&linenum=' . $i . '&name=' . urlencode($row[0]), ENT_QUOTES, 'UTF-8');
+
         echo '<div class="card">';
         echo '<form action="updatedimms.php" method="get">';
-        echo '<input type="hidden" name="ip" value="'.$row[1].'">';
+        echo '<input type="hidden" name="ip" value="'.$safe_ip.'">';
         echo '<input type="hidden" name="action" value="update">';
         echo '<input type="hidden" name="linenum" value="'.$i.'">';
-        
+
         echo '<div class="card-header">';
         echo '<div class="flex" style="justify-content: space-between; align-items: center;">';
-        echo '<input type="text" name="name" class="form-input" value="'.$row[0].'" style="font-size: 18px; font-weight: 600; border: 1px solid var(--color-border); padding: 8px;" />';
+        echo '<input type="text" name="name" class="form-input" value="'.$safe_name.'" style="font-size: 18px; font-weight: 600; border: 1px solid var(--color-border); padding: 8px;" />';
         if ($isOnline) {
             echo '<span class="badge badge-success">● Online</span>';
         } else {
             echo '<span class="badge badge-error">● Offline</span>';
         }
         echo '</div></div>';
-        
+
         echo '<div class="card-body">';
         echo '<div style="margin-bottom: 16px;">';
         echo '<label class="form-label"><strong>IP Address</strong></label>';
-        echo '<div style="font-size: 16px; color: var(--color-text-primary); padding: 8px 0;">'.$row[1].'</div>';
+        echo '<div style="font-size: 16px; color: var(--color-text-primary); padding: 8px 0;">'.$safe_ip.'</div>';
         echo '</div>';
-        
+
         echo '<div style="margin-bottom: 16px;">';
         echo '<label class="form-label"><strong>System Type</strong></label>';
         echo '<select name="type" class="form-select" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; background: var(--color-surface); color: var(--color-text-primary);">';
@@ -140,12 +144,12 @@ while (($row = fgetcsv($f)) !== false) {
         echo '<option value="Sega Triforce"'.($row[2] == "Sega Triforce" ? ' selected' : '').'>Sega Triforce</option>';
         echo '</select>';
         echo '</div></div>';
-        
+
         echo '<div class="card-footer dimms-card__footer">';
         echo '<div class="dimms-card__btn-row">';
         echo '<button type="submit" class="btn btn-primary btn-sm">Update</button>';
         echo '<button type="button" class="btn btn-secondary btn-sm" onclick="testDimm(this, \'' . htmlspecialchars($row[1], ENT_QUOTES) . '\')">Test</button>';
-        echo '<a href="updatedimms.php?action=delete&linenum='.$i.'&name='.$row[0].'" class="btn btn-secondary btn-sm" onclick="return confirm(\'Are you sure you want to delete this NetDIMM?\')">Delete</a>';
+        echo '<a href="'.$delete_url.'" class="btn btn-secondary btn-sm" onclick="return confirm(\'Are you sure you want to delete this NetDIMM?\')">Delete</a>';
         echo '</div>';
         echo '</div>';
         echo '</form></div>';
@@ -171,12 +175,12 @@ fclose($f);
             
             <div style="margin-bottom: 16px;">
                 <label class="form-label"><strong>Name</strong></label>
-                <input type="text" name="name" placeholder="Enter Name" class="form-input" value="<?php echo $name; ?>" />
+                <input type="text" name="name" placeholder="Enter Name" class="form-input" value="<?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>" />
             </div>
             
             <div style="margin-bottom: 16px;">
                 <label class="form-label"><strong>IP Address</strong></label>
-                <input type="text" name="ipaddress" class="form-input" placeholder="Enter IP Address (e.g., 192.168.1.10)" value="<?php echo $ipaddress; ?>" />
+                <input type="text" name="ipaddress" class="form-input" placeholder="Enter IP Address (e.g., 192.168.1.10)" value="<?php echo htmlspecialchars($ipaddress, ENT_QUOTES, 'UTF-8'); ?>" />
             </div>
             
             <div style="margin-bottom: 16px;">

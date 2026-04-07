@@ -332,7 +332,6 @@
 .game-card-image-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 3/4;
   overflow: hidden;
   background: linear-gradient(135deg, var(--color-surface-hover) 0%, var(--color-surface) 100%);
 }
