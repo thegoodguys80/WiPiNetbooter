@@ -8,6 +8,30 @@ Raspberry Pi based Netbooter for Sega Naomi / Naomi 2 / Atomiswave arcade boards
 
 ---
 
+## What's New in 3.1
+
+### WiFi Page — Full Redesign
+- **Tabbed layout** — Home WiFi, Hotspot, and Static IP each in their own tab; no more scrolling through a wall of forms
+- **Status cards** — live IP address, SSID, connection type (DHCP/Static) and interface mode shown at a glance
+- **Animated mode pill** — pulsing dot shows whether the Pi is in Home or Hotspot mode
+- **Show/hide password toggle** — eye icon on password fields
+- **SVG icon set** — WiFi, Ethernet, lock, warning, check and restore icons throughout
+- **Inline alerts** — success and error messages styled with matching icons
+- **Responsive grid** — status cards stack cleanly on small screens
+
+### Game Library
+- **Improved image rendering** — game card artwork now uses `object-fit: contain` so images always fit within the marquee box without overflowing
+- **Skeleton placeholder** — letter initial shown while artwork loads, removed automatically on load or error
+- **Info modal** — marquee art, gameplay screenshot and video preview all in one modal; each section hides itself if no asset is present
+- **Launch overlay** — shows game artwork and animated text when sending a game to a NetDIMM
+
+### Dashboard
+- **INSERT COIN** tagline added to the header
+- **Last Played card** — shows artwork thumbnail, game title, system name and a one-tap LAUNCH button
+- **NetDIMM status cards** — animated online/offline dot with IP address per board
+
+---
+
 ## What's New in 3.0 — UI/UX Overhaul
 
 ### Modern Theme
