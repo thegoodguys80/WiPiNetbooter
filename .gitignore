@@ -10,3 +10,34 @@ RULEBOOK.md
 QUICK_START.md
 SESSION_SUMMARY.md
 README.md copy
+
+# ROM files (user-provided, not redistributable)
+boot/roms/
+
+# Node dependencies
+node_modules/
+
+# Runtime logs
+logs/
+
+# Machine-specific network config
+etc/dhcpcd.conf
+
+# Claude / AI session artifacts
+.claude/
+CLAUDE_ANDROID_MIGRATION.md
+IMPROVEMENTS.md
+
+# AI migration working notes inside docs/
+docs/ANDROID_MIGRATION_PLAN.md
+docs/MIGRATION_SUMMARY.md
+docs/PROJECT_DOCUMENTATION.md
+
+# Internal planning files (brainstorming specs)
+docs/superpowers/
+
+# Design system working files
+design-system/
+
+# Visual brainstorming session files
+.superpowers/
