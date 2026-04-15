@@ -41,7 +41,7 @@ NetDIMM config is stored in `/var/www/html/csv/dimms.csv`:
 
 ```
 name,ipaddress,type
-Main Cabinet,192.168.1.40,naomi
+Main Cabinet,192.168.1.40,Sega Naomi
 ```
 
 ---
@@ -86,8 +86,8 @@ WiPiNetbooter uses plain text files in `/sbin/piforce/` to persist mode settings
 
 | File | Values | Purpose |
 |---|---|---|
-| `wifimode.txt` | `wifioff`, `home`, `hotspot` | Active WiFi mode |
-| `menumode.txt` | `simple`, `modern` | UI mode |
+| `wifimode.txt` | `home`, `hotspot` | Active WiFi mode |
+| `menumode.txt` | `simple`, `advanced` | UI mode |
 | `bootfile.txt` | `menu`, ROM filename | What to boot on startup |
 | `emumode.txt` | `auto`, `manual` | Card emulator mode |
 | `openmode.txt` | `openoff`, `openon` | OpenJVS on/off |
