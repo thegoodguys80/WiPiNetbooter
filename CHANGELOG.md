@@ -5,6 +5,61 @@ All notable changes to WiPiNetbooter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-04-07
+
+### 📱 Android Companion App
+
+First release of the native Android companion app (`wipinet_app`), built with Flutter. Connects to the Pi over local WiFi and provides a touch-optimised interface for the full WiPiNetbooter feature set.
+
+#### Dashboard
+- Pi connection pill (live online/offline) in the AppBar
+- NetDIMM status cards with pulsing online dot and left accent border; auto-refreshes every 10 seconds
+- Recently Played — last 10 launched games as list tiles (artwork, system badge, manufacturer); persisted via SharedPreferences
+- Quick Actions — one-tap tiles for Browse Games, NetDIMM Boards, Settings
+- System Status chips with icons for all toggles (OpenJVS, OpenFFB, NFC, Relay, Time Hack, Sound, WiFi mode)
+
+#### Game Library
+- Full-art grid cards — `BoxFit.contain`, system badge chip top-left, favourite star top-right, title gradient overlay
+- List view — thumbnail + title + system badge + manufacturer/year; toggle with AppBar button
+- System filter tabs: All, Favourites, Naomi, Naomi2, Chihiro, Triforce, Atomiswave
+- Live search — filters by title, ROM name, or manufacturer
+- Favourites — synced back to Pi CSV via `/api/game_update.php`
+
+#### Game Detail
+- Full marquee art at natural aspect ratio (`BoxFit.contain`, max 300px)
+- Metadata: Manufacturer, Year, Genre, Controls, Orientation, Rating
+- Launch Game — auto-selects single online NetDIMM or shows bottom sheet selector
+
+#### Launch Screen
+- Arcade design matching `load.php` on the Pi web UI:
+  - Deep navy background with animated cyan scan line mesh
+  - Pulsing `NETBOOTING` eyebrow text
+  - Game art with cyan border + glow
+  - 40px cyan gradient progress bar with shimmer sweep animation
+  - Stall detection (15s) and friendly error messages
+  - Success state with 3-second auto-return to dashboard
+
+#### NetDIMM Management
+- List configured boards with live status; auto-refreshes every 5 seconds
+- Network scan — calls `/api/scan_dimms.php` (nmap / PHP TCP fallback on port 10703)
+- Add board — name, IP validation, board type dropdown
+- Delete with confirmation dialog
+
+#### Settings
+- Configurable Pi base URL with live connection test
+- All system toggles (OpenJVS, OpenFFB, NFC, Relay, Time Hack, Sound, WiFi mode)
+- Reboot / Shutdown with confirmation dialogs
+
+#### New Pi API endpoints added
+- `GET /api/scan_dimms.php` — subnet scan for NetDIMMs on port 10703; returns `{subnet, found:[{ip, already_added}], count}`
+
+#### Technical stack
+- Flutter 3.x, Riverpod 2.x, go_router, Dio, cached_network_image, shared_preferences
+- Requires Java 17 to build (Java 21+ incompatible with Kotlin Gradle plugin)
+- Gradle 8.10.2, AGP 8.7.3, Android API 35
+
+---
+
 ## [2.0.0] - 2026-01-11
 
 ### 🎉 Major Security & Modernization Release
