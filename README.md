@@ -2,200 +2,101 @@
 
 ![Security Tests](https://github.com/thegoodguys80/WiPiNetbooter/actions/workflows/security-tests.yml/badge.svg?branch=warp-dev)
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Raspberry Pi based Netbooter for Sega Naomi / Naomi 2 / Atomiswave arcade boards with a modern web interface.
-
----
-
-## What's New in 3.1
-
-### WiFi Page — Full Redesign
-- **Tabbed layout** — Home WiFi, Hotspot, and Static IP each in their own tab; no more scrolling through a wall of forms
-- **Status cards** — live IP address, SSID, connection type (DHCP/Static) and interface mode shown at a glance
-- **Animated mode pill** — pulsing dot shows whether the Pi is in Home or Hotspot mode
-- **Show/hide password toggle** — eye icon on password fields
-- **SVG icon set** — WiFi, Ethernet, lock, warning, check and restore icons throughout
-- **Inline alerts** — success and error messages styled with matching icons
-- **Responsive grid** — status cards stack cleanly on small screens
-
-### Game Library
-- **Improved image rendering** — game card artwork now uses `object-fit: contain` so images always fit within the marquee box without overflowing
-- **Skeleton placeholder** — letter initial shown while artwork loads, removed automatically on load or error
-- **Info modal** — marquee art, gameplay screenshot and video preview all in one modal; each section hides itself if no asset is present
-- **Launch overlay** — shows game artwork and animated text when sending a game to a NetDIMM
-
-### Dashboard
-- **INSERT COIN** tagline added to the header
-- **Last Played card** — shows artwork thumbnail, game title, system name and a one-tap LAUNCH button
-- **NetDIMM status cards** — animated online/offline dot with IP address per board
+A Raspberry Pi web interface for netbooting Sega Naomi, Naomi 2, and Atomiswave arcade boards.
+Browse your game library, send ROMs to a NetDIMM over the network, manage WiFi, and emulate
+card readers — all from a touchscreen-optimised browser UI.
 
 ---
 
-## What's New in 3.0 — UI/UX Overhaul
+<!-- Add a screenshot or GIF here: ![WiPiNetbooter screenshot](docs/screenshot.png) -->
 
-### Modern Theme
-- **Dark & light mode** — toggle in the sidebar on every page, persisted across sessions
-- **Consistent arcade theme** — all pages share the same arcade-retro colour palette; dark and light mode work correctly everywhere
-- **CSS variable architecture** — theme switching is instant, no page reload needed
-- **48px touch targets** — optimised for arcade cabinet touchscreens
-- **Responsive layout** — works on desktop browsers and small touchscreens
+---
 
-### Dashboard (menu.php)
-- **Recently Played** — shows the last launched game with a one-tap Launch button
-- **Live NetDIMM status** — each configured NetDIMM shows Online/Offline in real time
-- Consistent theme with all other pages (naomi2-dashboard special case removed)
+## Features
 
-### Game Library
-- **System filter tabs** — quickly filter by Naomi, Naomi 2, or Atomiswave
-- **Search** — filter games by name as you type
-- **Launch overlay** — full-screen animation when sending a game to a NetDIMM
-- **Skeleton loading** — placeholder tiles while artwork loads
-- **Return-to-top button** — appears after scrolling, floats bottom-right
-- **Favourites** — star your most-played games for quick access
-
-### Sidebar Navigation
-- Available on every page — slides in from the left with a burger button
-- **Links:** Dashboard, Games, NetDIMMs, Setup, Options, Network, Card Emulator, Help, Shutdown
-- **Live WiFi SSID** — shows the connected network name in the sidebar footer
-- **Live NetDIMM count** — shows how many boards are online (e.g. `1/2 NetDIMM`)
-- **Theme toggle** — dark/light switch at the bottom of the sidebar
-
-### Card Emulator
-- Fully modernised with card-based grid UI
-- Breadcrumb navigation (`Dashboard › Card Emulator › Initial D`)
-- Back button on sub-pages
-- Proper form styling with labelled inputs and primary action button
-- Empty state shown when no cards are saved
-
-### Card Management
-- Themed data tables — no more hardcoded dark colours; light mode works correctly
-- Delete buttons now show a confirmation dialog before deleting card data
-- NFC Copy and Delete actions use proper button styling
-- Breadcrumb navigation
-
-### All Pages
-- Viewport meta tag on every page (fixes mobile scaling)
-- Correct `width=device-width, initial-scale=1` format (commas, not semicolons)
-- Light mode tested and working across all pages
+- **Game library** — browse by system, search by name, mark favourites, launch with one tap
+- **Game artwork** — marquee art, gameplay screenshots, and video previews per game
+- **NetDIMM management** — add multiple boards, live online/offline status, one-tap launch
+- **WiFi management** — switch between Home WiFi and Hotspot mode from the browser
+- **Dark and light theme** — arcade-retro colour scheme, persisted across sessions
+- **Card emulator** — emulate Naomi and Atomiswave save cards over USB-Serial
+- **OpenJVS support** — emulate JVS I/O boards for controls and coin inputs
+- **NFC reader** — read and write physical Naomi card data
+- **Touchscreen optimised** — 48 px touch targets, designed for arcade cabinet kiosk use
 
 ---
 
 ## Requirements
 
-### Hardware
-- Raspberry Pi 3B, 3B+ or 4B
-- 32GB Class 10 microSD card recommended
-- Naomi / Naomi 2 / Atomiswave with NetDIMM (firmware 3.03+)
-- Standard network cable and 5V power source for Pi
+**Hardware**
+- Raspberry Pi 3B+ or 4B
+- 32 GB microSD card
+- Naomi / Naomi 2 / Atomiswave board with NetDIMM (firmware 3.03+)
+- Ethernet cable and network switch
 
-### Optional Hardware
-- Zero security PIC chip (recommended)
-- Trendnet TU-S9 USB-Serial adapter (for Card Emulator)
-- FTDI RS485 to USB adapter (for OpenJVS)
-- OpenJVS Pi HAT
-- ACS ACR122U NFC Card Reader
-
-### Software
-- Python 3.6+ (Python 2 no longer supported)
+**Software** (installed automatically by `install.sh`)
+- Raspberry Pi OS Bullseye or Bookworm (32-bit)
 - Apache + PHP 8.x
-- nmcli (for WiFi scanning and status)
+- Python 3.6+
+
+See [docs/hardware.md](docs/hardware.md) for optional peripherals (card emulator, OpenJVS, NFC).
 
 ---
 
 ## Quick Start
 
-### Download Pre-Built Image
-**Full image:** https://drive.google.com/drive/folders/1d2ToNeE02WAdE3Jo_62NHlxzVegzloVy?usp=sharing
+### Option A — Pre-Built Image
 
-**Instruction manual:** https://drive.google.com/file/d/19VvqMnIEYF-vSp-SlMRuhi5AT0qcu-_e/view?usp=drivesdk
+Download the pre-built SD card image and flash it to a 32 GB microSD card:
+[Google Drive — WiPiNetbooter images](https://drive.google.com/drive/folders/1d2ToNeE02WAdE3Jo_62NHlxzVegzloVy?usp=sharing)
 
-### Fresh Raspberry Pi Install
+### Option B — Install from Source
 
 ```bash
-# Clone the repo onto the Pi
 git clone https://github.com/thegoodguys80/WiPiNetbooter.git
 cd WiPiNetbooter
-
-# Run the installer
 sudo bash install.sh
 ```
 
-The installer sets up Apache, PHP, Python 3 dependencies, file permissions, and configures the web interface automatically.
+Then open `http://<pi-ip-address>` in a browser.
 
-### Access the Interface
-Open a browser and navigate to your Pi's IP address:
-```
-http://<pi-ip-address>
-```
-
----
-
-## NetDIMM Online Detection
-
-WiPiNetbooter detects NetDIMM boards using TCP connection to port 10703:
-
-| Result | Meaning |
-|---|---|
-| Connection succeeds (errno 0) | Board online, ready to receive a game |
-| Connection refused (errno 111) | Board online, game currently running |
-| Timeout | Board offline or unreachable |
-
-This is more reliable than ICMP ping because NetDIMM boards respond to TCP even when a game is running.
-
----
-
-## Security
-
-This project has undergone a complete security audit. All critical vulnerabilities have been addressed.
-
-- **Command injection prevention** — all shell commands use `escapeshellarg()`
-- **XSS protection** — all user input is escaped with `htmlspecialchars()`
-- **Path traversal prevention** — file operations are validated and restricted
-- **Input validation** — all user inputs are validated before use
-
-For details see [SECURITY.md](SECURITY.md).
-
----
-
-## Development
-
-### Docker
-
-```bash
-# Start development environment
-docker-compose up -d
-
-# Open web interface
-open http://localhost:8080
-
-# Run tests
-docker exec -it wipinetbooter-dev python3 tests/test_security_fixes.py
-```
-
-See [DOCKER.md](DOCKER.md) for full Docker setup.
-
-### Contributing
-
-1. Follow security best practices in [SECURITY.md](SECURITY.md)
-2. Use Python 3.6+ for all Python code
-3. Use `escapeshellarg()` for all shell command parameters
-4. Validate and sanitise all user inputs
-5. Run the test suite before submitting a PR
+For full step-by-step instructions including network setup, see [docs/installation.md](docs/installation.md).
 
 ---
 
 ## Documentation
 
-- [CHANGELOG.md](CHANGELOG.md) — version history
-- [SECURITY.md](SECURITY.md) — security policy
-- [DOCKER.md](DOCKER.md) — Docker development environment
-- [IMPROVEMENTS.md](IMPROVEMENTS.md) — UI/UX improvement log
+| Guide | Contents |
+|---|---|
+| [Installation](docs/installation.md) | Hardware, SD card setup, install.sh walkthrough, WiFi modes |
+| [Hardware](docs/hardware.md) | Supported boards, NetDIMM firmware, optional peripherals |
+| [Configuration](docs/configuration.md) | Network config, adding NetDIMMs, ROM layout, game list CSV |
+| [Troubleshooting](docs/troubleshooting.md) | Common issues and fixes |
+| [Changelog](CHANGELOG.md) | Version history |
+| [Security](SECURITY.md) | Security policy and audit summary |
+| [Docker](DOCKER.md) | Docker development environment |
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up a dev environment, coding conventions,
+and the PR process.
 
 ---
 
 ## Credits
 
-This project is a scratch rewrite of the original solution by **devtty0**, enhanced with a new UI and richer functionality. It supports all netbootable Sega arcade ROMs for Naomi, Naomi 2, and Sammy Atomiswave (Darksoft conversions).
+Originally based on the netbooting solution by **devtty0**, extended with a full web UI and
+richer functionality.
+Card emulator scripts originally written by **Winteriscoming** (arcade-projects.com), adapted
+for the web interface.
+Netbooting suite including server mode written by **DragonMinded** and integrated into WiPi.
 
-Card reader emulator scripts were originally written by **Winteriscoming** on arcade-projects.com and adapted for the web interface. The netbooting suite including server mode was written by **DragonMinded** and integrated into WiPi.
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
