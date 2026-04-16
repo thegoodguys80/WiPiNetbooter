@@ -1,16 +1,102 @@
 # WiPiNetbooter
-Raspberry Pi based Netbooter for Sega Naomi/Chihiro/Triforce arcade boards
 
-<br><b>Full image download link:</b> https://drive.google.com/drive/folders/1d2ToNeE02WAdE3Jo_62NHlxzVegzloVy?usp=sharing<br><br>
-<b>Instruction manual:</b> https://drive.google.com/file/d/19VvqMnIEYF-vSp-SlMRuhi5AT0qcu-_e/view?usp=drivesdk<br>
-<p>This version of the Pi Netbooter code is a scratch rewrite of the original solution written by devtty0 and has been enhanced with a new user interface and richer functionality. It has full support for all netbootable Sega arcade ROMs for the Naomi, Naomi2, Triforce, Chihiro and the Atomiswave conversions made possible by Darksoft. This version also includes the card reader emulator code for games that support it, the original python scripts were written by Winteriscoming on the arcade-projects.com forums and have been adapted for use in a web interface. The entire netbooting suite of scripts including the on screen menu and server mode was written by DragonMinded and integrated into WiPi.</p>
-<p>You will need:</p>
-<p>A Raspberry Pi v3B, 3B+ or 4B and microSD Card - 32GB Class 10 card recommended</p>
-<p>A Naomi, Naomi2, Triforce or Chihiro with a netdimm running firmware 3.03 or greater</p>
-<p>A standard network cable and 5v power source for the Pi &ndash; you can make a custom cable to draw power directly from the system</p>
-<p>A Web Browser :)</p>
-<p>Optional but recommended: a zero security pic chip</p>
-<p>Optional: a Trendnet TU-S9 USB-Serial adaptor and custom serial cable for the Card Emulator</p>
-<p>Optional: an FTDI based RS485 to USB adaptor for OpenJVS (see <a href="https://github.com/OpenJVS/OpenJVS">https://github.com/OpenJVS/OpenJVS</a> for more information)</p>
-<p>Optional: OpenJVS Pi HAT (see <a href="https://github.com/OpenJVS/OpenJVS">https://github.com/OpenJVS/OpenJVS</a> for more information)</p>
-<p>Optional: ACS ACR122U NFC Card Reader</p>
+![Security Tests](https://github.com/thegoodguys80/WiPiNetbooter/actions/workflows/security-tests.yml/badge.svg?branch=warp-dev)
+[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+A Raspberry Pi web interface for netbooting Sega Naomi, Naomi 2, and Atomiswave arcade boards.
+Browse your game library, send ROMs to a NetDIMM over the network, manage WiFi, and emulate
+card readers — all from a touchscreen-optimised browser UI.
+
+---
+
+<!-- Add a screenshot or GIF here: ![WiPiNetbooter screenshot](docs/screenshot.png) -->
+
+---
+
+## Features
+
+- **Game library** — browse by system, search by name, mark favourites, launch with one tap
+- **Game artwork** — marquee art, gameplay screenshots, and video previews per game
+- **NetDIMM management** — add multiple boards, live online/offline status, one-tap launch
+- **WiFi management** — switch between Home WiFi and Hotspot mode from the browser
+- **Dark and light theme** — arcade-retro colour scheme, persisted across sessions
+- **Card emulator** — emulate Naomi and Atomiswave save cards over USB-Serial
+- **OpenJVS support** — emulate JVS I/O boards for controls and coin inputs
+- **NFC reader** — read and write physical Naomi card data
+- **Touchscreen optimised** — 48 px touch targets, designed for arcade cabinet kiosk use
+
+---
+
+## Requirements
+
+**Hardware**
+- Raspberry Pi 3B+ or 4B
+- 32 GB microSD card
+- Naomi / Naomi 2 / Atomiswave board with NetDIMM (firmware 3.03+)
+- Ethernet cable and network switch
+
+**Software** (installed automatically by `install.sh`)
+- Raspberry Pi OS Bullseye or Bookworm (32-bit)
+- Apache + PHP 8.x
+- Python 3.6+
+
+See [docs/hardware.md](docs/hardware.md) for optional peripherals (card emulator, OpenJVS, NFC).
+
+---
+
+## Quick Start
+
+### Option A — Pre-Built Image
+
+Download the pre-built SD card image and flash it to a 32 GB microSD card:
+[Google Drive — WiPiNetbooter images](https://drive.google.com/drive/folders/1d2ToNeE02WAdE3Jo_62NHlxzVegzloVy?usp=sharing)
+
+### Option B — Install from Source
+
+```bash
+git clone https://github.com/thegoodguys80/WiPiNetbooter.git
+cd WiPiNetbooter
+sudo bash install.sh
+```
+
+Then open `http://<pi-ip-address>` in a browser.
+
+For full step-by-step instructions including network setup, see [docs/installation.md](docs/installation.md).
+
+---
+
+## Documentation
+
+| Guide | Contents |
+|---|---|
+| [Installation](docs/installation.md) | Hardware, SD card setup, install.sh walkthrough, WiFi modes |
+| [Hardware](docs/hardware.md) | Supported boards, NetDIMM firmware, optional peripherals |
+| [Configuration](docs/configuration.md) | Network config, adding NetDIMMs, ROM layout, game list CSV |
+| [Troubleshooting](docs/troubleshooting.md) | Common issues and fixes |
+| [Changelog](CHANGELOG.md) | Version history |
+| [Security](SECURITY.md) | Security policy and audit summary |
+| [Docker](DOCKER.md) | Docker development environment |
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up a dev environment, coding conventions,
+and the PR process.
+
+---
+
+## Credits
+
+Originally based on the netbooting solution by **devtty0**, extended with a full web UI and
+richer functionality.
+Card emulator scripts originally written by **Winteriscoming** (arcade-projects.com), adapted
+for the web interface.
+Netbooting suite including server mode written by **DragonMinded** and integrated into WiPi.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).

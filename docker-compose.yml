@@ -1,0 +1,27 @@
+services:
+  wipinetbooter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wipinetbooter-dev
+    network_mode: host  # Use host network for LAN scanning (nmap sees real network)
+    volumes:
+      # Live-reload: edits on host are reflected immediately
+      - ./sbin/piforce:/sbin/piforce
+      - ./var/www/html:/var/www/html
+      # ROMs — drop .bin/.bin.gz files here to see them in the game library
+      - ./boot/roms:/boot/roms
+      # Persistent logs
+      - ./logs:/var/www/logs
+      - ./logs:/var/log/wipi
+      # Persistent CSV data (game list, DIMM config)
+      - ./var/www/html/csv:/var/www/html/csv
+    environment:
+      - TZ=UTC
+      - PYTHONUNBUFFERED=1
+    privileged: false
+    # Uncomment to pass through USB-serial adapters for card emulator testing:
+    # devices:
+    #   - /dev/ttyUSB0:/dev/ttyUSB0
+    #   - /dev/ttyACM0:/dev/ttyACM0
+    restart: unless-stopped

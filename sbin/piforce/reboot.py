@@ -1,6 +1,5 @@
-import os, sys
+import subprocess
 from time import sleep
 
 sleep(1)
-reboot = 'sudo shutdown -r now'
-os.system(reboot)
+subprocess.run(['sudo', 'shutdown', '-r', 'now'], check=True)

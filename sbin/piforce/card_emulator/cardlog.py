@@ -1,15 +1,15 @@
-import os, collections, signal, sys, subprocess, socket
-from time import sleep
+#!/usr/bin/env python3
+import os
+import signal
+import sys
 
-cardfile = open('/sbin/piforce/card_emulator/currentcard.txt', 'w')
-cardfile.write(sys.argv[1])
-file.close
+with open('/sbin/piforce/card_emulator/currentcard.txt', 'w') as cardfile:
+    cardfile.write(sys.argv[1])
 
-lastpidfile = open('/sbin/piforce/card_emulator/pid.txt')
-lastpid = file.readline(lastpidfile)
-lastpidfile.close
+with open('/sbin/piforce/card_emulator/pid.txt', 'r') as lastpidfile:
+    lastpid = lastpidfile.readline().strip()
 
 try:
-  os.kill(int(lastpid), signal.SIGKILL)
-except:
-  pass
+    os.kill(int(lastpid), signal.SIGKILL)
+except (ValueError, ProcessLookupError, PermissionError):
+    pass

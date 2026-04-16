@@ -3,6 +3,7 @@ header ("Location: index.html");
 echo '<html><body><p align="center"><font face="verdana" color="grey">';
 echo '</br>';
 
-$command = escapeshellcmd('sudo python /sbin/piforce/shutdown.py');
-shell_exec($command . '> /dev/null 2>/dev/null &');
+// SECURITY: Static command with no user input
+$command = 'sudo python3 /sbin/piforce/shutdown.py';
+shell_exec($command . ' > /dev/null 2>/dev/null &');
 ?>

@@ -1,0 +1,138 @@
+name: Security & Quality Tests
+
+on:
+  push:
+    branches: [ main, warp-dev, develop ]
+  pull_request:
+    branches: [ main, warp-dev, develop ]
+
+jobs:
+  security-tests:
+    name: Security & Python Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+        # Install project dependencies if requirements.txt exists
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Run security tests
+      run: |
+        pytest tests/ -v --tb=short
+    
+    - name: Check Python syntax
+      run: |
+        python -m py_compile sbin/piforce/triforcetools.py
+        python -m py_compile sbin/piforce/webforce.py
+    
+    - name: Validate critical files exist
+      run: |
+        test -f SECURITY.md || exit 1
+        test -f CHANGELOG.md || exit 1
+        test -f sbin/piforce/triforcetools.py || exit 1
+        test -f sbin/piforce/webforce.py || exit 1
+        echo "✓ All critical files present"
+
+  php-validation:
+    name: PHP Syntax Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+    
+    - name: Validate PHP syntax
+      run: |
+        find var/www/html -name "*.php" -exec php -l {} \; | tee php-syntax.log
+        if grep -q "Parse error" php-syntax.log; then
+          echo "❌ PHP syntax errors found"
+          exit 1
+        fi
+        echo "✓ All PHP files valid"
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Run security checks
+      run: |
+        echo "Checking for dangerous patterns..."
+        
+        # Check for os.system() usage (should use subprocess)
+        if grep -r "os\.system(" sbin/piforce/*.py 2>/dev/null | grep -v "# SAFE:" | grep -v "#.*os\.system"; then
+          echo "❌ Found unsafe os.system() calls"
+          exit 1
+        fi
+        
+        # Check for escapeshellcmd (should use escapeshellarg)
+        if grep -r "escapeshellcmd" var/www/html/*.php 2>/dev/null; then
+          echo "❌ Found escapeshellcmd() (use escapeshellarg instead)"
+          exit 1
+        fi
+        
+        # Check for shell_exec without validation
+        if grep -r "shell_exec.*\$_GET\|shell_exec.*\$_POST" var/www/html/*.php 2>/dev/null; then
+          echo "❌ Found direct shell_exec with user input"
+          exit 1
+        fi
+        
+        echo "✓ No dangerous patterns found"
+    
+    - name: Check for secrets
+      run: |
+        echo "Checking for exposed secrets..."
+        if grep -rE "(password|api_key|secret|token)\s*=\s*['\"][^'\"]+['\"]" . --exclude-dir=.git --exclude-dir=tests --exclude="*.md" | grep -v "example" | grep -v "PLACEHOLDER"; then
+          echo "⚠️  Potential secrets found (review manually)"
+        else
+          echo "✓ No obvious secrets exposed"
+        fi
+
+  test-coverage:
+    name: Test Coverage Report
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+    
+    - name: Run tests with coverage
+      run: |
+        pytest tests/ --cov=sbin/piforce --cov-report=term --cov-report=html
+    
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: htmlcov/
+        retention-days: 30

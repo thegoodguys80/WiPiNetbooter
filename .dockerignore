@@ -1,0 +1,42 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation (copied separately if needed)
+RULEBOOK.md
+QUICK_START.md
+README.md copy
+
+# MacOS files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs (will be created in container)
+logs/
+*.log
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker files (don't copy into image)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Temporary files
+*.tmp
+*.bak
+*.backup

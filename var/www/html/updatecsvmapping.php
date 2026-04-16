@@ -11,11 +11,25 @@ if(!$output = fopen($tempfile,'w')){
     die('could not open temporary output file');
 }
 
-$posted = $_POST['mapping'];
+// SECURITY: Validate user inputs
+$posted = $_POST['mapping'] ?? '';
 
 $pieces = explode('#', $posted);
-$rom = $pieces[0];
-$mapping = $pieces[1];
+$rom = $pieces[0] ?? '';
+$mapping = $pieces[1] ?? '';
+
+// Validate ROM filename (basename only)
+$rom = basename($rom);
+if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $rom)) {
+    header("Location: editmappings.php");
+    exit;
+}
+
+// Validate mapping filename pattern
+if ($mapping !== '' && !preg_match('/^[a-zA-Z0-9_\-\.]+$/', $mapping)) {
+    header("Location: editmappings.php");
+    exit;
+}
 
 while(($data = fgetcsv($input)) !== FALSE){
     if($data[1] == $rom){
@@ -29,7 +43,11 @@ fflush($output);
 fclose($input);
 fclose($output);
 
-$command = escapeshellcmd("sudo python /sbin/piforce/renamecsv.py $tempfile $csvfile $lcdmode");
+// SECURITY: Use escapeshellarg for parameters
+$command = 'sudo python3 /sbin/piforce/renamecsv.py ' . 
+           escapeshellarg($tempfile) . ' ' . 
+           escapeshellarg($csvfile) . ' ' . 
+           escapeshellarg($lcdmode);
 shell_exec($command);
 header ("Location: editmappings.php");
 ?>

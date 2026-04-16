@@ -1,33 +1,28 @@
 <?php
+/**
+ * Toggle romsinfo.csv "enabled" column (index 12) for a single ROM (GET).
+ */
+include_once __DIR__ . '/includes/romsinfo_enabled.php';
 
-$lcdmode = file_get_contents('/sbin/piforce/lcdmode.txt');
-$csvfile = '/var/www/html/csv/romsinfo.csv';
-$tempfile = tempnam(".", "tmp"); // produce a temporary file name, in the current directory
+$rom = isset($_GET['rom']) ? basename((string) $_GET['rom']) : '';
+$enabled = $_GET['enabled'] ?? '';
 
-if(!$input = fopen($csvfile,'r')){
-    die('could not open existing csv file');
-}
-if(!$output = fopen($tempfile,'w')){
-    die('could not open temporary output file');
-}
-
-$rom = $_GET['rom'];
-$enabled = $_GET['enabled'];
-
-while(($data = fgetcsv($input)) !== FALSE){
-    if($data[1] == $rom){
-        $data[12] = $enabled;
-    }
-    fputcsv($output,$data);
+if (!romsinfo_valid_rom_filename($rom)) {
+    header('Location: editgamelist.php');
+    exit;
 }
 
-fflush($input);
-fflush($output);
-fclose($input);
-fclose($output);
+$e = strtolower(trim((string) $enabled));
+if (in_array($e, ['yes', '1', 'true'], true)) {
+    $enabledValue = 'Yes';
+} elseif (in_array($e, ['no', '0', 'false'], true)) {
+    $enabledValue = 'No';
+} else {
+    header('Location: editgamelist.php');
+    exit;
+}
 
-$command = escapeshellcmd("sudo python /sbin/piforce/renamecsv.py $tempfile $csvfile $lcdmode");
-shell_exec($command);
-header ("Location: editgamelist.php");
-?>
+romsinfo_set_enabled_batch([$rom => $enabledValue]);
 
+header('Location: editgamelist.php');
+exit;

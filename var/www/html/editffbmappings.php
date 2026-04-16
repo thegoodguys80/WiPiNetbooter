@@ -1,37 +1,63 @@
 <?php
-include 'menu.php';
-echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
-echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
-echo '<section><center><p>';
-echo '<h1><a href="openffb.php">Update FFB Mappings</a></h1>';
-echo '<html><body><table class="center" id="options">';
-echo '<tr><th>Game Name</th><th>Mapping File</th><th>New Mapping File</th></tr>';
+include_once 'ui_mode.php';
 
-$mappingfiles = scandir('/etc/openffb/games');
-$mappingfilename = $mappingfiles[$i];
-$mappingfilepath = '/etc/openffb/games/'.$mappingfilename;
+$mappingfiles = is_dir('/etc/openffb/games') ? scandir('/etc/openffb/games') : [];
 
-$path = '/boot/roms/';
-$files = array_values(array_diff(scandir($path), array('.', '..')));
+$path  = '/boot/roms/';
+$_scan = is_dir($path) ? scandir($path) : [];
+$files = array_values(array_diff($_scan, ['.', '..']));
+
 $f = fopen("csv/romsinfo.csv", "r");
+fgetcsv($f); // skip header
+
+$rows = [];
 while (($row = fgetcsv($f)) !== false) {
-        echo "<tr>";
-        foreach ($row as $cell) {
-             if (in_array($row[1], $files) && ($row[11] == "Analog (Driving)")){
-                echo '<td>'.$row[4].'</td>';
-                echo '<td>'.$row[15].'</td>';
-                echo '<td><form method="POST" action="updatecsvffbmapping.php"><select name="mapping">';
-                for ($i = 2; $i < count($mappingfiles); $i++) {
-                   $mappingfilename = $mappingfiles[$i];
-                   $value = $row[1].'#'.$mappingfilename;
-                   echo '<option value="'.$value.'">'.$mappingfilename.'</option>';}
-                echo '</select>';
-                echo '<input type="submit" /></form></td>';
-                break;
-             }
-        }
-        echo "</tr>";
+    if (in_array($row[1], $files) && $row[11] === 'Analog (Driving)') {
+        $rows[] = $row;
+    }
 }
 fclose($f);
-echo "</table></center></body></html>";
+
+
+    echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter - Edit FFB Mappings</title>';
+    echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+    echo '<link rel="stylesheet" href="css/modern-theme.css">';
+    echo '<link rel="stylesheet" href="css/components.css">';
+    echo '<link rel="stylesheet" href="css/arcade-icons.css">';
+    echo '<link rel="stylesheet" href="css/kiosk-mode.css">';
+    echo '<link rel="stylesheet" href="css/arcade-retro.css">';
+    echo '</head><body>';
+    echo modern_sliding_sidebar_nav('setup');
+    echo '<div class="container p-6">';
+    echo '<h1>' . arcade_icon('gamepad') . ' Update FFB Mappings</h1>';
+    echo '<p class="page-intro">Assign OpenFFB force feedback mapping files to driving games.</p>';
+
+    if (empty($rows)) {
+        echo '<div class="empty-state"><p>No driving games found in your ROM library.</p></div>';
+    } else {
+        echo '<div class="card">';
+        echo '<div class="card-body" style="padding:0;">';
+        echo '<table class="table" style="width:100%"><thead><tr><th>Game Name</th><th>Current FFB Mapping</th><th>New FFB Mapping</th></tr></thead><tbody>';
+        foreach ($rows as $row) {
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($row[4], ENT_QUOTES, 'UTF-8') . '</td>';
+            echo '<td>' . htmlspecialchars($row[15], ENT_QUOTES, 'UTF-8') . '</td>';
+            echo '<td><form method="POST" action="updatecsvffbmapping.php" style="display:flex;gap:6px;align-items:center;">';
+            echo '<select name="mapping" class="form-select form-select--compact">';
+            for ($i = 2; $i < count($mappingfiles); $i++) {
+                $mf    = $mappingfiles[$i];
+                $value = $row[1] . '#' . $mf;
+                echo '<option value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($mf, ENT_QUOTES, 'UTF-8') . '</option>';
+            }
+            echo '</select><input type="submit" class="btn btn-primary btn-sm" value="Save"></form></td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        echo '</div></div>';
+    }
+
+    echo '</div>';
+    echo '<script>function toggleSidebar(){const s=document.getElementById("sidebarNav"),o=document.getElementById("sidebarOverlay"),b=document.getElementById("burgerBtn");if(s)s.classList.toggle("open");if(o)o.classList.toggle("show");if(b)b.classList.toggle("open");}</script>';
+    echo '</body></html>';
+
 ?>

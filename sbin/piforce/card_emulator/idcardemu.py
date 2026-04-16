@@ -37,9 +37,8 @@ import filecmp
 import shutil
 import shortuuid
 
-currentpid = os.getpid()
-bashCommand1 = 'sudo echo -n '+str(currentpid)+' | tee /sbin/piforce/card_emulator/pid.txt'
-os.system(bashCommand1)
+with open('/sbin/piforce/card_emulator/pid.txt', 'w') as _pid_file:
+    _pid_file.write(str(os.getpid()))
 
 Sentinel = "FF"
 nocard = True
@@ -216,7 +215,11 @@ def main():
     comport = args.comport
     comport['alias'] = "NAOMI"
     comport['buffer'] = b''
-    comport['ser'] = serial.Serial(comport['port'], baudrate=9600, timeout=0, parity=serial.PARITY_EVEN, bytesize = serial.EIGHTBITS, stopbits=serial.STOPBITS_ONE)
+    try:
+        comport['ser'] = serial.Serial(comport['port'], baudrate=9600, timeout=0, parity=serial.PARITY_EVEN, bytesize=serial.EIGHTBITS, stopbits=serial.STOPBITS_ONE)
+    except serial.SerialException as e:
+        print(f"Error opening serial port {comport['port']}: {e}", file=sys.stderr)
+        sys.exit(1)
     comport['last_byte'] = clock()
     comport['ser'].setRTS(True)
     print ("COM port opened and named:", comport['alias'])
@@ -236,7 +239,7 @@ def main():
             NewCard=1
         else:
             print ("--->" + CardFileName + " appears to contain data.  This card data will be loaded when a game is started.")
-    except:
+    except OSError:
         print ("---> New random filename " + CardFileName + " generated. It will be available for purchase as a new card in the game.")
         NewCard = 1
 

@@ -1,11 +1,20 @@
 <?php
+include 'ui_mode.php';
 
-echo '<html lang="en"><head><meta charset="utf-8"><title>WiPi Netbooter</title>';
-echo '<meta name="description" content="Responsive Header Nav">';
-echo '<meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1">';
-echo '<link rel="stylesheet" href="css/sidebarstyles.css">';
-include 'menu.php';
-
+    echo '<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>WiPi Netbooter - Help</title>';
+    echo '<link rel="stylesheet" href="css/modern-theme.css">';
+    echo '<link rel="stylesheet" href="css/components.css">';
+    echo '<link rel="stylesheet" href="css/arcade-icons.css">';
+    echo '<link rel="stylesheet" href="css/kiosk-mode.css">';
+    echo '<link rel="stylesheet" href="css/arcade-retro.css">';
+    echo '</head><body>';
+    
+    echo modern_sliding_sidebar_nav('setup');
+    echo '<div class="container">';
+    
+    echo '<h1>'.arcade_icon('help').' Help & Documentation</h1>';
+    echo '<div class="card" style="margin-bottom: 24px;">';
+    echo '<div class="card-body" style="max-width: 900px;">';
 ?>
 
 <h1>Overview</h1>
@@ -53,3 +62,17 @@ include 'menu.php';
 <p>1 &lt;- 3<br />2 &lt;- 2<br />3 &lt;- 5<br />4 &lt;- 8<br />5 &lt;- 7</p>
 <p>Chihiro/Triforce &lt;- Serial</p>
 <p>3 &lt;- 5<br />4 &lt;- 2<br />5 &lt;- 3<br />6 &lt;- 8<br />7 &lt;- 7</p>
+
+<?php
+    echo '</div></div>'; // Close card-body and card
+    echo '</div></div>'; // Close main-content and container
+    
+    // Add sidebar toggle script
+    echo '<script>';
+    echo 'function toggleSidebar() {';
+    echo '  const s=document.getElementById("sidebarNav"),o=document.getElementById("sidebarOverlay"),b=document.getElementById("burgerBtn");';
+    echo '  if(s)s.classList.toggle("open");if(o)o.classList.toggle("show");if(b)b.classList.toggle("open");';
+    echo '}';
+    echo '</script>';
+echo '</body></html>';
+?>

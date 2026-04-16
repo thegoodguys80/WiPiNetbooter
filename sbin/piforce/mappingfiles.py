@@ -1,10 +1,9 @@
-import os
+import subprocess, glob
 
-bashCommand1 = "sudo chmod 666 /etc/openjvs/games/*"
-os.system(bashCommand1)
-bashCommand2 = "sudo chmod 777 /etc/openjvs/games/"
-os.system(bashCommand2)
-bashCommand3 = "sudo chmod 666 /etc/openffb/games/*"
-os.system(bashCommand3)
-bashCommand4 = "sudo chmod 777 /etc/openffb/games/"
-os.system(bashCommand4)
+for f in glob.glob('/etc/openjvs/games/*'):
+    subprocess.run(['sudo', 'chmod', '666', f], check=False)
+subprocess.run(['sudo', 'chmod', '777', '/etc/openjvs/games/'], check=False)
+
+for f in glob.glob('/etc/openffb/games/*'):
+    subprocess.run(['sudo', 'chmod', '666', f], check=False)
+subprocess.run(['sudo', 'chmod', '777', '/etc/openffb/games/'], check=False)
