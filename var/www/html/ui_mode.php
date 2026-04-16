@@ -62,6 +62,7 @@ function modern_sliding_sidebar_nav($active = '') {
         ['key' => 'setup',     'href' => 'setup.php',                   'icon' => 'setup',     'label' => 'Setup'],
         ['key' => 'options',   'href' => 'options.php',                 'icon' => 'cabinet',   'label' => 'Options'],
         ['key' => 'network',   'href' => 'network.php',                 'icon' => 'network',   'label' => 'Network'],
+        ['key' => 'uimode',   'href' => 'ui-mode-switcher.php',        'icon' => 'uimode',    'label' => 'UI Mode'],
         ['key' => 'cards',     'href' => 'cardemulator.php?mode=main',  'icon' => 'card',      'label' => 'Card Emulator'],
     ];
     $util_items = [

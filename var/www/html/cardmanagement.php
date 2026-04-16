@@ -151,13 +151,13 @@ if ($mode == 'idas'){
           
               echo '<tr><td>'.$drivername.'</td><td>'.$carline1.' '.$carline2.'</td><td>'.$timestamp.'</td><td>'; 
               if ($nfcmode == 'nfcon'){echo '<a href="cardactions.php?mode=idas&command=nfcwrite&filetocopy='.$fullfile.'" class="btn btn-secondary btn-sm">NFC Copy</a></td><td>';} 
-              echo '<a href="cardmanagement.php?mode=idas&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm('Delete this card? This cannot be undone.')">Delete</a></td></tr>';
+              echo '<a href="cardmanagement.php?mode=idas&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm(\'Delete this card? This cannot be undone.\')">Delete</a></td></tr>';
           
       }}
       else {
       if ($path_parts['extension'] == NULL){
           
-              echo '<tr><td>ORPHAN</td><td>NO CAR DATA</td><td>'.$timestamp.'</td><td><a href="cardmanagement.php?mode=idas&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm('Delete this card? This cannot be undone.')">Delete</a></td></tr>';
+              echo '<tr><td>ORPHAN</td><td>NO CAR DATA</td><td>'.$timestamp.'</td><td><a href="cardmanagement.php?mode=idas&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm(\'Delete this card? This cannot be undone.\')">Delete</a></td></tr>';
           
       }}
 
@@ -198,13 +198,13 @@ if ($mode == 'id2'){
           
               echo '<tr><td>'.$drivername.'</td><td>'.$carline1.' '.$carline2.'</td><td>'.$timestamp.'</td><td>';
               if ($nfcmode == 'nfcon'){echo '<a href="cardactions.php?mode=id2&command=nfcwrite&filetocopy='.$fullfile.'" class="btn btn-secondary btn-sm">NFC Copy</a></td><td>';}
-              echo '<a href="cardmanagement.php?mode=id2&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm('Delete this card? This cannot be undone.')">Delete</a></td></tr>';
+              echo '<a href="cardmanagement.php?mode=id2&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm(\'Delete this card? This cannot be undone.\')">Delete</a></td></tr>';
           
       }}
       else {
       if ($path_parts['extension'] == NULL){
           
-              echo '<tr><td>ORPHAN</td><td>NO CAR DATA</td><td>'.$timestamp.'</td><td><a href="cardmanagement.php?mode=id2&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm('Delete this card? This cannot be undone.')">Delete</a></td></tr>';
+              echo '<tr><td>ORPHAN</td><td>NO CAR DATA</td><td>'.$timestamp.'</td><td><a href="cardmanagement.php?mode=id2&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm(\'Delete this card? This cannot be undone.\')">Delete</a></td></tr>';
           
       }}
 
@@ -245,13 +245,13 @@ if ($mode == 'id3'){
           
               echo '<tr><td>'.$drivername.'</td><td>'.$carline1.' '.$carline2.'</td><td>'.$timestamp.'</td><td>';
               if ($nfcmode == 'nfcon'){echo '<a href="cardactions.php?mode=id3&command=nfcwrite&filetocopy='.$fullfile.'" class="btn btn-secondary btn-sm">NFC Copy</a></td><td>';}
-              echo '<a href="cardmanagement.php?mode=id3&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm('Delete this card? This cannot be undone.')">Delete</a></td></tr>';
+              echo '<a href="cardmanagement.php?mode=id3&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm(\'Delete this card? This cannot be undone.\')">Delete</a></td></tr>';
           
       }}
       else {
       if ($path_parts['extension'] == NULL){
           
-              echo '<tr><td>ORPHAN</td><td>NO CAR DATA</td><td>'.$timestamp.'</td><td><a href="cardmanagement.php?mode=id3&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm('Delete this card? This cannot be undone.')">Delete</a></td></tr>';
+              echo '<tr><td>ORPHAN</td><td>NO CAR DATA</td><td>'.$timestamp.'</td><td><a href="cardmanagement.php?mode=id3&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm(\'Delete this card? This cannot be undone.\')">Delete</a></td></tr>';
           
       }}
 
@@ -292,13 +292,13 @@ if ($mode == 'fzero'){
           
               echo '<tr><td>'.$driver.'</td><td>'.$license.'</td><td>'.$timestamp.'</td><td>';
               if ($nfcmode == 'nfcon'){echo '<a href="cardactions.php?mode=fzero&command=nfcwrite&filetocopy='.$fullfile.'" class="btn btn-secondary btn-sm">NFC Copy</a></td><td>';}
-              echo '<a href="cardmanagement.php?mode=fzero&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm('Delete this card? This cannot be undone.')">Delete</a></td></tr>';
+              echo '<a href="cardmanagement.php?mode=fzero&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm(\'Delete this card? This cannot be undone.\')">Delete</a></td></tr>';
           
       }}
       else {
       if ($path_parts['extension'] == NULL){
           
-              echo '<tr><td>ORPHAN</td><td>NO LICENSE DATA</td><td>'.$timestamp.'</td><td><a href="cardmanagement.php?mode=fzero&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm('Delete this card? This cannot be undone.')">Delete</a></td></tr>';
+              echo '<tr><td>ORPHAN</td><td>NO LICENSE DATA</td><td>'.$timestamp.'</td><td><a href="cardmanagement.php?mode=fzero&command=delete&filetodelete='.$fullfile.'" class="btn btn-danger btn-sm" onclick="return confirm(\'Delete this card? This cannot be undone.\')">Delete</a></td></tr>';
           
       }}
 

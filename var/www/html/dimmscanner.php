@@ -127,7 +127,7 @@ function scan_target() {
             // -Pn: do not skip hosts that ignore ICMP (many NetDIMMs do not reply to ping)
             // -sT: TCP connect scan (works without root; reliable for www-data / Docker)
             // -oG -: grepable output to stdout (no write to /sbin/piforce — avoids permission issues)
-            $cmd = escapeshellcmd($nmap)
+            $cmd = escapeshellarg($nmap)
                 . ' -sT -Pn --open -p10703 -oG - '
                 . escapeshellarg($scanrange)
                 . ' 2>&1';
